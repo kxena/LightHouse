@@ -1,3 +1,6 @@
+# Qdrant local storage
+qdrant_storage/
+
 # Dependencies
 node_modules/
 
