@@ -7,15 +7,7 @@ def extract_important_fields(post: dict) -> dict:
             "displayName": post.get("author", {}).get("displayName"),
         },
         "createdAt": post.get("record", {}).get("createdAt"),
-        "text": post.get("record", {}).get("text"),
-        '''the following fields could possibly be extracted for credibility'''
-        "stats": {
-            "likeCount": post.get("likeCount", 0),
-            "repostCount": post.get("repostCount", 0),
-            "replyCount": post.get("replyCount", 0),
-            "quoteCount": post.get("quoteCount", 0),
-            "bookmarkCount": post.get("bookmarkCount", 0),
-        }
+        "text": post.get("record", {}).get("text")
     }
 
 

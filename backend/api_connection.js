@@ -18,7 +18,7 @@ async function main() {
     console.log(`Searching for posts with keyword: ${keyword}`);
     const results = await agent.api.app.bsky.feed.searchPosts({
       q: keyword,
-      limit: 20,
+      limit: 100,
     });
 
     for (const post of results.data.posts) {
