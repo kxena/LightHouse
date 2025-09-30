@@ -1,0 +1,47 @@
+{
+    // Debugger configuration for Node.js + Python
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // Node.js: Run API connection script
+            "type": "node",
+            "request": "launch",
+            "name": "Run API Connection (Node)",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/backend/api_connection.js",
+            "runtimeExecutable": "node",
+            "runtimeArgs": [
+                "--experimental-network-inspection"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "console": "integratedTerminal"
+        },
+        {
+            // Node.js: Run Jetstream client
+            "type": "node",
+            "request": "launch",
+            "name": "Run Jetstream (Node)",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/backend/jetstream_node.js",
+            "runtimeExecutable": "node",
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "console": "integratedTerminal"
+        },
+        {
+            // Python: Run Jetstream client
+            "name": "Run Jetstream (Python)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/backend/jetstream.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}
