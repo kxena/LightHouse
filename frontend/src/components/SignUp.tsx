@@ -16,28 +16,42 @@ export default function SignUpPage() {
 
           <SignUp
             appearance={{
+              variables: {
+                fontFamily:
+                  "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI",
+                colorPrimary: "#06b6d4", // Tailwind cyan-500/600
+                colorText: "#e5e7eb", // slate-200
+                colorTextSecondary: "#cbd5e1", // slate-300
+                colorBackground: "transparent", // let your panel show through
+                colorInputBackground: "transparent",
+                colorInputText: "#ffffff",
+                spacingUnit: "13px", // breathe a bit more
+              },
               elements: {
-                card: "bg-transparent shadow-none p-0",
+                rootBox: "w-full",
+                card: "bg-transparent shadow-none w-full",
                 headerTitle: "hidden",
                 headerSubtitle: "hidden",
                 socialButtonsBlockButton:
-                  "bg-white text-gray-700 py-3 rounded-full hover:bg-gray-100 border-none",
-                socialButtonsBlockButtonText: "font-medium",
+                  "!bg-white !text-gray-800 !rounded-full !border !border-transparent !shadow-md " +
+                  "hover:!bg-gray-100 hover:!shadow-lg flex items-center justify-center",
+                socialButtonsBlockButton__google:
+                  "!bg-white !text-gray-800 hover:!bg-gray-100",
+                socialButtonsBlockButtonText: "!font-medium !text-gray-800",
                 formButtonPrimary:
-                  "bg-cyan-500 hover:bg-cyan-600 text-white py-3 rounded-full normal-case",
+                  "bg-cyan-500 hover:bg-cyan-600 text-white rounded-full normal-case",
                 formFieldInput:
-                  "bg-transparent border-b-2 border-gray-300 py-2 text-white placeholder-gray-300 focus:border-cyan-400 focus:ring-0 rounded-none",
-                formFieldLabel: "text-gray-300 mb-2",
+                  "bg-transparent border-2 border-white rounded-full text-white placeholder-gray-300 focus:border-cyan-400 focus:ring-0",
+                formFieldLabel: "text-white mb-2",
                 footerActionLink: "text-cyan-400 hover:text-cyan-300",
+                identityPreviewEditButton: "text-cyan-400 hover:text-cyan-300",
                 formFieldInputShowPasswordButton:
                   "text-gray-300 hover:text-white",
                 dividerLine: "bg-gray-400",
                 dividerText: "text-gray-300",
-                formHeaderTitle: "hidden",
-                formHeaderSubtitle: "hidden",
                 footerActionText: "text-gray-300",
-                otpCodeFieldInput:
-                  "border-b-2 border-gray-300 text-white rounded-none",
+                otpCodeFieldInput: "border-white text-white",
+                footer: "hidden",
               },
             }}
             routing="path"

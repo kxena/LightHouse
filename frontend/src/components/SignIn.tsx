@@ -13,14 +13,14 @@ export default function SignInPage() {
           />
 
           <div className="text-center">
-            <div className="flex justify-center items-center h-3 mb-6">
+            <div className="flex justify-center items-center h-3 mb-3">
               <img
                 src="src/assets/title.png"
-                alt="LightHouse Title"
+                alt="LightHouse Logo"
                 className="object-contain max-h-12"
               />
             </div>
-            <p className="text-gray-600 text-xl mt-2">New to LightHouse?</p>
+            <p className="text-gray-600 mt-2">New to LightHouse?</p>
             <Link
               to="/sign-up"
               className="inline-block mt-4 px-8 py-2 bg-cyan-600 text-white rounded-full shadow-md hover:bg-cyan-700 transition"
@@ -38,18 +38,32 @@ export default function SignInPage() {
           <div className="px-6 pb-8">
             <SignIn
               appearance={{
+                variables: {
+                  fontFamily:
+                    "Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI",
+                  colorPrimary: "#06b6d4", // Tailwind cyan-500/600
+                  colorText: "#e5e7eb", // slate-200
+                  colorTextSecondary: "#cbd5e1", // slate-300
+                  colorBackground: "transparent", // let your panel show through
+                  colorInputBackground: "transparent",
+                  colorInputText: "#ffffff",
+                  spacingUnit: "13px", // breathe a bit more
+                },
                 elements: {
                   rootBox: "w-full",
-                  card: "bg-transparent shadow-none p-0 w-full",
+                  card: "bg-transparent shadow-none w-full",
                   headerTitle: "hidden",
                   headerSubtitle: "hidden",
                   socialButtonsBlockButton:
-                    "bg-white text-gray-700 py-3 rounded-full hover:bg-gray-100 border-none",
-                  socialButtonsBlockButtonText: "font-medium",
+                    "!bg-white !text-gray-800 !rounded-full !border !border-transparent !shadow-md " +
+                    "hover:!bg-gray-100 hover:!shadow-lg flex items-center justify-center",
+                  socialButtonsBlockButton__google:
+                    "!bg-white !text-gray-800 hover:!bg-gray-100",
+                  socialButtonsBlockButtonText: "!font-medium !text-gray-800",
                   formButtonPrimary:
-                    "bg-cyan-500 hover:bg-cyan-600 text-white py-3 rounded-full normal-case",
+                    "bg-cyan-500 hover:bg-cyan-600 text-white rounded-full normal-case",
                   formFieldInput:
-                    "bg-transparent border-2 border-white rounded-full py-3 px-4 text-white placeholder-gray-300 focus:border-cyan-400 focus:ring-0",
+                    "bg-transparent border-2 border-white rounded-full text-white placeholder-gray-300 focus:border-cyan-400 focus:ring-0",
                   formFieldLabel: "text-white mb-2",
                   footerActionLink: "text-cyan-400 hover:text-cyan-300",
                   identityPreviewEditButton:
