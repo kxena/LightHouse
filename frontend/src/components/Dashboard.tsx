@@ -23,9 +23,13 @@ import {
 } from "./UIStates";
 
 export default function Dashboard() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [lastRefresh, setLastRefresh] = useState(new Date());
+
+  // Debug logging
+  console.log("Dashboard - User:", user);
+  console.log("Dashboard - IsLoaded:", isLoaded);
 
   // Fetch data from our API hooks
   const {
@@ -60,6 +64,18 @@ export default function Dashboard() {
     return date.toLocaleDateString();
   };
 
+  // Show loading state while Clerk is initializing
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-600" />
+          <p className="text-lg text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
       <div className="max-w-7xl mx-auto items-center">
@@ -77,7 +93,16 @@ export default function Dashboard() {
               <p className="text-gray-600 mt-1 text-xl">
                 Welcome {user?.firstName || user?.username || "User"}
               </p>
-              <UserButton afterSignOutUrl="/" />
+              <div className="flex items-center">
+                <UserButton
+                  afterSignOutUrl="/sign-in"
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-10 h-10",
+                    },
+                  }}
+                />
+              </div>
             </div>
             <ConnectionStatus
               isOnline={health?.status === "ok"}
