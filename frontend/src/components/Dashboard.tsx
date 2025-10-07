@@ -1,18 +1,35 @@
-import { Activity, TrendingUp, Globe } from 'lucide-react';
+import { Activity, TrendingUp, Globe } from "lucide-react";
+import { useUser, UserButton } from "@clerk/clerk-react";
 
 export default function Dashboard() {
+  const { user } = useUser();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto items-center">
+        <div className="flex justify-center items-center h-12 mb-3">
+          <img
+            src="src/assets/title.png"
+            alt="LightHouse Logo"
+            className="object-contain max-h-12"
+          />
+        </div>
+
         <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold">
-              <span className="text-gray-800">Light</span>
-              <span className="text-pink-600">House</span>
-            </h1>
-            <p className="text-gray-600 mt-1">Welcome User, A</p>
+          <div className="flex items-center gap-2">
+            <p className="text-gray-600 mt-1 text-xl">
+              Welcome {user?.firstName || user?.username || "User"}
+            </p>
+            <UserButton afterSignOutUrl="/" />
           </div>
-          <p className="text-gray-600">09/19/2025</p>
+
+          <p className="text-gray-600 text-xl">
+            {new Date().toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            })}
+          </p>
         </div>
 
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-6">
@@ -49,7 +66,12 @@ export default function Dashboard() {
               </div>
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
             </div>
-            <p className="text-4xl font-bold text-gray-800">2.3K <span className="text-sm font-normal text-gray-600">posts/min</span></p>
+            <p className="text-4xl font-bold text-gray-800">
+              2.3K{" "}
+              <span className="text-sm font-normal text-gray-600">
+                posts/min
+              </span>
+            </p>
           </div>
 
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-2 border-white">
@@ -67,7 +89,9 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
             <div className="bg-white rounded-xl p-6 h-96">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Live Feed</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                Live Feed
+              </h2>
               <div className="h-full flex items-center justify-center">
                 <p className="text-gray-400">Feed content</p>
               </div>
@@ -76,7 +100,9 @@ export default function Dashboard() {
 
           <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
             <div className="bg-white rounded-xl p-6 h-96">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Trending Topics</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                Trending Topics
+              </h2>
               <div className="h-full flex items-center justify-center">
                 <p className="text-gray-400">Trending content</p>
               </div>
