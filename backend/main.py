@@ -19,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Input(BaseModel):
+class Tweet(BaseModel):
     text: str
 
 
@@ -28,5 +28,13 @@ async def root():
     return {"message": "Hello World"}
 
 @app.post("/test")
-async def test(input: Input):
+async def test(input: Tweet):
     return {"message": input}
+
+# /tweet: collect tweets through bluesky api for real time input AND add cleaning function here
+
+# /classify: feed cleaned tweet to classifer, return result, feed tweet to /llm-analysis if natural disaster
+
+# /llm-analysis: feed tweet to llm for key extractions, feed results to /alerts
+
+# /alerts: send results to front end for respective UI components
