@@ -1,23 +1,21 @@
-"""
-Natural Disaster Tweet Processing Pipeline
-MVP: Tweet -> Classifier -> LLM Extraction -> Structured JSON Output
-"""
-
 from langchain_ollama import ChatOllama
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, Optional
 import json
 import re
+from pathlib import Path
+from datetime import datetime
 
 # Initialize Ollama model
 llm = ChatOllama(
-    model="llama3.1:8b",  # or qwen2.5-coder:1.5b
+    model="llama3.1:8b", 
     temperature=0.2,       # low temp for consistent extraction
     streaming=False
 )
 
-# Define the state of your workflow
+# state of workflow
 class DisasterState(TypedDict):
+    tweet_id: str
     tweet_text: str
     is_disaster: bool
     extracted_data: Optional[dict]
@@ -32,16 +30,13 @@ def parse_json_response(content: str) -> dict:
     Clean and parse JSON from LLM response
     Handles markdown code blocks and extra text
     """
-    # Remove markdown code blocks if present
+    # remove markdown code blocks if present
     if "```json" in content:
         content = content.split("```json")[1].split("```")[0]
     elif "```" in content:
         content = content.split("```")[1].split("```")[0]
-    
-    # Remove any text before/after JSON
-    content = content.strip()
-    
-    # Find JSON object
+     
+    # find JSON object
     json_match = re.search(r'\{.*\}', content, re.DOTALL)
     if json_match:
         content = json_match.group()
@@ -50,7 +45,7 @@ def parse_json_response(content: str) -> dict:
         return json.loads(content)
     except json.JSONDecodeError as e:
         print(f"JSON parsing error: {e}")
-        # Return empty structure if parsing fails
+        # return empty structure if parsing fails
         return {
             "disaster_type": None,
             "location": None,
@@ -62,10 +57,23 @@ def parse_json_response(content: str) -> dict:
             "key_details": None
         }
 
-# ============================================================================
-# NODE FUNCTIONS
-# ============================================================================
+# load tweets from input JSONL file
+def load_jsonl(file_path: str) -> list:
+    tweets = []
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.strip():
+                tweets.append(json.loads(line))
+    return tweets
 
+# save processed results to output JSONL file
+def save_results(results: list, output_path: str):
+    with open(output_path, 'w', encoding='utf-8') as f:
+        for result in results:
+            f.write(json.dumps(result, ensure_ascii=False) + '\n')
+    print(f"\nResults saved to: {output_path}")
+
+# node functions
 def extract_disaster_info(state: DisasterState) -> DisasterState:
     """
     Extracts structured information from disaster tweet using LLM
@@ -117,24 +125,21 @@ def skip_extraction(state: DisasterState) -> DisasterState:
     state["error"] = "Not classified as disaster - skipped extraction"
     return state
 
-# ============================================================================
-# BUILD WORKFLOW GRAPH
-# ============================================================================
-
+# worflow graph
 workflow = StateGraph(DisasterState)
 
-# Add nodes
+# add nodes
 workflow.add_node("extract", extract_disaster_info)
 workflow.add_node("skip", skip_extraction)
 
-# Conditional routing based on classifier result
+# conditional routing based on classifier result
 def route_based_on_classifier(state: DisasterState) -> str:
     """
     Route to extraction if disaster, skip if not
     """
     return "extract" if state["is_disaster"] else "skip"
 
-# Set entry point - starts at routing decision
+# set entry point - starts at routing decision
 workflow.set_conditional_entry_point(
     route_based_on_classifier,
     {
@@ -143,82 +148,106 @@ workflow.set_conditional_entry_point(
     }
 )
 
-# Both paths end the workflow
+# both paths end the workflow
 workflow.add_edge("extract", END)
 workflow.add_edge("skip", END)
 
-# Compile the graph
+# compile the graph
 graph = workflow.compile()
 
-# ============================================================================
-# MAIN FUNCTION FOR FASTAPI
-# ============================================================================
-
-def process_disaster_tweet(tweet_text: str, is_disaster: bool) -> dict:
+# main processing function
+def process_disaster_tweet(tweet_id: str, tweet_text: str, is_disaster: bool) -> dict:
     """
-    Main function to process tweet through the pipeline
+    Process a single tweet through the pipeline
     
     Args:
-        tweet_text: Raw tweet text from your data
-        is_disaster: Boolean from your classifier
+        tweet_id: Unique ID from the JSON data
+        tweet_text: Raw tweet text
+        is_disaster: Boolean from your classifier (target field)
     
     Returns:
-        dict with:
-            - is_disaster: bool
-            - extracted_data: dict or None
-            - error: str or None
+        dict with processed results
     """
     initial_state: DisasterState = {
+        "tweet_id": tweet_id,
         "tweet_text": tweet_text,
         "is_disaster": is_disaster,
         "extracted_data": None,
         "error": None
     }
     
-    # Run through the graph
+    # run through the graph
     final_state = graph.invoke(initial_state)
     
     return {
+        "id": final_state["tweet_id"],
         "is_disaster": final_state["is_disaster"],
         "extracted_data": final_state["extracted_data"],
         "error": final_state["error"],
         "original_tweet": tweet_text
     }
 
-# ============================================================================
-# TESTING
-# ============================================================================
-
-if __name__ == "__main__":
-    print("Natural Disaster Tweet Processing Pipeline")
-    print("=" * 60)
+def process_batch(input_file: str, output_file: str = None, limit: int = None):
+    """
+    Process batch of tweets from JSONL file
     
-    # Test cases
-    test_tweets = [
-        {
-            "text": "Major earthquake hits San Francisco. Buildings collapsed, casualties reported. Magnitude 7.2",
-            "is_disaster": True
-        },
-        {
-            "text": "Severe flooding in Houston. Roads closed, evacuations underway. Need emergency supplies.",
-            "is_disaster": True
-        },
-        {
-            "text": "Beautiful sunny day today! Going to the beach 🏖️",
-            "is_disaster": False
-        }
-    ]
+    Args:
+        input_file: Path to input JSONL file
+        output_file: Path to output JSONL file (optional)
+        limit: Process only first N tweets (optional, for testing)
+    """
+    # generate output filename if not provided
+    if output_file is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_file = f"disaster_results_{timestamp}.jsonl"
     
-    for i, test in enumerate(test_tweets, 1):
-        print(f"\n--- Test {i} ---")
-        print(f"Tweet: {test['text']}")
-        print(f"Classifier says disaster: {test['is_disaster']}")
+    print(f"Loading tweets from: {input_file}")
+    tweets = load_jsonl(input_file)
+    
+    if limit:
+        tweets = tweets[:limit]
+        print(f"Processing first {limit} tweets...")
+    else:
+        print(f"Processing {len(tweets)} tweets...")
+    
+    results = []
+    
+    for i, tweet in enumerate(tweets, 1):
+        print(f"\n[{i}/{len(tweets)}] Processing tweet {tweet['id']}...")
         
-        result = process_disaster_tweet(test['text'], test['is_disaster'])
+        result = process_disaster_tweet(
+            tweet_id=tweet['id'],
+            tweet_text=tweet['text'],
+            is_disaster=bool(tweet.get('target', 1))  # use target field as is_disaster
+        )
         
-        print(f"\nResult:")
+        results.append(result)
+        
+        # print progress
         if result['extracted_data']:
-            print(json.dumps(result['extracted_data'], indent=2))
+            print(f"Extracted: {result['extracted_data']['disaster_type']} in {result['extracted_data']['location']}")
         else:
-            print(f"No extraction: {result['error']}")
-        print("-" * 60)
+            print(f"{result['error']}")
+    
+    # save results
+    save_results(results, output_file)
+    
+    # print summary
+    print("\n" + "=" * 60)
+    print("PROCESSING COMPLETE")
+    print("=" * 60)
+    extracted_count = sum(1 for r in results if r['extracted_data'] is not None)
+    print(f"Total processed: {len(results)}")
+    print(f"Extracted data: {extracted_count}")
+    print(f"Skipped: {len(results) - extracted_count}")
+
+# main execution
+if __name__ == "__main__":
+    INPUT_FILE = "kaggle_format_posts.jsonl"  
+    OUTPUT_FILE = "processed_disasters.jsonl"  
+    
+    # process all tweets
+    # process_batch(INPUT_FILE, OUTPUT_FILE)
+    
+    # i processed just first 10 for testing:
+    process_batch(INPUT_FILE, OUTPUT_FILE, limit=10)
