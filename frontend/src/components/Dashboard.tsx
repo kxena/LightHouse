@@ -1,6 +1,10 @@
-import { Activity, TrendingUp, Globe } from 'lucide-react';
+import { Activity, TrendingUp, Globe, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
 
 export default function Dashboard() {
+  const { user, isLoaded } = useUser();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
       <div className="max-w-7xl mx-auto">
@@ -10,9 +14,20 @@ export default function Dashboard() {
               <span className="text-gray-800">Light</span>
               <span className="text-pink-600">House</span>
             </h1>
-            <p className="text-gray-600 mt-1">Welcome User, A</p>
+            <p className="text-gray-600 mt-1">
+              Welcome {isLoaded && user ? (user.fullName || user.firstName || 'User') : 'User'}
+            </p>
           </div>
-          <p className="text-gray-600">09/19/2025</p>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/profile"
+              className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border-2 border-white hover:bg-white/80 transition-colors duration-200"
+            >
+              <User className="w-5 h-5 text-gray-700" />
+              <span className="text-gray-700 font-medium">Profile</span>
+            </Link>
+            <p className="text-gray-600">09/19/2025</p>
+          </div>
         </div>
 
         <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-6">
