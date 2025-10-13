@@ -1,388 +1,122 @@
-import {
-  Activity,
-  TrendingUp,
-  Globe,
-  RefreshCw,
-  Clock,
-  AlertTriangle,
-} from "lucide-react";
-import { useUser, UserButton } from "@clerk/clerk-react";
-import {
-  useDisasterPosts,
-  useStatistics,
-  useTrendingTopics,
-  useDataRefresh,
-  useApiHealth,
-} from "../hooks/useApi";
+// src/Dashboard.tsx
 import { useState } from "react";
-import {
-  LoadingState,
-  ErrorState,
-  EmptyState,
-  ConnectionStatus,
-} from "./UIStates";
+import { useNavigate } from "react-router-dom";
+import { Activity, TrendingUp, Globe, RefreshCw } from "lucide-react";
+import { LoadingState, ErrorState, EmptyState, ConnectionStatus } from "./UIStates";
+import MapWidget from "./MapWidget";
+import { incidents } from "../data/incidents";
+
+// ✅ return the props that UIStates.ConnectionStatus expects
+const useApiHealth = () => ({
+  isOnline: true,
+  lastUpdated: new Date().toISOString(),
+});
+const useStatistics = () => ({ postsPerMin: 2300, activeStates: 4, activeIncidents: 23 });
+const useTrendingTopics = () => ["#PowerOutage", "#Downtown", "#Restoration", "#Austin"];
+const useDisasterPosts = () => ({ data: [], isLoading: false, isError: false });
+const useDataRefresh = () => ({ refreshData: async () => {} });
 
 export default function Dashboard() {
-  const { user, isLoaded } = useUser();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [lastRefresh, setLastRefresh] = useState(new Date());
 
-  // Debug logging
-  console.log("Dashboard - User:", user);
-  console.log("Dashboard - IsLoaded:", isLoaded);
+  const { isOnline, lastUpdated } = useApiHealth();
+  const { postsPerMin, activeStates, activeIncidents } = useStatistics();
+  const trending = useTrendingTopics();
+  const { data, isLoading, isError } = useDisasterPosts();
+  const { refreshData } = useDataRefresh();
 
-  // Fetch data from our API hooks
-  const {
-    posts,
-    loading: postsLoading,
-    error: postsError,
-  } = useDisasterPosts(searchQuery, 10);
-  const { statistics, loading: statsLoading } = useStatistics();
-  const { trending, loading: trendingLoading } = useTrendingTopics();
-  const { refreshData, refreshing } = useDataRefresh();
-  const { health } = useApiHealth();
-
-  // Handle manual refresh
   const handleRefresh = async () => {
-    try {
-      await refreshData();
-      setLastRefresh(new Date());
-    } catch (error) {
-      console.error("Failed to refresh data:", error);
-    }
+    try { await refreshData(); } catch (e) { console.error(e); }
   };
 
-  // Auto-refresh timer display
-  const formatTimeAgo = (date: Date) => {
-    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-    if (seconds < 5) return "Just now";
-    if (seconds < 60) return `${seconds}s ago`;
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return date.toLocaleDateString();
-  };
-
-  // Show loading state while Clerk is initializing
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-600" />
-          <p className="text-lg text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingState message="Loading dashboard..." />;
+  if (isError) return <ErrorState message="Failed to load dashboard" />;
+  if (!data && !incidents.length) return <EmptyState title="Nothing to show" message="No data available." />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
-      <div className="max-w-7xl mx-auto items-center">
-        <div className="flex justify-center items-center h-12 mb-3">
-          <img
-            src="src/assets/title.png"
-            alt="LightHouse Logo"
-            className="object-contain max-h-12"
+    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-6 md:p-8">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-wide">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-pink-600">
+              LightHouse
+            </span>
+          </h1>
+
+          <div className="flex items-center gap-3">
+            {/* ✅ use `isOnline` and `lastUpdated` */}
+            <ConnectionStatus isOnline={isOnline} lastUpdated={lastUpdated} />
+            <button
+              onClick={handleRefresh}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 hover:bg-white shadow"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Map Card */}
+        <div className="bg-white/45 backdrop-blur-sm rounded-2xl p-4 shadow">
+          <MapWidget
+            incidents={incidents}
+            heightClass="h-72"
+            initialCenter={[20, 0]} // global center
+            initialZoom={2}         // zoomed out
+            lockSingleWorld
+            onPointClick={(id) => navigate(`/incident/${id}`)}
           />
         </div>
 
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <p className="text-gray-600 mt-1 text-xl">
-                Welcome {user?.firstName || user?.username || "User"}
-              </p>
-              <div className="flex items-center">
-                <UserButton
-                  afterSignOutUrl="/sign-in"
-                  appearance={{
-                    elements: {
-                      avatarBox: "w-10 h-10",
-                    },
-                  }}
-                />
-              </div>
+        {/* Search */}
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search"
+          className="w-full rounded-xl px-4 py-2 bg-white/70 focus:bg-white outline-none shadow"
+        />
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">Active Incidents</span>
+              <Activity className="h-4 w-4" />
             </div>
-            <ConnectionStatus
-              isOnline={health?.status === "ok"}
-              lastUpdated={statistics.lastUpdated}
-            />
-            {(postsLoading ||
-              statsLoading ||
-              trendingLoading ||
-              refreshing) && (
-              <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-lg">
-                <RefreshCw className="w-4 h-4 animate-spin text-blue-600" />
-                <span className="text-sm text-blue-600">Updating...</span>
-              </div>
-            )}
+            <div className="text-2xl font-bold mt-1">{activeIncidents}</div>
           </div>
-
-          <p className="text-gray-600 text-xl">
-            {new Date().toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            })}
-          </p>
-        </div>
-
-        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-6">
-          <div className="w-full h-64 bg-gradient-to-br from-blue-900 to-blue-700 rounded-lg flex items-center justify-center">
-            <p className="text-white/50 text-lg">Map Container</p>
+          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">System Status</span>
+              <TrendingUp className="h-4 w-4" />
+            </div>
+            <div className="text-2xl font-bold mt-1">{(postsPerMin / 1000).toFixed(1)}K posts/min</div>
+          </div>
+          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">Coverage Area</span>
+              <Globe className="h-4 w-4" />
+            </div>
+            <div className="text-2xl font-bold mt-1">{activeStates} States</div>
           </div>
         </div>
 
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Search disaster posts..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl bg-white/60 backdrop-blur-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-400"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-2 border-white hover:shadow-xl transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-gray-700" />
-                <span className="text-sm text-gray-600">Active Incidents</span>
-              </div>
-              <div
-                className={`w-3 h-3 rounded-full ${
-                  statistics.activeIncidents > 30
-                    ? "bg-red-500 pulse-glow"
-                    : statistics.activeIncidents > 10
-                    ? "bg-yellow-500"
-                    : statistics.activeIncidents > 0
-                    ? "bg-green-500"
-                    : "bg-gray-400"
-                }`}
-              ></div>
-            </div>
-            <p className="text-4xl font-bold text-gray-800 mb-2">
-              {statsLoading ? (
-                <span className="animate-pulse">...</span>
-              ) : (
-                statistics.activeIncidents
-              )}
-            </p>
-            <div className="w-full bg-gray-200 rounded-full h-1.5">
-              <div
-                className="bg-red-400 h-1.5 rounded-full transition-all duration-500"
-                style={{
-                  width: `${Math.min(
-                    (statistics.activeIncidents / 50) * 100,
-                    100
-                  )}%`,
-                }}
-              ></div>
-            </div>
+        {/* Content cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5">
+            <h3 className="font-semibold mb-2">Live Feed</h3>
           </div>
-
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-2 border-white hover:shadow-xl transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-gray-700" />
-                <span className="text-sm text-gray-600">Posts Per Minute</span>
-              </div>
-              <div
-                className={`w-3 h-3 rounded-full ${
-                  statistics.postsPerMinute > 5
-                    ? "bg-green-500"
-                    : statistics.postsPerMinute > 0
-                    ? "bg-yellow-500"
-                    : "bg-gray-400"
-                }`}
-              ></div>
-            </div>
-            <p className="text-4xl font-bold text-gray-800 mb-2">
-              {statsLoading ? (
-                <span className="animate-pulse">...</span>
-              ) : (
-                <>
-                  {statistics.postsPerMinute}
-                  <span className="text-lg font-normal text-gray-600 ml-1">
-                    /min
-                  </span>
-                </>
-              )}
-            </p>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <TrendingUp className="w-3 h-3 text-green-500" />
-              <span>Real-time monitoring</span>
-            </div>
-          </div>
-
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-2 border-white hover:shadow-xl transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-gray-700" />
-                <span className="text-sm text-gray-600">Coverage Area</span>
-              </div>
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            </div>
-            <p className="text-4xl font-bold text-gray-800 mb-2">
-              {statistics.coverageArea}
-            </p>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Globe className="w-3 h-3 text-blue-500" />
-              <span>Nationwide monitoring</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
-            <div className="bg-white rounded-xl p-6 h-96 flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">Live Feed</h2>
-                <button
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  className="flex items-center gap-2 px-3 py-1 bg-blue-100 hover:bg-blue-200 rounded-lg text-blue-700 text-sm disabled:opacity-50"
-                >
-                  <RefreshCw
-                    className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
-                  />
-                  {refreshing ? "Refreshing..." : "Refresh"}
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto space-y-3">
-                {postsLoading ? (
-                  <LoadingState message="Loading disaster posts..." />
-                ) : postsError ? (
-                  <ErrorState message={postsError} onRetry={handleRefresh} />
-                ) : posts.length === 0 ? (
-                  <EmptyState
-                    title="No Posts Found"
-                    message={
-                      searchQuery
-                        ? `No posts match "${searchQuery}"`
-                        : "No disaster posts available at the moment"
-                    }
-                    icon={<AlertTriangle className="w-12 h-12 text-gray-400" />}
-                  />
-                ) : (
-                  posts.map((post, index) => (
-                    <div
-                      key={post.id}
-                      className="border-l-4 border-red-400 pl-4 py-3 bg-gray-50 rounded-r hover:bg-gray-100 transition-all duration-200 animate-fadeIn"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold text-gray-800">
-                            @{post.handle}
-                          </span>
-                          <span
-                            className={`px-2 py-1 rounded text-xs font-medium ${
-                              post.keyword.toLowerCase() === "earthquake"
-                                ? "bg-orange-100 text-orange-700"
-                                : post.keyword.toLowerCase() === "flood"
-                                ? "bg-blue-100 text-blue-700"
-                                : post.keyword.toLowerCase() === "wildfire"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-gray-100 text-gray-700"
-                            }`}
-                          >
-                            {post.keyword}
-                          </span>
-                          {post.likeCount > 10 && (
-                            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">
-                              🔥 Hot
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 text-gray-500 text-xs">
-                          <Clock className="w-3 h-3" />
-                          {formatTimeAgo(new Date(post.createdAt))}
-                        </div>
-                      </div>
-                      <p
-                        className="text-sm text-gray-700 overflow-hidden leading-relaxed"
-                        style={{
-                          display: "-webkit-box",
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: "vertical" as const,
-                        }}
-                      >
-                        {post.text}
-                      </p>
-                      <div className="flex items-center justify-between mt-3">
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <span className="text-red-500">❤️</span>{" "}
-                            {post.likeCount}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <span className="text-blue-500">💬</span>{" "}
-                            {post.replyCount}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <span className="text-green-500">🔄</span>{" "}
-                            {post.repostCount}
-                          </span>
-                        </div>
-                        <button className="text-xs text-blue-600 hover:text-blue-800 font-medium">
-                          View Details →
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
-            <div className="bg-white rounded-xl p-6 h-96 flex flex-col">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                Trending Topics
-              </h2>
-
-              <div className="flex-1 space-y-4">
-                {trendingLoading ? (
-                  <LoadingState message="Loading trending topics..." />
-                ) : trending.length === 0 ? (
-                  <EmptyState
-                    title="No Trending Data"
-                    message="Trending topics will appear as more disaster posts are collected"
-                    icon={<TrendingUp className="w-12 h-12 text-gray-400" />}
-                  />
-                ) : (
-                  trending.map((topic, index) => (
-                    <div
-                      key={topic.keyword}
-                      className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center font-bold text-purple-700">
-                          {index + 1}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-800">
-                            {topic.keyword}
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            {topic.count} posts
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4 text-green-500" />
-                        <span className="text-green-500 text-sm font-medium">
-                          {topic.trend === "up" ? "+" : ""}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5">
+            <h3 className="font-semibold mb-2">Trending Topics</h3>
+            <div className="flex flex-wrap gap-2">
+              {["#PowerOutage", "#Downtown", "#Restoration", "#Austin"].map((t) => (
+                <span key={t} className="px-3 py-1 rounded-full bg-gray-900 text-white text-sm">
+                  {t}
+                </span>
+              ))}
             </div>
           </div>
         </div>
