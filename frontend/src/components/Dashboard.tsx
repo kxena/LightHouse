@@ -1,45 +1,58 @@
-// src/Dashboard.tsx
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Activity, TrendingUp, Globe, RefreshCw } from "lucide-react";
-import { LoadingState, ErrorState, EmptyState } from "./UIStates";
-import MapWidget from "./MapWidget";
-import { incidents } from "../data/incidents";
-
-const useStatistics = () => ({ postsPerMin: 2300, activeStates: 4, activeIncidents: 23 });
-const useTrendingTopics = () => ["#PowerOutage", "#Downtown", "#Restoration", "#Austin"];
-const useDisasterPosts = () => ({ data: [], isLoading: false, isError: false });
-const useDataRefresh = () => ({ refreshData: async () => {} });
+import { Activity, TrendingUp, Globe, LogOut, User } from 'lucide-react';
+import { useUser, useClerk } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
+  const { user } = useUser();
+  const { signOut } = useClerk();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"points" | "heat">("points"); // NEW
+  const displayName = user?.firstName || user?.username || "User";
+  
+  // Format current date as MM/DD/YYYY
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric'
+  });
 
-  const { postsPerMin, activeStates, activeIncidents } = useStatistics();
-  const trending = useTrendingTopics();
-  const { data, isLoading, isError } = useDisasterPosts();
-  const { refreshData } = useDataRefresh();
-
-  const handleRefresh = async () => {
-    try { await refreshData(); } catch (e) { console.error(e); }
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/sign-in");
   };
 
-  if (isLoading) return <LoadingState message="Loading dashboard..." />;
-  if (isError) return <ErrorState message="Failed to load dashboard" />;
-  if (!data && !incidents.length)
-    return <EmptyState title="Nothing to show" message="No data available." />;
+  const handleProfile = () => {
+    navigate("/profile");
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-6 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-wide">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-pink-600">
-              LightHouse
-            </span>
-          </h1>
+    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-4xl font-bold">
+              <span className="text-gray-800">Light</span>
+              <span className="text-pink-600">House</span>
+            </h1>
+            <p className="text-gray-600 mt-1">Welcome {displayName}</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <p className="text-gray-600">{currentDate}</p>
+            <button
+              onClick={handleProfile}
+              className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm text-gray-800 font-semibold rounded-lg shadow-md hover:bg-white/80 transition-all duration-200"
+            >
+              <User className="w-4 h-4" />
+              Profile
+            </button>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500/80 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition-all duration-200"
+            >
+              <LogOut className="w-4 h-4" />
+              Log Out
+            </button>
+          </div>
+        </div>
 
           <div className="flex items-center gap-3">
             {/* Toggle */}
