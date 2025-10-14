@@ -109,12 +109,28 @@ export default function IncidentReport() {
             <ArrowLeft className="h-6 w-6 text-gray-700" />
           </button>
 
-          <div className="w-full flex justify-center">
-            <img
-              src={titleImg}
-              alt="LightHouse"
-              className="max-h-12 object-contain drop-shadow-[0_1px_12px_rgba(0,0,0,0.12)]"
-            />
+          <div className="w-full flex justify-between items-center">
+            <h1 className="mx-auto text-3xl font-extrabold tracking-wide">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-pink-600">
+                LightHouse
+              </span>
+            </h1>
+
+            {/* Toggle */}
+            <div className="flex items-center bg-white/70 rounded-xl shadow overflow-hidden">
+              <button
+                className={`px-3 py-1 text-sm ${viewMode === "points" ? "bg-white font-semibold" : "opacity-70"}`}
+                onClick={() => setViewMode("points")}
+              >
+                Points
+              </button>
+              <button
+                className={`px-3 py-1 text-sm ${viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"}`}
+                onClick={() => setViewMode("heat")}
+              >
+                Heat
+              </button>
+            </div>
           </div>
 
           <div className="absolute right-0 px-3 py-1 bg-blue-100 rounded-full">
