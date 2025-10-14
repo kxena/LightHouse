@@ -1,4 +1,6 @@
+// src/IncidentReport.tsx
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { ArrowLeft, Twitter, MessageCircle, Repeat, Heart, Share2 } from "lucide-react";
 import MapWidget from "./MapWidget";
 import { incidents } from "../data/incidents";
@@ -6,6 +8,7 @@ import { incidents } from "../data/incidents";
 export default function IncidentReport() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [viewMode, setViewMode] = useState<"points" | "heat">("points"); // NEW
 
   const incident = incidents.find((i) => i.id === id) ?? incidents[0];
 
@@ -22,12 +25,28 @@ export default function IncidentReport() {
             <ArrowLeft className="h-6 w-6 text-gray-700" />
           </button>
 
-          <div className="w-full text-center">
-            <h1 className="text-3xl font-extrabold tracking-wide">
+          <div className="w-full flex justify-between items-center">
+            <h1 className="mx-auto text-3xl font-extrabold tracking-wide">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-pink-600">
                 LightHouse
               </span>
             </h1>
+
+            {/* Toggle */}
+            <div className="flex items-center bg-white/70 rounded-xl shadow overflow-hidden">
+              <button
+                className={`px-3 py-1 text-sm ${viewMode === "points" ? "bg-white font-semibold" : "opacity-70"}`}
+                onClick={() => setViewMode("points")}
+              >
+                Points
+              </button>
+              <button
+                className={`px-3 py-1 text-sm ${viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"}`}
+                onClick={() => setViewMode("heat")}
+              >
+                Heat
+              </button>
+            </div>
           </div>
         </div>
 
@@ -37,11 +56,12 @@ export default function IncidentReport() {
           <div className="lg:col-span-6">
             <div className="rounded-3xl bg-white/55 backdrop-blur-sm shadow ring-1 ring-black/5 p-4">
               <MapWidget
-                incidents={[incident]}
+                incidents={incidents}        // all for context in heat view
                 focusId={incident.id}
-                showRings
+                showRings={true}
                 heightClass="h-64"
                 lockSingleWorld
+                viewMode={viewMode}          // NEW
               />
             </div>
           </div>
@@ -60,8 +80,7 @@ export default function IncidentReport() {
                   <span className="font-semibold"> 4–6 hours</span>.
                 </p>
                 <p className="mt-5 text-center text-lg tracking-wide text-gray-900 font-semibold">
-                  {incident.city}
-                  {incident.state ? `, ${incident.state}` : ""}
+                  {incident.city}{incident.state ? `, ${incident.state}` : ""}
                 </p>
               </div>
             </div>

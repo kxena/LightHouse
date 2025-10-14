@@ -2,15 +2,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Activity, TrendingUp, Globe, RefreshCw } from "lucide-react";
-import { LoadingState, ErrorState, EmptyState, ConnectionStatus } from "./UIStates";
+import { LoadingState, ErrorState, EmptyState } from "./UIStates";
 import MapWidget from "./MapWidget";
 import { incidents } from "../data/incidents";
 
-// ✅ return the props that UIStates.ConnectionStatus expects
-const useApiHealth = () => ({
-  isOnline: true,
-  lastUpdated: new Date().toISOString(),
-});
 const useStatistics = () => ({ postsPerMin: 2300, activeStates: 4, activeIncidents: 23 });
 const useTrendingTopics = () => ["#PowerOutage", "#Downtown", "#Restoration", "#Austin"];
 const useDisasterPosts = () => ({ data: [], isLoading: false, isError: false });
@@ -19,8 +14,8 @@ const useDataRefresh = () => ({ refreshData: async () => {} });
 export default function Dashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"points" | "heat">("points"); // NEW
 
-  const { isOnline, lastUpdated } = useApiHealth();
   const { postsPerMin, activeStates, activeIncidents } = useStatistics();
   const trending = useTrendingTopics();
   const { data, isLoading, isError } = useDisasterPosts();
@@ -32,7 +27,8 @@ export default function Dashboard() {
 
   if (isLoading) return <LoadingState message="Loading dashboard..." />;
   if (isError) return <ErrorState message="Failed to load dashboard" />;
-  if (!data && !incidents.length) return <EmptyState title="Nothing to show" message="No data available." />;
+  if (!data && !incidents.length)
+    return <EmptyState title="Nothing to show" message="No data available." />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-6 md:p-8">
@@ -46,8 +42,22 @@ export default function Dashboard() {
           </h1>
 
           <div className="flex items-center gap-3">
-            {/* ✅ use `isOnline` and `lastUpdated` */}
-            <ConnectionStatus isOnline={isOnline} lastUpdated={lastUpdated} />
+            {/* Toggle */}
+            <div className="flex items-center bg-white/70 rounded-xl shadow overflow-hidden">
+              <button
+                className={`px-3 py-1 text-sm ${viewMode === "points" ? "bg-white font-semibold" : "opacity-70"}`}
+                onClick={() => setViewMode("points")}
+              >
+                Points
+              </button>
+              <button
+                className={`px-3 py-1 text-sm ${viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"}`}
+                onClick={() => setViewMode("heat")}
+              >
+                Heat
+              </button>
+            </div>
+
             <button
               onClick={handleRefresh}
               className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 hover:bg-white shadow"
@@ -63,9 +73,10 @@ export default function Dashboard() {
           <MapWidget
             incidents={incidents}
             heightClass="h-72"
-            initialCenter={[20, 0]} // global center
-            initialZoom={2}         // zoomed out
+            initialCenter={[20, 0]}    // global view
+            initialZoom={2}
             lockSingleWorld
+            viewMode={viewMode}        // NEW
             onPointClick={(id) => navigate(`/incident/${id}`)}
           />
         </div>
@@ -104,7 +115,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Content cards */}
+        {/* Content cards (unchanged) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5">
             <h3 className="font-semibold mb-2">Live Feed</h3>
