@@ -54,71 +54,93 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-6">
-          <div className="w-full h-64 bg-gradient-to-br from-blue-900 to-blue-700 rounded-lg flex items-center justify-center">
-            <p className="text-white/50 text-lg">Map Container</p>
+          <div className="flex items-center gap-3">
+            {/* Toggle */}
+            <div className="flex items-center bg-white/70 rounded-xl shadow overflow-hidden">
+              <button
+                className={`px-3 py-1 text-sm ${viewMode === "points" ? "bg-white font-semibold" : "opacity-70"}`}
+                onClick={() => setViewMode("points")}
+              >
+                Points
+              </button>
+              <button
+                className={`px-3 py-1 text-sm ${viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"}`}
+                onClick={() => setViewMode("heat")}
+              >
+                Heat
+              </button>
+            </div>
+
+            <button
+              onClick={handleRefresh}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 hover:bg-white shadow"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span>Refresh</span>
+            </button>
           </div>
         </div>
 
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Search"
-            className="w-full px-4 py-3 rounded-xl bg-white/60 backdrop-blur-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-400"
+        {/* Map Card */}
+        <div className="bg-white/45 backdrop-blur-sm rounded-2xl p-4 shadow">
+          <MapWidget
+            incidents={incidents}
+            heightClass="h-72"
+            initialCenter={[20, 0]}    // global view
+            initialZoom={2}
+            lockSingleWorld
+            viewMode={viewMode}        // NEW
+            onPointClick={(id) => navigate(`/incident/${id}`)}
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-2 border-white">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-gray-700" />
-                <span className="text-sm text-gray-600">Active Incidents</span>
-              </div>
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-            </div>
-            <p className="text-4xl font-bold text-gray-800">23</p>
-          </div>
+        {/* Search */}
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search"
+          className="w-full rounded-xl px-4 py-2 bg-white/70 focus:bg-white outline-none shadow"
+        />
 
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-2 border-white">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-gray-700" />
-                <span className="text-sm text-gray-600">System Status</span>
-              </div>
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">Active Incidents</span>
+              <Activity className="h-4 w-4" />
             </div>
-            <p className="text-4xl font-bold text-gray-800">2.3K <span className="text-sm font-normal text-gray-600">posts/min</span></p>
+            <div className="text-2xl font-bold mt-1">{activeIncidents}</div>
           </div>
-
-          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-2 border-white">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-gray-700" />
-                <span className="text-sm text-gray-600">Coverage Area</span>
-              </div>
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">System Status</span>
+              <TrendingUp className="h-4 w-4" />
             </div>
-            <p className="text-4xl font-bold text-gray-800">4 States</p>
+            <div className="text-2xl font-bold mt-1">{(postsPerMin / 1000).toFixed(1)}K posts/min</div>
+          </div>
+          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">Coverage Area</span>
+              <Globe className="h-4 w-4" />
+            </div>
+            <div className="text-2xl font-bold mt-1">{activeStates} States</div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
-            <div className="bg-white rounded-xl p-6 h-96">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Live Feed</h2>
-              <div className="h-full flex items-center justify-center">
-                <p className="text-gray-400">Feed content</p>
-              </div>
-            </div>
+        {/* Content cards (unchanged) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5">
+            <h3 className="font-semibold mb-2">Live Feed</h3>
           </div>
-
-          <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
-            <div className="bg-white rounded-xl p-6 h-96">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Trending Topics</h2>
-              <div className="h-full flex items-center justify-center">
-                <p className="text-gray-400">Trending content</p>
-              </div>
+          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5">
+            <h3 className="font-semibold mb-2">Trending Topics</h3>
+            <div className="flex flex-wrap gap-2">
+              {["#PowerOutage", "#Downtown", "#Restoration", "#Austin"].map((t) => (
+                <span key={t} className="px-3 py-1 rounded-full bg-gray-900 text-white text-sm">
+                  {t}
+                </span>
+              ))}
             </div>
           </div>
         </div>

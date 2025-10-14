@@ -62,7 +62,6 @@ export default function App() {
       />
 
       <Route path="/sign-in/*" element={<SignInPage />} />
-
       <Route path="/sign-up/*" element={<SignUpPage />} />
       <Route path="/incident/:id" element={<IncidentReport />} />
       <Route path="/dashboard" element={<Dashboard />} />
