@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Incident API Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .incident {
+        border: 1px solid #ddd;
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 8px;
+      }
+      .severity-high {
+        border-left: 5px solid #f56565;
+      }
+      .severity-medium {
+        border-left: 5px solid #ed8936;
+      }
+      .severity-low {
+        border-left: 5px solid #48bb78;
+      }
+      .severity-critical {
+        border-left: 5px solid #e53e3e;
+      }
+      .form-group {
+        margin-bottom: 10px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        background-color: #4299e1;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #3182ce;
+      }
+      .error {
+        color: red;
+        margin: 10px 0;
+      }
+      .success {
+        color: green;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Incident Report API Test</h1>
+
+    <div id="status"></div>
+
+    <h2>Simulate Tweet Analysis</h2>
+    <form id="tweetAnalysisForm">
+      <div class="form-group">
+        <label for="tweet_text">Tweet Text:</label>
+        <textarea
+          id="tweet_text"
+          name="tweet_text"
+          required
+          placeholder="Enter tweet content..."
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="author">Author:</label>
+        <input
+          type="text"
+          id="author"
+          name="author"
+          required
+          placeholder="@username"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="tweet_id">Tweet ID:</label>
+        <input
+          type="text"
+          id="tweet_id"
+          name="tweet_id"
+          required
+          placeholder="1234567890"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="is_disaster">Is Disaster Related?</label>
+        <select id="is_disaster" name="is_disaster" required>
+          <option value="false">No</option>
+          <option value="true">Yes</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="incident_type">Incident Type:</label>
+        <input
+          type="text"
+          id="incident_type"
+          name="incident_type"
+          placeholder="e.g., Power Outage, Flood"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="severity">Severity:</label>
+        <select id="severity" name="severity">
+          <option value="">Select severity</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="critical">Critical</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="location">Location:</label>
+        <input
+          type="text"
+          id="location"
+          name="location"
+          placeholder="e.g., Austin, Texas"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="entities">Key Entities (comma separated):</label>
+        <input
+          type="text"
+          id="entities"
+          name="entities"
+          placeholder="PowerOutage, Downtown, Emergency"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="confidence">Confidence Score (0-1):</label>
+        <input
+          type="number"
+          id="confidence"
+          name="confidence"
+          min="0"
+          max="1"
+          step="0.1"
+          placeholder="0.8"
+        />
+      </div>
+
+      <button type="submit">Analyze Tweet</button>
+    </form>
+
+    <h2>All Incidents</h2>
+    <div id="incidents"></div>
+
+    <script>
+      const API_BASE = "http://localhost:8000";
+
+      // Load incidents on page load
+      window.addEventListener("load", loadIncidents);
+
+      // Handle tweet analysis form submission
+      document
+        .getElementById("tweetAnalysisForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const formData = new FormData(e.target);
+          const entities = formData
+            .get("entities")
+            .split(",")
+            .map((entity) => entity.trim())
+            .filter((entity) => entity);
+
+          const tweetAnalysis = {
+            tweet: {
+              text: formData.get("tweet_text"),
+              author: formData.get("author"),
+              timestamp: new Date().toISOString(),
+              tweet_id: formData.get("tweet_id"),
+              engagement: {
+                likes: Math.floor(Math.random() * 100),
+                retweets: Math.floor(Math.random() * 50),
+                replies: Math.floor(Math.random() * 25),
+              },
+            },
+            is_disaster_related: formData.get("is_disaster") === "true",
+            incident_type: formData.get("incident_type") || undefined,
+            severity: formData.get("severity") || undefined,
+            location: formData.get("location") || undefined,
+            key_entities: entities,
+            confidence_score:
+              parseFloat(formData.get("confidence")) || undefined,
+          };
+
+          try {
+            const response = await fetch(`${API_BASE}/analyze-tweet`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(tweetAnalysis),
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              if (result.incident_created) {
+                document.getElementById(
+                  "status"
+                ).innerHTML = `<div class="success">Tweet analyzed! Incident created with ID: ${
+                  result.incident_id
+                } (Confidence: ${result.confidence_score || "N/A"})</div>`;
+              } else {
+                document.getElementById("status").innerHTML =
+                  '<div class="success">Tweet analyzed - no incident created (not disaster-related)</div>';
+              }
+              document.getElementById("tweetAnalysisForm").reset();
+              loadIncidents();
+            } else {
+              throw new Error(
+                `HTTP ${response.status}: ${response.statusText}`
+              );
+            }
+          } catch (error) {
+            document.getElementById(
+              "status"
+            ).innerHTML = `<div class="error">Error analyzing tweet: ${error.message}</div>`;
+          }
+        });
+
+      async function loadIncidents() {
+        try {
+          const response = await fetch(`${API_BASE}/incidents`);
+          if (response.ok) {
+            const incidents = await response.json();
+            displayIncidents(incidents);
+          } else {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+        } catch (error) {
+          document.getElementById(
+            "incidents"
+          ).innerHTML = `<div class="error">Error loading incidents: ${error.message}</div>`;
+        }
+      }
+
+      function displayIncidents(incidents) {
+        const container = document.getElementById("incidents");
+
+        if (incidents.length === 0) {
+          container.innerHTML =
+            "<p>No incidents generated from tweet analysis yet.</p>";
+          return;
+        }
+
+        container.innerHTML = incidents
+          .map(
+            (incident) => `
+                <div class="incident severity-${incident.severity}">
+                    <h3>${incident.incident_type} - ${incident.title}</h3>
+                    <p><strong>Description:</strong> ${incident.description}</p>
+                    <p><strong>Location:</strong> ${incident.location}</p>
+                    <p><strong>Severity:</strong> <span style="text-transform: capitalize">${
+                      incident.severity
+                    }</span></p>
+                    <p><strong>Status:</strong> <span style="text-transform: capitalize">${
+                      incident.status
+                    }</span></p>
+                    ${
+                      incident.estimated_restoration
+                        ? `<p><strong>Estimated Restoration:</strong> ${incident.estimated_restoration}</p>`
+                        : ""
+                    }
+                    ${
+                      incident.affected_area
+                        ? `<p><strong>Affected Area:</strong> ${incident.affected_area}</p>`
+                        : ""
+                    }
+                    <p><strong>Tags:</strong> ${incident.tags
+                      .map((tag) => `#${tag}`)
+                      .join(", ")}</p>
+                    <p><strong>Created:</strong> ${new Date(
+                      incident.created_at
+                    ).toLocaleString()}</p>
+                    <p><strong>ID:</strong> ${incident.id}</p>
+                    
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <h4 style="margin-bottom: 10px;">Source Tweets (${
+                          incident.source_tweets.length
+                        })</h4>
+                        ${incident.source_tweets
+                          .map(
+                            (tweet) => `
+                            <div style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 8px; border-left: 3px solid #1da1f2;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 0.9em; color: #666;">
+                                    <strong>🐦 ${tweet.author}</strong>
+                                    <span>•</span>
+                                    <span>${new Date(
+                                      tweet.timestamp
+                                    ).toLocaleString()}</span>
+                                    <span>•</span>
+                                    <span>ID: ${tweet.tweet_id}</span>
+                                </div>
+                                <p style="margin: 5px 0; line-height: 1.4;">${
+                                  tweet.text
+                                }</p>
+                                ${
+                                  tweet.engagement
+                                    ? `
+                                    <div style="display: flex; gap: 15px; font-size: 0.8em; color: #666; margin-top: 8px;">
+                                        ${
+                                          tweet.engagement.replies
+                                            ? `<span>💬 ${tweet.engagement.replies}</span>`
+                                            : ""
+                                        }
+                                        ${
+                                          tweet.engagement.retweets
+                                            ? `<span>🔄 ${tweet.engagement.retweets}</span>`
+                                            : ""
+                                        }
+                                        ${
+                                          tweet.engagement.likes
+                                            ? `<span>❤️ ${tweet.engagement.likes}</span>`
+                                            : ""
+                                        }
+                                    </div>
+                                `
+                                    : ""
+                                }
+                            </div>
+                        `
+                          )
+                          .join("")}
+                        ${
+                          incident.source_tweets.length === 0
+                            ? '<p style="color: #666; font-style: italic;">No source tweets available</p>'
+                            : ""
+                        }
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+      }
+    </script>
+  </body>
+</html>
