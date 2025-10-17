@@ -7,7 +7,7 @@ import {
   Heart,
   Clock,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import titleImg from "../assets/title.png";
 import {
@@ -21,13 +21,20 @@ export default function IncidentReport() {
   const [incidents, setIncidents] = useState<IncidentResponse[]>([]);
   const [currentIncident, setCurrentIncident] =
     useState<IncidentResponse | null>(null);
+  const { id: incidentId } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Add viewMode state for toggle UI
+  const [viewMode, setViewMode] = useState<"points" | "heat">("points");
 
   // Load incidents on component mount
   useEffect(() => {
-    loadIncidents();
-  }, []);
+    if (incidentId) {
+      loadIncidentById(incidentId);
+    } else {
+      loadIncidents();
+    }
+  }, [incidentId]);
 
   const loadIncidents = async () => {
     try {
@@ -35,11 +42,27 @@ export default function IncidentReport() {
       const data = await IncidentAPI.getAllIncidents();
       setIncidents(data);
       if (data.length > 0) {
-        setCurrentIncident(data[0]); // Show the first incident by default
+        setCurrentIncident(data[0]);
+      } else {
+        setCurrentIncident(null);
       }
     } catch (err) {
       setError("Failed to load incidents generated from tweet analysis");
       console.error("Error loading incidents:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadIncidentById = async (incidentId: string) => {
+    try {
+      setLoading(true);
+      const incident = await IncidentAPI.getIncident(incidentId);
+      setCurrentIncident(incident);
+      setIncidents([]); // Optionally clear list, or fetch all for navigation
+    } catch (err) {
+      setError("Failed to load incident by id");
+      console.error("Error loading incident by id:", err);
     } finally {
       setLoading(false);
     }
@@ -85,12 +108,24 @@ export default function IncidentReport() {
         <div className="text-center">
           <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <p className="text-red-600 text-lg">{error}</p>
-          <button
-            onClick={loadIncidents}
-            className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-          >
-            Try Again
-          </button>
+          <div className="mt-4 flex gap-3 justify-center">
+            <button
+              onClick={() =>
+                incidentId ? navigate("/dashboard") : loadIncidents()
+              }
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              {incidentId ? "Back to Dashboard" : "Try Again"}
+            </button>
+            {incidentId && (
+              <button
+                onClick={loadIncidents}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+              >
+                View All Incidents
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -119,13 +154,19 @@ export default function IncidentReport() {
             {/* Toggle */}
             <div className="flex items-center bg-white/70 rounded-xl shadow overflow-hidden">
               <button
-                className={`px-3 py-1 text-sm ${viewMode === "points" ? "bg-white font-semibold" : "opacity-70"}`}
+                className={`px-3 py-1 text-sm ${
+                  viewMode === "points"
+                    ? "bg-white font-semibold"
+                    : "opacity-70"
+                }`}
                 onClick={() => setViewMode("points")}
               >
                 Points
               </button>
               <button
-                className={`px-3 py-1 text-sm ${viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"}`}
+                className={`px-3 py-1 text-sm ${
+                  viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"
+                }`}
                 onClick={() => setViewMode("heat")}
               >
                 Heat
@@ -334,7 +375,7 @@ export default function IncidentReport() {
                         .map((incident) => (
                           <button
                             key={incident.id}
-                            onClick={() => setCurrentIncident(incident)}
+                            onClick={() => navigate(`/incident/${incident.id}`)}
                             className="flex-shrink-0 p-3 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors min-w-[200px]"
                           >
                             <div className="text-left">

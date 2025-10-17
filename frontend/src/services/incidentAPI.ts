@@ -38,9 +38,7 @@ export interface IncidentResponse {
 }
 
 export class IncidentAPI {
-  static async analyzeTweet(
-    tweetAnalysis: TweetAnalysisResult
-  ): Promise<{
+  static async analyzeTweet(tweetAnalysis: TweetAnalysisResult): Promise<{
     message: string;
     incident_created: boolean;
     incident_id?: string;
@@ -75,7 +73,15 @@ export class IncidentAPI {
     const response = await fetch(`${API_BASE_URL}/incidents/${incidentId}`);
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Try to parse the error body for FastAPI { detail }
+      let message = `HTTP error! status: ${response.status}`;
+      try {
+        const data = await response.json();
+        if (data?.detail) message = data.detail;
+      } catch {
+        // ignore
+      }
+      throw new Error(message);
     }
 
     return response.json();
