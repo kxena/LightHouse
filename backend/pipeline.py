@@ -12,9 +12,9 @@ from classifier_class import DisasterClassifier
 
 # Initialize classifier
 classifier = DisasterClassifier(
-    model_path="classifier_model.joblib",
-    vectorizer_path="classifier_vectorizer.joblib",
-    config_path="classifier_config.json"
+    model_path="final_classifier/classifier_model.joblib",
+    vectorizer_path="final_classifier/classifier_vectorizer.joblib",
+    config_path="final_classifier/classifier_config.json"
 )
 
 # Initialize Ollama model
