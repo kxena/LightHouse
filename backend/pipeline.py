@@ -8,7 +8,7 @@ from langgraph.graph import StateGraph, END
 from typing import TypedDict, Optional
 import json
 import re
-from classifier_class import DisasterClassifier
+from backend.final_classifier.classifier_class import DisasterClassifier
 
 # Initialize classifier
 classifier = DisasterClassifier(
