@@ -35,6 +35,9 @@ export interface IncidentResponse {
   created_at: string;
   status: string;
   source_tweets: Tweet[];
+  // Optional geocoding (if backend provides)
+  lat?: number;
+  lng?: number;
 }
 
 export class IncidentAPI {

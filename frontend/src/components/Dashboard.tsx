@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Activity,
   TrendingUp,
@@ -13,6 +13,47 @@ import { useNavigate } from "react-router-dom";
 import MapWidget from "./MapWidget";
 import type { Incident as MapIncident } from "../data/incidents";
 import { IncidentAPI, type IncidentResponse } from "../services/incidentAPI";
+// import titleImg from "../assets/logo.png";
+
+// Compact, dynamic vertical list for trending topics (adjacent to Live Feed)
+function TrendingList({ trending }: { trending: Array<[string, number]> }) {
+  const max = trending.length ? Math.max(...trending.map(([, c]) => c)) : 1;
+  const formatCount = (n: number) => n.toString();
+  return (
+    <div className="flex flex-col gap-2 max-h-80 overflow-y-auto pr-1">
+      {trending.map(([tag, count]) => {
+        const ratio = count / max;
+        let textCls = "text-sm md:text-base";
+        let gradCls = "text-blue-700";
+        if (ratio >= 0.75) {
+          textCls = "text-lg md:text-xl";
+          gradCls =
+            "bg-gradient-to-r from-fuchsia-600 to-rose-600 bg-clip-text text-transparent";
+        } else if (ratio >= 0.5) {
+          textCls = "text-base md:text-lg";
+          gradCls =
+            "bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent";
+        } else if (ratio >= 0.25) {
+          textCls = "text-base";
+          gradCls =
+            "bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent";
+        }
+        return (
+          <div
+            key={tag}
+            className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-gray-50 transition"
+            title={`${count} incident${count !== 1 ? "s" : ""}`}
+          >
+            <span className={`font-semibold ${textCls} ${gradCls}`}>{tag}</span>
+            <span className="text-xs md:text-sm text-gray-600 tabular-nums">
+              {formatCount(count)}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const { user } = useUser();
@@ -33,14 +74,102 @@ export default function Dashboard() {
   const [incidentsApi, setIncidentsApi] = useState<IncidentResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const trending = useMemo(() => {
+    const freq: Record<string, number> = {};
+    const hashtagRegex = /#[\p{L}0-9_]+/giu; // unicode letters, numbers, underscore
+    for (const it of incidentsApi) {
+      const perIncident = new Set<string>();
+      // From structured tags
+      (it.tags || []).forEach((t) =>
+        perIncident.add(`#${String(t).toLowerCase()}`)
+      );
+      // From tweet texts
+      (it.source_tweets || []).forEach((tw) => {
+        const matches = tw.text.match(hashtagRegex) || [];
+        matches.forEach((h) => perIncident.add(h.toLowerCase()));
+      });
+      // Accumulate once per incident
+      for (const h of perIncident) {
+        freq[h] = (freq[h] || 0) + 1;
+      }
+    }
+    return Object.entries(freq)
+      .filter(([, count]) => count >= 2) // shared/frequent across incidents
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 12);
+  }, [incidentsApi]);
 
   // Stub data/handlers — replace with real data wiring
   const handleRefresh = async () => {
     await loadIncidents();
   };
 
-  // NOTE: MapWidget uses a different Incident shape with lat/lng; keeping it empty for now.
-  const incidents: MapIncident[] = [];
+  // Helpers
+  const mapIncidentType = (raw?: string): MapIncident["type"] => {
+    const s = (raw || "").toLowerCase();
+    if (s.includes("flood")) return "Flood";
+    if (s.includes("wildfire") || s.includes("fire")) return "Wildfire";
+    if (s.includes("earthquake") || s.includes("quake")) return "Earthquake";
+    if (s.includes("tornado")) return "Tornado";
+    if (s.includes("landslide")) return "Landslide";
+    if (s.includes("volcano")) return "Volcano";
+    if (s.includes("drought")) return "Drought";
+    if (s.includes("heat")) return "Heatwave";
+    if (s.includes("cold") || s.includes("freeze")) return "Coldwave";
+    return "Storm";
+  };
+
+  const mapSeverity = (sev?: string): 1 | 2 | 3 => {
+    const s = (sev || "").toLowerCase();
+    if (s === "critical") return 3;
+    if (s === "high") return 2;
+    return 1;
+  };
+
+  const parseLatLng = (
+    location?: string
+  ): { lat: number; lng: number } | null => {
+    if (!location) return null;
+    // Try to find "(lat,lng)" or "lat,lng" patterns
+    const parenMatch = location.match(
+      /\((-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)\)/
+    );
+    if (parenMatch) {
+      const lat = parseFloat(parenMatch[1]);
+      const lng = parseFloat(parenMatch[2]);
+      if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+    }
+    const looseMatch = location.match(
+      /(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/
+    );
+    if (looseMatch) {
+      const lat = parseFloat(looseMatch[1]);
+      const lng = parseFloat(looseMatch[2]);
+      if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+    }
+    return null;
+  };
+
+  // MapWidget expects a different Incident shape (with lat/lng, severity as 1-3)
+  const incidents: MapIncident[] = incidentsApi
+    .map((i: IncidentResponse) => {
+      const coords =
+        typeof i.lat === "number" && typeof i.lng === "number"
+          ? { lat: i.lat, lng: i.lng }
+          : parseLatLng(i.location);
+      if (!coords) return null;
+      return {
+        id: i.id,
+        title: i.title,
+        type: mapIncidentType(i.incident_type),
+        severity: mapSeverity(i.severity),
+        radiusKm: 10,
+        city: i.location,
+        lat: coords.lat,
+        lng: coords.lng,
+      } as MapIncident;
+    })
+    .filter(Boolean) as MapIncident[];
   const activeIncidents = incidentsApi.length;
   const postsPerMin = 0; // TODO: real metric
   const activeStates = 0; // TODO: real metric
@@ -79,10 +208,14 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-4xl font-bold">
-              <span className="text-gray-800">Light</span>
-              <span className="text-pink-600">House</span>
-            </h1>
+            <div className="flex justify-center items-center h-12 mb-3">
+              <img
+                src="src/assets/title.png"
+                alt="LightHouse Logo"
+                className="object-contain max-h-12"
+              />
+            </div>
+
             <p className="text-gray-600 mt-1">Welcome {displayName}</p>
           </div>
           <div className="flex items-center gap-4">
@@ -187,30 +320,10 @@ export default function Dashboard() {
 
         {/* Content cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5">
-            <h3 className="font-semibold mb-2">Live Feed</h3>
-            {/* TODO: live feed list */}
-          </div>
-          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5">
-            <h3 className="font-semibold mb-2">Trending Topics</h3>
-            <div className="flex flex-wrap gap-2">
-              {["#PowerOutage", "#Downtown", "#Restoration", "#Austin"].map(
-                (t) => (
-                  <span
-                    key={t}
-                    className="px-3 py-1 rounded-full bg-gray-900 text-white text-sm"
-                  >
-                    {t}
-                  </span>
-                )
-              )}
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5 md:col-span-2">
+          {/* Live Feed (same as previous Recent Incidents) */}
+          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5 md:col-span-1">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold">
-                Recent Incidents (from AI analysis)
-              </h3>
+              <h3 className="font-semibold">Live Feed</h3>
               {loading && (
                 <span className="text-sm text-gray-500">Loading…</span>
               )}
@@ -222,7 +335,7 @@ export default function Dashboard() {
                 No incidents yet. Try seeding or check back soon.
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 max-h-80 overflow-y-auto pr-1">
                 {incidentsApi.map((it) => (
                   <button
                     key={it.id}
@@ -246,6 +359,23 @@ export default function Dashboard() {
                   </button>
                 ))}
               </div>
+            )}
+          </div>
+
+          {/* Trending Topics computed from shared/frequent tags across incidents */}
+          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5 md:col-span-1">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="h-4 w-4 text-gray-700" />
+              <h3 className="font-semibold">Trending Topics</h3>
+            </div>
+            {incidentsApi.length === 0 ? (
+              <div className="text-gray-600 text-sm">No data yet.</div>
+            ) : trending.length === 0 ? (
+              <div className="text-gray-600 text-sm">
+                No trending topics yet.
+              </div>
+            ) : (
+              <TrendingList trending={trending} />
             )}
           </div>
         </div>

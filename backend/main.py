@@ -37,6 +37,9 @@ class TweetAnalysisResult(BaseModel):
     location: Optional[str] = None
     key_entities: List[str] = Field(default_factory=list)  # extracted entities from LLM
     confidence_score: Optional[float] = None
+    # Optional geocoding
+    lat: Optional[float] = None
+    lng: Optional[float] = None
 
 class IncidentFromTweets(BaseModel):
     """Incident automatically generated from tweet analysis"""
@@ -49,6 +52,9 @@ class IncidentFromTweets(BaseModel):
     estimated_restoration: Optional[str] = None
     affected_area: Optional[str] = None
     source_tweets: List[Tweet]  # All tweets that contributed to this incident
+    # Optional geocoding
+    lat: Optional[float] = None
+    lng: Optional[float] = None
     
 class IncidentResponse(BaseModel):
     id: str
@@ -63,6 +69,9 @@ class IncidentResponse(BaseModel):
     created_at: datetime
     status: str
     source_tweets: List[Tweet]  # Associated tweets
+    # Optional geocoding
+    lat: Optional[float] = None
+    lng: Optional[float] = None
 
 
 class StatusUpdate(BaseModel):
@@ -107,7 +116,9 @@ async def analyze_tweet(tweet_analysis: TweetAnalysisResult):
         affected_area=None,
         created_at=datetime.now(),
         status="active",
-        source_tweets=[tweet_analysis.tweet]
+        source_tweets=[tweet_analysis.tweet],
+        lat=tweet_analysis.lat,
+        lng=tweet_analysis.lng,
     )
     
     incident_reports_db[incident_id] = incident_response
@@ -138,7 +149,9 @@ async def create_incident_from_tweets(incident_data: IncidentFromTweets):
         affected_area=incident_data.affected_area,
         created_at=datetime.now(),
         status="active",
-        source_tweets=incident_data.source_tweets
+        source_tweets=incident_data.source_tweets,
+        lat=incident_data.lat,
+        lng=incident_data.lng,
     )
     
     incident_reports_db[incident_id] = incident_response
