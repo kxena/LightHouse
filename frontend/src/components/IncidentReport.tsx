@@ -7,27 +7,31 @@ import {
   Heart,
   Clock,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import titleImg from "../assets/title.png";
-import {
-  IncidentAPI,
-  type IncidentResponse,
-  type Tweet,
-} from "../services/incidentAPI";
+import { IncidentAPI, type IncidentResponse } from "../services/incidentAPI";
+import MapWidget from "./MapWidget";
+import type { Incident as MapIncident } from "../data/incidents";
 
 export default function IncidentReport() {
   const navigate = useNavigate();
   const [incidents, setIncidents] = useState<IncidentResponse[]>([]);
   const [currentIncident, setCurrentIncident] =
     useState<IncidentResponse | null>(null);
+  const { id: incidentId } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Add viewMode state for toggle UI
+  const [viewMode, setViewMode] = useState<"points" | "heat">("points");
 
   // Load incidents on component mount
   useEffect(() => {
-    loadIncidents();
-  }, []);
+    if (incidentId) {
+      loadIncidentById(incidentId);
+    } else {
+      loadIncidents();
+    }
+  }, [incidentId]);
 
   const loadIncidents = async () => {
     try {
@@ -35,11 +39,27 @@ export default function IncidentReport() {
       const data = await IncidentAPI.getAllIncidents();
       setIncidents(data);
       if (data.length > 0) {
-        setCurrentIncident(data[0]); // Show the first incident by default
+        setCurrentIncident(data[0]);
+      } else {
+        setCurrentIncident(null);
       }
     } catch (err) {
       setError("Failed to load incidents generated from tweet analysis");
       console.error("Error loading incidents:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadIncidentById = async (incidentId: string) => {
+    try {
+      setLoading(true);
+      const incident = await IncidentAPI.getIncident(incidentId);
+      setCurrentIncident(incident);
+      setIncidents([]); // Optionally clear list, or fetch all for navigation
+    } catch (err) {
+      setError("Failed to load incident by id");
+      console.error("Error loading incident by id:", err);
     } finally {
       setLoading(false);
     }
@@ -85,12 +105,24 @@ export default function IncidentReport() {
         <div className="text-center">
           <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <p className="text-red-600 text-lg">{error}</p>
-          <button
-            onClick={loadIncidents}
-            className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-          >
-            Try Again
-          </button>
+          <div className="mt-4 flex gap-3 justify-center">
+            <button
+              onClick={() =>
+                incidentId ? navigate("/dashboard") : loadIncidents()
+              }
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              {incidentId ? "Back to Dashboard" : "Try Again"}
+            </button>
+            {incidentId && (
+              <button
+                onClick={loadIncidents}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+              >
+                View All Incidents
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -119,13 +151,19 @@ export default function IncidentReport() {
             {/* Toggle */}
             <div className="flex items-center bg-white/70 rounded-xl shadow overflow-hidden">
               <button
-                className={`px-3 py-1 text-sm ${viewMode === "points" ? "bg-white font-semibold" : "opacity-70"}`}
+                className={`px-3 py-1 text-sm ${
+                  viewMode === "points"
+                    ? "bg-white font-semibold"
+                    : "opacity-70"
+                }`}
                 onClick={() => setViewMode("points")}
               >
                 Points
               </button>
               <button
-                className={`px-3 py-1 text-sm ${viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"}`}
+                className={`px-3 py-1 text-sm ${
+                  viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"
+                }`}
                 onClick={() => setViewMode("heat")}
               >
                 Heat
@@ -147,20 +185,107 @@ export default function IncidentReport() {
               {/* Map Card (top-left) */}
               <div className="lg:col-span-6">
                 <div className="rounded-3xl bg-white/55 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 p-4">
-                  <div className="h-64 rounded-2xl bg-gray-200/90 flex items-center justify-center border border-black/10">
-                    {/* Replace with real map */}
-                    <div className="text-center">
-                      <p className="text-gray-600 mb-2">Map Component</p>
-                      <p className="text-sm text-gray-500">
-                        Location: {currentIncident.location}
-                      </p>
-                      {currentIncident.affected_area && (
-                        <p className="text-sm text-gray-500">
-                          Area: {currentIncident.affected_area}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                  <MapWidget
+                    incidents={
+                      (currentIncident ? [currentIncident] : [])
+                        .map((i) => {
+                          // Try lat/lng from API; otherwise parse from location string if present
+                          const parseLatLng = (
+                            location?: string
+                          ): { lat: number; lng: number } | null => {
+                            if (!location) return null;
+                            const parenMatch = location.match(
+                              /\((-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)\)/
+                            );
+                            if (parenMatch) {
+                              const lat = parseFloat(parenMatch[1]);
+                              const lng = parseFloat(parenMatch[2]);
+                              if (Number.isFinite(lat) && Number.isFinite(lng))
+                                return { lat, lng };
+                            }
+                            const looseMatch = location.match(
+                              /(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/
+                            );
+                            if (looseMatch) {
+                              const lat = parseFloat(looseMatch[1]);
+                              const lng = parseFloat(looseMatch[2]);
+                              if (Number.isFinite(lat) && Number.isFinite(lng))
+                                return { lat, lng };
+                            }
+                            return null;
+                          };
+                          const coords =
+                            typeof (
+                              i as IncidentResponse & {
+                                lat?: number;
+                                lng?: number;
+                              }
+                            ).lat === "number" &&
+                            typeof (
+                              i as IncidentResponse & {
+                                lat?: number;
+                                lng?: number;
+                              }
+                            ).lng === "number"
+                              ? {
+                                  lat: (
+                                    i as IncidentResponse & {
+                                      lat?: number;
+                                      lng?: number;
+                                    }
+                                  ).lat as number,
+                                  lng: (
+                                    i as IncidentResponse & {
+                                      lat?: number;
+                                      lng?: number;
+                                    }
+                                  ).lng as number,
+                                }
+                              : parseLatLng(i.location);
+                          if (!coords) return null;
+                          const sev = i.severity.toLowerCase();
+                          const sevNum: 1 | 2 | 3 =
+                            sev === "critical" ? 3 : sev === "high" ? 2 : 1;
+                          const mapType = (
+                            raw?: string
+                          ): MapIncident["type"] => {
+                            const s = (raw || "").toLowerCase();
+                            if (s.includes("flood")) return "Flood";
+                            if (s.includes("wildfire") || s.includes("fire"))
+                              return "Wildfire";
+                            if (s.includes("earthquake") || s.includes("quake"))
+                              return "Earthquake";
+                            if (s.includes("tornado")) return "Tornado";
+                            if (s.includes("landslide")) return "Landslide";
+                            if (s.includes("volcano")) return "Volcano";
+                            if (s.includes("drought")) return "Drought";
+                            if (s.includes("heat")) return "Heatwave";
+                            if (s.includes("cold") || s.includes("freeze"))
+                              return "Coldwave";
+                            return "Storm";
+                          };
+                          return {
+                            id: i.id,
+                            title: i.title,
+                            type: mapType(i.incident_type),
+                            severity: sevNum,
+                            radiusKm: 10,
+                            city: i.location,
+                            lat: coords.lat,
+                            lng: coords.lng,
+                          } as MapIncident;
+                        })
+                        .filter(Boolean) as MapIncident[]
+                    }
+                    heightClass="h-64"
+                    initialCenter={[20, 0]}
+                    initialZoom={2}
+                    lockSingleWorld={true}
+                    focusId={currentIncident.id}
+                    viewMode={viewMode}
+                    onPointClick={(id: string) => navigate(`/incident/${id}`)}
+                    showRings
+                  />
                 </div>
               </div>
 
@@ -334,7 +459,7 @@ export default function IncidentReport() {
                         .map((incident) => (
                           <button
                             key={incident.id}
-                            onClick={() => setCurrentIncident(incident)}
+                            onClick={() => navigate(`/incident/${incident.id}`)}
                             className="flex-shrink-0 p-3 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors min-w-[200px]"
                           >
                             <div className="text-left">

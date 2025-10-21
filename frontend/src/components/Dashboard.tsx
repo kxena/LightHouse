@@ -1,185 +1,178 @@
-import { Activity, TrendingUp, Globe, LogOut, User, RefreshCw } from 'lucide-react';
-import { useUser, useClerk } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import MapWidget from './MapWidget'
-import type { Incident } from '../data/incidents';
+import { useEffect, useMemo, useState } from "react";
+import {
+  Activity,
+  TrendingUp,
+  Globe,
+  LogOut,
+  User,
+  RefreshCw,
+} from "lucide-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+// If MapWidget is elsewhere, fix this path.
+import MapWidget from "./MapWidget";
+import type { Incident as MapIncident } from "../data/incidents";
+import { IncidentAPI, type IncidentResponse } from "../services/incidentAPI";
+// import titleImg from "../assets/logo.png";
 
-// Label mappings
-const INCIDENT_TYPES: { [key: number]: string } = {
-  0: "No Useful Info",
-  1: "Earthquake",
-  2: "Tornado",
-  3: "Flood",
-  4: "Hurricane",
-  5: "Wildfire"
-};
-
-interface BlueskyPost {
-  author: {
-    handle: string;
-    displayName: string;
-  };
-  createdAt: string;
-  text: string;
-  initial_label: number;
-  manual_label?: number;
-  filter_reason?: string;
-}
-
-interface ProcessedIncident extends Incident {
-  author: string;
-  description: string;
-  status: string;
-  tags: string[];
-  created_at: string;
+// Compact, dynamic vertical list for trending topics (adjacent to Live Feed)
+function TrendingList({ trending }: { trending: Array<[string, number]> }) {
+  const max = trending.length ? Math.max(...trending.map(([, c]) => c)) : 1;
+  const formatCount = (n: number) => n.toString();
+  return (
+    <div className="flex flex-col gap-2 max-h-80 overflow-y-auto pr-1">
+      {trending.map(([tag, count]) => {
+        const ratio = count / max;
+        let textCls = "text-sm md:text-base";
+        let gradCls = "text-blue-700";
+        if (ratio >= 0.75) {
+          textCls = "text-lg md:text-xl";
+          gradCls =
+            "bg-gradient-to-r from-fuchsia-600 to-rose-600 bg-clip-text text-transparent";
+        } else if (ratio >= 0.5) {
+          textCls = "text-base md:text-lg";
+          gradCls =
+            "bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent";
+        } else if (ratio >= 0.25) {
+          textCls = "text-base";
+          gradCls =
+            "bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent";
+        }
+        return (
+          <div
+            key={tag}
+            className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-gray-50 transition"
+            title={`${count} incident${count !== 1 ? "s" : ""}`}
+          >
+            <span className={`font-semibold ${textCls} ${gradCls}`}>{tag}</span>
+            <span className="text-xs md:text-sm text-gray-600 tabular-nums">
+              {formatCount(count)}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export default function Dashboard() {
   const { user } = useUser();
   const { signOut } = useClerk();
   const navigate = useNavigate();
+
   const displayName = user?.firstName || user?.username || "User";
-  
-  const [viewMode, setViewMode] = useState<"points" | "heat">("points");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedIncidentType, setSelectedIncidentType] = useState<string | null>(null);
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const [incidents, setIncidents] = useState<ProcessedIncident[]>([]);
-  const [activeIncidents, setActiveIncidents] = useState(0);
-  const [postsPerMin, setPostsPerMin] = useState(0);
-  const [activeStates, setActiveStates] = useState(0);
-  const [loading, setLoading] = useState(true);
-  
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric'
+
+  // Format current date as MM/DD/YYYY
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
   });
 
-  // Fetch and parse JSONL file
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch the JSONL file from public folder
-      const response = await fetch('/manual_labeled_mc.jsonl');
-      const text = await response.text();
-      
-      // Parse JSONL (each line is a separate JSON object)
-      const lines = text.trim().split('\n');
-      const posts: BlueskyPost[] = lines
-        .filter(line => line.trim())
-        .map(line => JSON.parse(line));
-      
-      console.log(`Loaded ${posts.length} posts from JSONL file`);
-      
-      // Process posts into incidents
-      const processedIncidents: ProcessedIncident[] = [];
-      let incidentCounter = 1;
-      
-      // Process ALL posts, including label 0
-      posts.forEach(post => {
-        const label = post.manual_label ?? post.initial_label;
-        const incidentType = INCIDENT_TYPES[label] || "Unknown";
-        
-        // Extract location from text (simple approach)
-        let city = "Location TBD";
-        const text_lower = post.text.toLowerCase();
-        const locations = [
-          'Alaska', 'Indonesia', 'New Zealand', 'Japan', 'Afghanistan',
-          'Oklahoma', 'Chile', 'Austin', 'Texas', 'California', 'Florida',
-          'Louisiana', 'North Carolina', 'Philippines', 'Italy', 'Namibia',
-          'Spain', 'Bolivia', 'Colombia', 'Nova Scotia', 'Fiji Islands',
-          'Mexico', 'Oregon', 'Washington', 'Nevada', 'Arizona', 'North Dakota',
-          'Massachusetts', 'Illinois', 'Georgia', 'Virginia', 'Pennsylvania',
-          'Colorado', 'Montana', 'Wyoming', 'Utah', 'Idaho', 'Kentucky'
-        ];
-        
-        for (const place of locations) {
-          if (text_lower.includes(place.toLowerCase())) {
-            city = place;
-            break;
-          }
-        }
-        
-        // Determine severity
-        let severity: 1 | 2 | 3 = 2; // medium
-        if (/major|severe|critical|devastating|massive|ef-5|ef5|category 5|cat 5/i.test(post.text)) {
-          severity = 3; // high
-        } else if (/minor|small|weak/i.test(post.text)) {
-          severity = 1; // low
-        }
-        
-        // Map incident type to the allowed types
-        const typeMapping: Record<string, "Flood" | "Wildfire" | "Earthquake" | "Storm" | "Tornado"> = {
-          "Earthquake": "Earthquake",
-          "Tornado": "Tornado",
-          "Flood": "Flood",
-          "Hurricane": "Storm",
-          "Wildfire": "Wildfire",
-          "No Useful Info": "Storm" // Default type for label 0
-        };
-        
-        const mappedType = typeMapping[incidentType] || "Storm";
-        
-        processedIncidents.push({
-          id: `INC-${String(incidentCounter).padStart(6, '0')}`,
-          title: `${incidentType} - ${city}`,
-          type: mappedType,
-          severity,
-          radiusKm: 10,
-          city,
-          lat: 0,
-          lng: 0,
-          description: post.text.substring(0, 300) + (post.text.length > 300 ? '...' : ''),
-          status: "active",
-          tags: [incidentType.toLowerCase().replace(' ', '_'), city.toLowerCase().replace(' ', '_')],
-          created_at: post.createdAt,
-          author: post.author.handle
-        });
-        
-        incidentCounter++;
+  const [viewMode, setViewMode] = useState<"points" | "heat">("points");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [incidentsApi, setIncidentsApi] = useState<IncidentResponse[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const trending = useMemo(() => {
+    const freq: Record<string, number> = {};
+    const hashtagRegex = /#[\p{L}0-9_]+/giu; // unicode letters, numbers, underscore
+    for (const it of incidentsApi) {
+      const perIncident = new Set<string>();
+      // From structured tags
+      (it.tags || []).forEach((t) =>
+        perIncident.add(`#${String(t).toLowerCase()}`)
+      );
+      // From tweet texts
+      (it.source_tweets || []).forEach((tw) => {
+        const matches = tw.text.match(hashtagRegex) || [];
+        matches.forEach((h) => perIncident.add(h.toLowerCase()));
       });
-      
-      // Sort incidents by creation date (most recent first)
-      processedIncidents.sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-      
-      console.log(`Processed ${processedIncidents.length} incidents from JSONL`);
-      
-      setIncidents(processedIncidents);
-      
-      // Calculate metrics from the actual data
-      setActiveIncidents(processedIncidents.length);
-      
-      // Calculate posts per minute based on actual post count
-      const totalPosts = posts.length;
-      setPostsPerMin(Math.round(totalPosts / 60)); // Rough estimate
-      
-      // Calculate unique locations (states/countries)
-      const uniqueLocations = new Set(
-        processedIncidents
-          .map(inc => inc.city)
-          .filter(loc => loc !== "Location TBD")
-      );
-      setActiveStates(uniqueLocations.size);
-      
-    } catch (error) {
-      console.error('Error loading JSONL file:', error);
-      setActiveIncidents(0);
-      setPostsPerMin(0);
-      setActiveStates(0);
-    } finally {
-      setLoading(false);
+      // Accumulate once per incident
+      for (const h of perIncident) {
+        freq[h] = (freq[h] || 0) + 1;
+      }
     }
+    return Object.entries(freq)
+      .filter(([, count]) => count >= 2) // shared/frequent across incidents
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 12);
+  }, [incidentsApi]);
+
+  // Stub data/handlers — replace with real data wiring
+  const handleRefresh = async () => {
+    await loadIncidents();
   };
 
-  // Fetch data on component mount
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  // Helpers
+  const mapIncidentType = (raw?: string): MapIncident["type"] => {
+    const s = (raw || "").toLowerCase();
+    if (s.includes("flood")) return "Flood";
+    if (s.includes("wildfire") || s.includes("fire")) return "Wildfire";
+    if (s.includes("earthquake") || s.includes("quake")) return "Earthquake";
+    if (s.includes("tornado")) return "Tornado";
+    if (s.includes("landslide")) return "Landslide";
+    if (s.includes("volcano")) return "Volcano";
+    if (s.includes("drought")) return "Drought";
+    if (s.includes("heat")) return "Heatwave";
+    if (s.includes("cold") || s.includes("freeze")) return "Coldwave";
+    return "Storm";
+  };
+
+  const mapSeverity = (sev?: string): 1 | 2 | 3 => {
+    const s = (sev || "").toLowerCase();
+    if (s === "critical") return 3;
+    if (s === "high") return 2;
+    return 1;
+  };
+
+  const parseLatLng = (
+    location?: string
+  ): { lat: number; lng: number } | null => {
+    if (!location) return null;
+    // Try to find "(lat,lng)" or "lat,lng" patterns
+    const parenMatch = location.match(
+      /\((-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)\)/
+    );
+    if (parenMatch) {
+      const lat = parseFloat(parenMatch[1]);
+      const lng = parseFloat(parenMatch[2]);
+      if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+    }
+    const looseMatch = location.match(
+      /(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/
+    );
+    if (looseMatch) {
+      const lat = parseFloat(looseMatch[1]);
+      const lng = parseFloat(looseMatch[2]);
+      if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+    }
+    return null;
+  };
+
+  // MapWidget expects a different Incident shape (with lat/lng, severity as 1-3)
+  const incidents: MapIncident[] = incidentsApi
+    .map((i: IncidentResponse) => {
+      const coords =
+        typeof i.lat === "number" && typeof i.lng === "number"
+          ? { lat: i.lat, lng: i.lng }
+          : parseLatLng(i.location);
+      if (!coords) return null;
+      return {
+        id: i.id,
+        title: i.title,
+        type: mapIncidentType(i.incident_type),
+        severity: mapSeverity(i.severity),
+        radiusKm: 10,
+        city: i.location,
+        lat: coords.lat,
+        lng: coords.lng,
+      } as MapIncident;
+    })
+    .filter(Boolean) as MapIncident[];
+  const activeIncidents = incidentsApi.length;
+  const postsPerMin = 0; // TODO: real metric
+  const activeStates = 0; // TODO: real metric
 
   const handleSignOut = async () => {
     await signOut();
@@ -190,133 +183,126 @@ export default function Dashboard() {
     navigate("/profile");
   };
 
-  const handleRefresh = () => {
-    fetchDashboardData();
-  };
-
-  // Helper function to calculate time ago
-  const getTimeAgo = (timestamp: string) => {
-    const now = new Date();
-    const then = new Date(timestamp);
-    const diffInSeconds = Math.floor((now.getTime() - then.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) {
-      return `${diffInSeconds} sec ago`;
-    } else if (diffInSeconds < 3600) {
-      const minutes = Math.floor(diffInSeconds / 60);
-      return `${minutes} min ago`;
-    } else if (diffInSeconds < 86400) {
-      const hours = Math.floor(diffInSeconds / 3600);
-      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    } else {
-      const days = Math.floor(diffInSeconds / 86400);
-      return `${days} day${days > 1 ? 's' : ''} ago`;
+  const loadIncidents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await IncidentAPI.getAllIncidents();
+      setIncidentsApi(data);
+    } catch (err) {
+      console.error("Failed to load incidents:", err);
+      setError(err instanceof Error ? err.message : "Failed to load incidents");
+      setIncidentsApi([]);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Filter incidents based on search query and selected type
-  const filteredIncidents = incidents.filter(incident => {
-    const matchesType = !selectedIncidentType || incident.type === selectedIncidentType;
-    return matchesType;
-  });
-
-  // Search results - separate from Live Feed
-  const searchResults = incidents.filter(incident => 
-    searchQuery.trim() && (
-      incident.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      incident.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      incident.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      incident.city.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
-
-  // Handler for clicking incident type tags
-  const handleIncidentTypeClick = (type: string) => {
-    if (selectedIncidentType === type) {
-      // If clicking the same type, deselect it
-      setSelectedIncidentType(null);
-    } else {
-      // Select the new type
-      setSelectedIncidentType(type);
-    }
-  };
+  useEffect(() => {
+    loadIncidents();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold">
-              <span className="text-gray-800">Light</span>
-              <span className="text-pink-600">House</span>
-            </h1>
-            <p className="text-gray-600 mt-1">Welcome {displayName}</p>
+        {/* Header */}
+        <div className="mb-8">
+          {/* Top: Centered brand/logo */}
+          <div className="flex justify-center items-center h-12 mb-3">
+            <img
+              src="src/assets/title.png"
+              alt="LightHouse Logo"
+              className="object-contain max-h-12"
+            />
           </div>
-          <div className="flex items-center gap-4">
-            <p className="text-gray-600">{currentDate}</p>
-            <button
-              onClick={handleProfile}
-              className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm text-gray-800 font-semibold rounded-lg shadow-md hover:bg-white/80 transition-all duration-200"
-            >
-              <User className="w-4 h-4" />
-              Profile
-            </button>
-            <button
-              onClick={handleSignOut}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500/80 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition-all duration-200"
-            >
-              <LogOut className="w-4 h-4" />
-              Log Out
-            </button>
-          </div>
-        </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="text-lg font-semibold text-gray-700">Loading incidents from JSONL file...</div>
-          </div>
-        ) : (
-          <>
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex items-center bg-white/70 rounded-xl shadow overflow-hidden">
-                <button
-                  className={`px-3 py-1 text-sm ${viewMode === "points" ? "bg-white font-semibold" : "opacity-70"}`}
-                  onClick={() => setViewMode("points")}
-                >
-                  Points
-                </button>
-                <button
-                  className={`px-3 py-1 text-sm ${viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"}`}
-                  onClick={() => setViewMode("heat")}
-                >
-                  Heat
-                </button>
-              </div>
-
+          {/* Bottom: Left welcome, right date + actions */}
+          <div className="flex justify-between items-center">
+            <p className="text-gray-600 text-xl mt-1">Welcome {displayName},</p>
+            <div className="flex items-center gap-4">
+              <p className="text-gray-600 text-xl">{currentDate}</p>
               <button
-                onClick={handleRefresh}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 hover:bg-white shadow"
+                onClick={handleProfile}
+                className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm text-gray-800 font-semibold rounded-lg shadow-md hover:bg-white/80 transition-all duration-200"
               >
-                <RefreshCw className="h-4 w-4" />
-                <span>Refresh</span>
+                <User className="w-4 h-4" />
+                Profile
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500/80 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition-all duration-200"
+              >
+                <LogOut className="w-4 h-4" />
+                Log Out
               </button>
               
               <div className="text-sm text-gray-600 ml-auto">
                 Showing {filteredIncidents.length} of {incidents.length} incidents
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* Map Card */}
-            <div className="bg-white/45 backdrop-blur-sm rounded-2xl p-4 shadow mb-4">
-              <MapWidget
-                incidents={filteredIncidents}
-                heightClass="h-72"
-                initialCenter={[20, 0]}
-                initialZoom={2}
-                lockSingleWorld
-                viewMode={viewMode}
-                onPointClick={(id) => navigate(`/incident/${id}`)}
-              />
+        {/* Controls */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center bg-white/70 rounded-xl shadow overflow-hidden">
+            <button
+              className={`px-3 py-1 text-sm ${
+                viewMode === "points" ? "bg-white font-semibold" : "opacity-70"
+              }`}
+              onClick={() => setViewMode("points")}
+            >
+              Points
+            </button>
+            <button
+              className={`px-3 py-1 text-sm ${
+                viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"
+              }`}
+              onClick={() => setViewMode("heat")}
+            >
+              Heat
+            </button>
+          </div>
+
+          <button
+            onClick={handleRefresh}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 hover:bg-white shadow"
+          >
+            <RefreshCw className="h-4 w-4" />
+            <span>Refresh</span>
+          </button>
+        </div>
+
+        {/* Map Card */}
+        <div className="bg-white/45 backdrop-blur-sm rounded-2xl p-4 shadow mb-6">
+          <MapWidget
+            incidents={incidents}
+            heightClass="h-72"
+            initialCenter={[20, 0]}
+            initialZoom={2}
+            lockSingleWorld={true}
+            viewMode={viewMode} /* NEW */
+            onPointClick={(id: MapIncident["id"]) =>
+              navigate(`/incident/${id}`)
+            }
+          />
+        </div>
+
+        {/* Search */}
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search"
+          className="w-full rounded-xl px-4 py-2 bg-white/70 focus:bg-white outline-none shadow mb-6"
+        />
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">Active Incidents</span>
+              <Activity className="h-4 w-4" />
             </div>
 
             {/* Search with dropdown results */}
@@ -389,93 +375,77 @@ export default function Dashboard() {
                 </div>
               )}
             </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-              <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Active Incidents</span>
-                  <Activity className="h-4 w-4" />
-                </div>
-                <div className="text-2xl font-bold mt-1">{activeIncidents}</div>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">System Status</span>
-                  <TrendingUp className="h-4 w-4" />
-                </div>
-                <div className="text-2xl font-bold mt-1">{(postsPerMin / 1000).toFixed(1)}K posts/min</div>
-              </div>
-              <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Coverage Area</span>
-                  <Globe className="h-4 w-4" />
-                </div>
-                <div className="text-2xl font-bold mt-1">{activeStates} Locations</div>
-              </div>
+            <div className="text-2xl font-bold mt-1">
+              {(postsPerMin / 1000).toFixed(1)}K posts/min
+            </div>
+          </div>
+          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">Coverage Area</span>
+              <Globe className="h-4 w-4" />
             </div>
 
-            {/* Content cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5">
-                <h3 className="font-semibold mb-2">Live Feed</h3>
-                <div className="space-y-2 max-h-[180px] overflow-y-auto">
-                  {filteredIncidents.slice(0, 10).map((incident) => (
-                    <div key={incident.id} className="text-sm border-b pb-2 hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => navigate(`/incident/${incident.id}`)}>
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-800">{incident.type}</div>
-                          <div className="text-gray-600 text-xs">{incident.city}</div>
-                          <div className="text-gray-500 text-xs mt-1">@{incident.author}</div>
-                          <div className="text-gray-400 text-xs mt-1">
-                            {new Date(incident.created_at).toLocaleString()}
-                          </div>
-                        </div>
-                        <div className="text-xs text-gray-500 ml-2 whitespace-nowrap">
-                          {getTimeAgo(incident.created_at)}
-                        </div>
-                      </div>
+        {/* Content cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Live Feed (same as previous Recent Incidents) */}
+          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5 md:col-span-1">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold">Live Feed</h3>
+              {loading && (
+                <span className="text-sm text-gray-500">Loading…</span>
+              )}
+            </div>
+            {error ? (
+              <div className="text-red-600 text-sm">{error}</div>
+            ) : incidentsApi.length === 0 ? (
+              <div className="text-gray-600 text-sm">
+                No incidents yet. Try seeding or check back soon.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3 max-h-80 overflow-y-auto pr-1">
+                {incidentsApi.map((it) => (
+                  <button
+                    key={it.id}
+                    onClick={() => navigate(`/incident/${it.id}`)}
+                    className="text-left p-4 rounded-xl border border-gray-200 hover:border-purple-500 hover:bg-purple-50 transition"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-semibold text-sm">
+                        {it.incident_type}
+                      </span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                        {it.severity}
+                      </span>
                     </div>
-                  ))}
-                </div>
+                    <div className="text-xs text-gray-600 truncate">
+                      {it.location}
+                    </div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      {new Date(it.created_at).toLocaleString()}
+                    </div>
+                  </button>
+                ))}
               </div>
-              <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5">
-                <h3 className="font-semibold mb-2">Incident Types</h3>
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(
-                    incidents.reduce((acc, inc) => {
-                      acc[inc.type] = (acc[inc.type] || 0) + 1;
-                      return acc;
-                    }, {} as Record<string, number>)
-                  ).map(([type, count]) => (
-                    <span 
-                      key={type} 
-                      onClick={() => handleIncidentTypeClick(type)}
-                      className={`px-3 py-1 rounded-full text-sm cursor-pointer transition-all ${
-                        selectedIncidentType === type 
-                          ? 'bg-pink-600 text-white ring-2 ring-pink-400' 
-                          : 'bg-gray-900 text-white hover:bg-gray-700'
-                      }`}
-                    >
-                      {type} ({count})
-                    </span>
-                  ))}
-                </div>
-                {selectedIncidentType && (
-                  <div className="mt-3 text-sm text-gray-600">
-                    Filtering by: <span className="font-semibold">{selectedIncidentType}</span>
-                    <button 
-                      onClick={() => setSelectedIncidentType(null)}
-                      className="ml-2 text-pink-600 hover:text-pink-700 underline"
-                    >
-                      Clear filter
-                    </button>
-                  </div>
-                )}
-              </div>
+            )}
+          </div>
+
+          {/* Trending Topics computed from shared/frequent tags across incidents */}
+          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5 md:col-span-1">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="h-4 w-4 text-gray-700" />
+              <h3 className="font-semibold">Trending Topics</h3>
             </div>
-          </>
-        )}
+            {incidentsApi.length === 0 ? (
+              <div className="text-gray-600 text-sm">No data yet.</div>
+            ) : trending.length === 0 ? (
+              <div className="text-gray-600 text-sm">
+                No trending topics yet.
+              </div>
+            ) : (
+              <TrendingList trending={trending} />
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

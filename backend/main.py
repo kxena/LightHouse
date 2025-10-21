@@ -1,7 +1,7 @@
 # cd backend, fastapi dev main.py
 
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
@@ -36,8 +36,11 @@ class TweetAnalysisResult(BaseModel):
     incident_type: Optional[str] = None  # e.g., "Power Outage", "Flood", "Fire", etc.
     severity: Optional[str] = None  # "low", "medium", "high", "critical"
     location: Optional[str] = None
-    key_entities: List[str] = []  # extracted entities from LLM
+    key_entities: List[str] = Field(default_factory=list)  # extracted entities from LLM
     confidence_score: Optional[float] = None
+    # Optional geocoding
+    lat: Optional[float] = None
+    lng: Optional[float] = None
 
 class IncidentFromTweets(BaseModel):
     """Incident automatically generated from tweet analysis"""
@@ -50,6 +53,9 @@ class IncidentFromTweets(BaseModel):
     estimated_restoration: Optional[str] = None
     affected_area: Optional[str] = None
     source_tweets: List[Tweet]  # All tweets that contributed to this incident
+    # Optional geocoding
+    lat: Optional[float] = None
+    lng: Optional[float] = None
     
 class IncidentResponse(BaseModel):
     id: str
@@ -64,6 +70,13 @@ class IncidentResponse(BaseModel):
     created_at: datetime
     status: str
     source_tweets: List[Tweet]  # Associated tweets
+    # Optional geocoding
+    lat: Optional[float] = None
+    lng: Optional[float] = None
+
+
+class StatusUpdate(BaseModel):
+    status: str
 
 
 @app.get("/")
@@ -207,7 +220,9 @@ async def analyze_tweet(tweet_analysis: TweetAnalysisResult):
         affected_area=None,
         created_at=datetime.now(),
         status="active",
-        source_tweets=[tweet_analysis.tweet]
+        source_tweets=[tweet_analysis.tweet],
+        lat=tweet_analysis.lat,
+        lng=tweet_analysis.lng,
     )
     
     incident_reports_db[incident_id] = incident_response
@@ -238,7 +253,9 @@ async def create_incident_from_tweets(incident_data: IncidentFromTweets):
         affected_area=incident_data.affected_area,
         created_at=datetime.now(),
         status="active",
-        source_tweets=incident_data.source_tweets
+        source_tweets=incident_data.source_tweets,
+        lat=incident_data.lat,
+        lng=incident_data.lng,
     )
     
     incident_reports_db[incident_id] = incident_response
@@ -295,23 +312,23 @@ async def get_dashboard_stats():
 async def get_incident(incident_id: str):
     """Get a specific incident report"""
     if incident_id not in incident_reports_db:
-        return {"error": "Incident not found"}, 404
+        raise HTTPException(status_code=404, detail="Incident not found")
     return incident_reports_db[incident_id]
 
 @app.put("/incidents/{incident_id}/status")
-async def update_incident_status(incident_id: str, status: str):
+async def update_incident_status(incident_id: str, update: StatusUpdate):
     """Update incident status"""
     if incident_id not in incident_reports_db:
-        return {"error": "Incident not found"}, 404
+        raise HTTPException(status_code=404, detail="Incident not found")
     
-    incident_reports_db[incident_id].status = status
+    incident_reports_db[incident_id].status = update.status
     return incident_reports_db[incident_id]
 
 @app.post("/incidents/{incident_id}/add-tweet")
 async def add_tweet_to_incident(incident_id: str, tweet: Tweet):
     """Add a tweet to an existing incident (when model identifies related tweets)"""
     if incident_id not in incident_reports_db:
-        return {"error": "Incident not found"}, 404
+        raise HTTPException(status_code=404, detail="Incident not found")
     
     incident = incident_reports_db[incident_id]
     
