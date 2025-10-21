@@ -23,7 +23,7 @@ load_dotenv()
 # Initialize LLM
 llm = ChatOpenAI(
     model="meta-llama/Llama-3.1-8B-Instruct:novita",
-    openai_api_key="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",
+    openai_api_key=(os.getenv('HF_TOKEN')),
     openai_api_base="https://router.huggingface.co/v1",
     temperature=0.5,
 )
