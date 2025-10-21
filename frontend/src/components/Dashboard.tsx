@@ -235,6 +235,10 @@ export default function Dashboard() {
                 <LogOut className="w-4 h-4" />
                 Log Out
               </button>
+              
+              <div className="text-sm text-gray-600 ml-auto">
+                Showing {filteredIncidents.length} of {incidents.length} incidents
+              </div>
             </div>
           </div>
         </div>
@@ -300,12 +304,76 @@ export default function Dashboard() {
               <span className="text-sm text-gray-500">Active Incidents</span>
               <Activity className="h-4 w-4" />
             </div>
-            <div className="text-2xl font-bold mt-1">{activeIncidents}</div>
-          </div>
-          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">System Status</span>
-              <TrendingUp className="h-4 w-4" />
+
+            {/* Search with dropdown results */}
+            <div className="mb-4 relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSearchResults(e.target.value.trim().length > 0);
+                }}
+                onFocus={() => setShowSearchResults(searchQuery.trim().length > 0)}
+                placeholder="Search incidents by type, location, or description..."
+                className="w-full rounded-xl px-4 py-2 bg-white/70 focus:bg-white outline-none shadow"
+              />
+              
+              {/* Search results dropdown */}
+              {showSearchResults && searchResults.length > 0 && (
+                <div className="absolute z-10 w-full mt-2 bg-white rounded-xl shadow-lg max-h-96 overflow-y-auto">
+                  <div className="p-2">
+                    <div className="flex justify-between items-center px-3 py-2 border-b">
+                      <span className="text-sm font-semibold text-gray-700">
+                        Found {searchResults.length} incident{searchResults.length !== 1 ? 's' : ''}
+                      </span>
+                      <button
+                        onClick={() => {
+                          setSearchQuery('');
+                          setShowSearchResults(false);
+                        }}
+                        className="text-xs text-gray-500 hover:text-gray-700"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    {searchResults.map((incident) => (
+                      <div
+                        key={incident.id}
+                        onClick={() => {
+                          navigate(`/incident/${incident.id}`);
+                          setShowSearchResults(false);
+                        }}
+                        className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="font-semibold text-gray-900">{incident.title}</div>
+                            <div className="text-sm text-gray-600 mt-1">{incident.city}</div>
+                            <div className="text-xs text-gray-500 mt-1">
+                              {incident.type} • @{incident.author}
+                            </div>
+                            <div className="text-xs text-gray-400 mt-1">
+                              {new Date(incident.created_at).toLocaleString()}
+                            </div>
+                          </div>
+                          <div className="text-xs text-gray-500 ml-2 whitespace-nowrap">
+                            {getTimeAgo(incident.created_at)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {showSearchResults && searchResults.length === 0 && searchQuery.trim() && (
+                <div className="absolute z-10 w-full mt-2 bg-white rounded-xl shadow-lg p-4">
+                  <p className="text-sm text-gray-500 text-center">
+                    No incidents found matching "{searchQuery}"
+                  </p>
+                </div>
+              )}
             </div>
             <div className="text-2xl font-bold mt-1">
               {(postsPerMin / 1000).toFixed(1)}K posts/min
@@ -316,9 +384,6 @@ export default function Dashboard() {
               <span className="text-sm text-gray-500">Coverage Area</span>
               <Globe className="h-4 w-4" />
             </div>
-            <div className="text-2xl font-bold mt-1">{activeStates} States</div>
-          </div>
-        </div>
 
         {/* Content cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
