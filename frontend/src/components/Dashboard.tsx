@@ -206,34 +206,36 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <div className="flex justify-center items-center h-12 mb-3">
-              <img
-                src="src/assets/title.png"
-                alt="LightHouse Logo"
-                className="object-contain max-h-12"
-              />
-            </div>
-
-            <p className="text-gray-600 mt-1">Welcome {displayName}</p>
+        <div className="mb-8">
+          {/* Top: Centered brand/logo */}
+          <div className="flex justify-center items-center h-12 mb-3">
+            <img
+              src="src/assets/title.png"
+              alt="LightHouse Logo"
+              className="object-contain max-h-12"
+            />
           </div>
-          <div className="flex items-center gap-4">
-            <p className="text-gray-600">{currentDate}</p>
-            <button
-              onClick={handleProfile}
-              className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm text-gray-800 font-semibold rounded-lg shadow-md hover:bg-white/80 transition-all duration-200"
-            >
-              <User className="w-4 h-4" />
-              Profile
-            </button>
-            <button
-              onClick={handleSignOut}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500/80 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition-all duration-200"
-            >
-              <LogOut className="w-4 h-4" />
-              Log Out
-            </button>
+
+          {/* Bottom: Left welcome, right date + actions */}
+          <div className="flex justify-between items-center">
+            <p className="text-gray-600 text-xl mt-1">Welcome {displayName},</p>
+            <div className="flex items-center gap-4">
+              <p className="text-gray-600 text-xl">{currentDate}</p>
+              <button
+                onClick={handleProfile}
+                className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm text-gray-800 font-semibold rounded-lg shadow-md hover:bg-white/80 transition-all duration-200"
+              >
+                <User className="w-4 h-4" />
+                Profile
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-2 px-4 py-2 bg-red-500/80 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition-all duration-200"
+              >
+                <LogOut className="w-4 h-4" />
+                Log Out
+              </button>
+            </div>
           </div>
         </div>
 
