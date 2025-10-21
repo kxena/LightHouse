@@ -33,10 +33,18 @@ export default function App() {
               <SignedIn>
                 <div className="flex flex-col items-center gap-8 p-8 bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
                   <div className="flex flex-col items-center gap-4">
-                    <div className="text-6xl">🏠</div>
-                    <h1 className="text-4xl font-bold text-gray-800 text-center">
-                      Welcome, {displayName}!
-                    </h1>
+                    <img
+                      src="src/assets/logo.png"
+                      alt="LightHouse Logo"
+                      className="w-100 h-100 object-contain"
+                    />
+                    <div className="flex justify-center items-center h-3 mb-3">
+                      <img
+                        src="src/assets/title.png"
+                        alt="LightHouse Logo"
+                        className="object-contain max-h-12"
+                      />
+                    </div>
                     <p className="text-gray-600 text-center">
                       Your disaster response management system
                     </p>
