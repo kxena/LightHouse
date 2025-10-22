@@ -1,0 +1,36 @@
+Model: logistic_regression
+============================================================
+
+Overall Metrics:
+  Accuracy: 0.9794
+
+Weighted Averages (accounts for class imbalance):
+  Precision: 0.9794
+  Recall: 0.9794
+  F1-Score: 0.9794
+
+Macro Averages (treats all classes equally):
+  Precision: 0.9829
+  Recall: 0.9784
+  F1-Score: 0.9807
+
+False Positive Rate per class:
+  earthquake: 0.0002
+  flood: 0.0048
+  hurricane: 0.0181
+  wildfire: 0.0084
+
+============================================================
+
+Per-Class Metrics:
+
+              precision    recall  f1-score   support
+
+  earthquake     0.9974    0.9794    0.9883       389
+       flood     0.9887    0.9836    0.9862      1955
+   hurricane     0.9751    0.9822    0.9786      2749
+    wildfire     0.9705    0.9685    0.9695      1461
+
+    accuracy                         0.9794      6554
+   macro avg     0.9829    0.9784    0.9807      6554
+weighted avg     0.9794    0.9794    0.9794      6554

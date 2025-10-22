@@ -1,0 +1,4 @@
+,accuracy,precision_weighted,recall_weighted,f1_weighted,precision_macro,recall_macro,f1_macro
+logistic_regression,0.9794,0.9794,0.9794,0.9794,0.9829,0.9784,0.9807
+random_forest,0.9675,0.9678,0.9675,0.9675,0.9744,0.9689,0.9715
+xgboost,0.9713,0.972,0.9713,0.9714,0.9806,0.9688,0.9744

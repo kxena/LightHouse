@@ -24,7 +24,7 @@ async function main() {
     for (const post of results.data.posts) {
       if (post.record?.text) {
         console.log("Disaster-related post:", post.record.text);
-        fs.appendFileSync("disaster_posts_api.jsonl", JSON.stringify(post) + "\n");
+        fs.appendFileSync("backend/disaster_posts_api.jsonl", JSON.stringify(post) + "\n");
       }
     }
   }

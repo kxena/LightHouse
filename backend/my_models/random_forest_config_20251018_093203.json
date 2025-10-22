@@ -1,0 +1,43 @@
+{
+  "threshold": 0.5249999999999999,
+  "thresholds_per_class": {
+    "earthquake": 0.5499999999999999,
+    "flood": 0.49999999999999994,
+    "hurricane": 0.49999999999999994,
+    "wildfire": 0.5499999999999999
+  },
+  "model_file": "random_forest_model_20251018_093203.joblib",
+  "vectorizer_file": "random_forest_vectorizer_20251018_093203.joblib",
+  "label_encoder_file": "label_encoder_20251018_093203.joblib",
+  "created_at": "20251018_093203",
+  "model_type": "RandomForestClassifier",
+  "classes": [
+    "earthquake",
+    "flood",
+    "hurricane",
+    "wildfire"
+  ],
+  "max_features": 5000,
+  "random_state": 42,
+  "model_params": {
+    "bootstrap": true,
+    "ccp_alpha": 0.0,
+    "class_weight": "balanced",
+    "criterion": "gini",
+    "max_depth": 25,
+    "max_features": "sqrt",
+    "max_leaf_nodes": null,
+    "max_samples": null,
+    "min_impurity_decrease": 0.0001,
+    "min_samples_leaf": 4,
+    "min_samples_split": 10,
+    "min_weight_fraction_leaf": 0.0,
+    "monotonic_cst": null,
+    "n_estimators": 300,
+    "n_jobs": -1,
+    "oob_score": true,
+    "random_state": 42,
+    "verbose": 0,
+    "warm_start": false
+  }
+}
