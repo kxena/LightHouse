@@ -1,0 +1,36 @@
+Model: xgboost
+============================================================
+
+Overall Metrics:
+  Accuracy: 0.9713
+
+Weighted Averages (accounts for class imbalance):
+  Precision: 0.9720
+  Recall: 0.9713
+  F1-Score: 0.9714
+
+Macro Averages (treats all classes equally):
+  Precision: 0.9806
+  Recall: 0.9688
+  F1-Score: 0.9744
+
+False Positive Rate per class:
+  earthquake: 0.0000
+  flood: 0.0037
+  hurricane: 0.0384
+  wildfire: 0.0049
+
+============================================================
+
+Per-Class Metrics:
+
+              precision    recall  f1-score   support
+
+  earthquake     1.0000    0.9743    0.9870       389
+       flood     0.9911    0.9632    0.9769      1955
+   hurricane     0.9490    0.9884    0.9683      2749
+    wildfire     0.9823    0.9493    0.9655      1461
+
+    accuracy                         0.9713      6554
+   macro avg     0.9806    0.9688    0.9744      6554
+weighted avg     0.9720    0.9713    0.9714      6554

@@ -1,0 +1,21 @@
+{
+  "timestamp": "20251018_093203",
+  "label_encoder_file": "label_encoder_20251018_093203.joblib",
+  "models": {
+    "logistic_regression": {
+      "model_file": "logistic_regression_model_20251018_093203.joblib",
+      "vectorizer_file": "logistic_regression_vectorizer_20251018_093203.joblib",
+      "config_file": "logistic_regression_config_20251018_093203.json"
+    },
+    "random_forest": {
+      "model_file": "random_forest_model_20251018_093203.joblib",
+      "vectorizer_file": "random_forest_vectorizer_20251018_093203.joblib",
+      "config_file": "random_forest_config_20251018_093203.json"
+    },
+    "xgboost": {
+      "model_file": "xgboost_model_20251018_093203.joblib",
+      "vectorizer_file": "xgboost_vectorizer_20251018_093203.joblib",
+      "config_file": "xgboost_config_20251018_093203.json"
+    }
+  }
+}

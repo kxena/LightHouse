@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/EJcoding/LightHouse#readme",
   "dependencies": {
-    "@atproto/api": "^0.16.9",
+    "@atproto/api": "^0.16.11",
     "ws": "^8.18.3"
   }
 }

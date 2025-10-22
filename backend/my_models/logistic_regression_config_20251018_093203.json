@@ -1,0 +1,39 @@
+{
+  "threshold": 0.8374999999999999,
+  "thresholds_per_class": {
+    "earthquake": 0.7,
+    "flood": 0.8499999999999999,
+    "hurricane": 0.8999999999999999,
+    "wildfire": 0.8999999999999999
+  },
+  "model_file": "logistic_regression_model_20251018_093203.joblib",
+  "vectorizer_file": "logistic_regression_vectorizer_20251018_093203.joblib",
+  "label_encoder_file": "label_encoder_20251018_093203.joblib",
+  "created_at": "20251018_093203",
+  "model_type": "LogisticRegression",
+  "classes": [
+    "earthquake",
+    "flood",
+    "hurricane",
+    "wildfire"
+  ],
+  "max_features": 5000,
+  "random_state": 42,
+  "model_params": {
+    "C": 10.0,
+    "class_weight": "balanced",
+    "dual": false,
+    "fit_intercept": true,
+    "intercept_scaling": 1,
+    "l1_ratio": null,
+    "max_iter": 2000,
+    "multi_class": "deprecated",
+    "n_jobs": null,
+    "penalty": "l2",
+    "random_state": 42,
+    "solver": "lbfgs",
+    "tol": 0.0001,
+    "verbose": 0,
+    "warm_start": false
+  }
+}

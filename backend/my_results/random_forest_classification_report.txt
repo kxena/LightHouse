@@ -1,0 +1,36 @@
+Model: random_forest
+============================================================
+
+Overall Metrics:
+  Accuracy: 0.9675
+
+Weighted Averages (accounts for class imbalance):
+  Precision: 0.9678
+  Recall: 0.9675
+  F1-Score: 0.9675
+
+Macro Averages (treats all classes equally):
+  Precision: 0.9744
+  Recall: 0.9689
+  F1-Score: 0.9715
+
+False Positive Rate per class:
+  earthquake: 0.0006
+  flood: 0.0089
+  hurricane: 0.0357
+  wildfire: 0.0063
+
+============================================================
+
+Per-Class Metrics:
+
+              precision    recall  f1-score   support
+
+  earthquake     0.9897    0.9871    0.9884       389
+       flood     0.9787    0.9642    0.9714      1955
+   hurricane     0.9519    0.9789    0.9652      2749
+    wildfire     0.9774    0.9452    0.9610      1461
+
+    accuracy                         0.9675      6554
+   macro avg     0.9744    0.9689    0.9715      6554
+weighted avg     0.9678    0.9675    0.9675      6554
