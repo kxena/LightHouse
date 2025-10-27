@@ -53,8 +53,7 @@ class PipelineConfig:
         "earthquake",
         "flood",
         "wildfire", 
-        "hurricane",
-        "tornado"
+        "hurricane"
     ]
     
     # Maximum total posts to fetch
