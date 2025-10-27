@@ -1,15 +1,1 @@
-# In backend/.gitignore
 .env
-*.env
-.env.local
-.env.*.local
-
-# Python stuff
-__pycache__/
-*.pyc
-*.pyo
-venv/
-*.egg-info/
-
-# Output files (remove if you want to commit results)
-pipeline_output/

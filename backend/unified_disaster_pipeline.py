@@ -53,7 +53,8 @@ class PipelineConfig:
         "earthquake",
         "flood",
         "wildfire", 
-        "hurricane"
+        "hurricane",
+        "tornado"
     ]
     
     # Maximum total posts to fetch
@@ -512,7 +513,7 @@ class UnifiedPipeline:
     
     def __init__(self, config: PipelineConfig):
         self.config = config
-        self.config.OUTPUT_DIR.mkdir(exist_ok=True, parents=True)
+        self.config.OUTPUT_DIR.mkdir(exist_ok=True)
     
     def save_jsonl(self, data: List[Dict], filepath: Path):
         """Save data as JSONL"""
