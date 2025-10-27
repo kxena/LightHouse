@@ -11,7 +11,7 @@ async function main() {
 
   console.log("Logged in as:", agent.session.handle);
 
-  const disasterKeywords = ["earthquake", "flood", "wildfire", "hurricane", "tornado"];
+  const disasterKeywords = ["earthquake", "flood", "wildfire", "hurricane"];
 
   // Use the new searchPosts API instead of getAuthorFeed
   for (const keyword of disasterKeywords) {
