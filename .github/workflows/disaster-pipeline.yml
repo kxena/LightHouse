@@ -3,7 +3,7 @@ name: Disaster Tweet Pipeline
 on:
   # Eventually run 1-2 times a day
   schedule:
-    - cron: '0 * * * *'  # once a day at 12AM
+    - cron: '0 6,18 * * *'  # twice a day
   
   # Allow manual runs from GitHub UI
   workflow_dispatch:
