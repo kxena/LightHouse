@@ -166,7 +166,7 @@ class BlueskyFetcher:
 class TweetCleaner:
     """Clean and format tweets to standard format"""
     
-    DISASTER_KEYWORDS = ["earthquake", "flood", "wildfire", "hurricane", "blaze"]
+    DISASTER_KEYWORDS = ["earthquake", "flood", "wildfire", "hurricane"]
     
     @staticmethod
     def extract_keyword(text: str) -> Optional[str]:
