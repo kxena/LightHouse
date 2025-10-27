@@ -1,12 +1,9 @@
 {
   "name": "lighthouse",
   "version": "1.0.0",
-  "type": "module",
   "description": "- **React.js** – Provides the foundation for building the interactive, component-based user interface of Lighthouse.\r - **Tailwind CSS** – Utility-first CSS framework that ensures a clean, responsive, and modern UI design without writing custom CSS from scratch.\r - **Recharts / Map Libraries (Leaflet, Mapbox, etc.)** – Power the visualization features such as interactive heatmaps, dashboards, and trend graphs.",
-  "main": "backend/server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "node backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,10 +19,6 @@
   "homepage": "https://github.com/EJcoding/LightHouse#readme",
   "dependencies": {
     "@atproto/api": "^0.16.9",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
     "ws": "^8.18.3"
   }
-
-  
 }

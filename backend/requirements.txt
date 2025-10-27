@@ -1,0 +1,8 @@
+python-dotenv
+langchain-openai
+langgraph
+atproto
+joblib
+scikit-learn
+xgboost
+numpy

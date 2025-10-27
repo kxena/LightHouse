@@ -18,9 +18,7 @@ export default function App() {
 
             <SignedIn>
               <div className="flex flex-col items-center gap-4">
-                <h1 className="text-3xl font-bold text-gray-800">
-                  Welcome to LightHouse 🎉
-                </h1>
+                <h1 className="text-3xl font-bold text-gray-800">Welcome to LightHouse 🎉</h1>
                 <UserButton afterSignOutUrl="/sign-in" />
               </div>
             </SignedIn>
@@ -29,33 +27,10 @@ export default function App() {
       />
 
       <Route path="/sign-in/*" element={<SignInPage />} />
+
       <Route path="/sign-up/*" element={<SignUpPage />} />
-      <Route
-        path="/incident/:id"
-        element={
-          <>
-            <SignedIn>
-              <IncidentReport />
-            </SignedIn>
-            <SignedOut>
-              <Navigate to="/sign-in" replace />
-            </SignedOut>
-          </>
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <>
-            <SignedIn>
-              <Dashboard />
-            </SignedIn>
-            <SignedOut>
-              <Navigate to="/sign-in" replace />
-            </SignedOut>
-          </>
-        }
-      />
+      <Route path="/incident/:id" element={<IncidentReport />} />
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

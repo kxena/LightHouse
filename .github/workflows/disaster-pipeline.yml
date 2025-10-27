@@ -1,0 +1,74 @@
+name: Disaster Tweet Pipeline
+
+on:
+  # Run every 8 hours
+  schedule:
+    - cron: '0 */8 * * *'  # At minute 0 past every 6th hour
+  
+  # Allow manual runs from GitHub UI
+  workflow_dispatch:
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install --upgrade pip
+        pip install python-dotenv langchain-openai langgraph atproto joblib scikit-learn xgboost numpy
+    
+    - name: Verify model files exist
+      run: |
+        cd backend
+        ls -la xgboost_model_*.joblib xgboost_vectorizer_*.joblib xgboost_config_*.json
+    
+    - name: Run disaster pipeline
+      env:
+        BLUESKY_IDENTIFIER: ${{ secrets.BLUESKY_IDENTIFIER }}
+        BLUESKY_PWD: ${{ secrets.BLUESKY_PWD }}
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        cd backend
+        python unified_disaster_pipeline.py
+    
+    - name: Upload results as artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: pipeline-results-${{ github.run_number }}
+        path: backend/pipeline_output/
+        retention-days: 30
+    
+    - name: Commit and push results to repo (optional)
+      if: success()
+      run: |
+        cd backend
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add pipeline_output/ || true
+        git diff --staged --quiet || git commit -m "Pipeline results: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+        git push || echo "No changes to push"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Report status
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Pipeline completed successfully"
+        else
+          echo "❌ Pipeline failed"
+          exit 1
+        fi
