@@ -18,15 +18,13 @@ from pathlib import Path
 from typing import Optional, List, Dict
 import numpy as np
 from collections import Counter
-
-# Third-party imports
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, END
 from typing import TypedDict
 import joblib
 
-# Try to import Bluesky client - adjust based on your actual import
+# import Bluesky
 try:
     from atproto import Client
     BLUESKY_AVAILABLE = True
@@ -37,18 +35,15 @@ except ImportError:
 load_dotenv()
 
 
-# ============================================================================
-# CONFIGURATION
-# ============================================================================
-
+# config
 class PipelineConfig:
     """Configuration for the entire pipeline"""
     
-    # Bluesky settings (using Elijah's env variable names)
+    # Bluesky settings 
     BLUESKY_HANDLE = os.getenv('BLUESKY_IDENTIFIER', '')
     BLUESKY_PASSWORD = os.getenv('BLUESKY_PWD', '')
     
-    # Search queries for different disaster types
+    # search queries for different disaster types
     DISASTER_QUERIES = [
         "earthquake",
         "flood",
@@ -57,7 +52,7 @@ class PipelineConfig:
         "tornado"
     ]
     
-    # Maximum total posts to fetch
+    # maximum total posts to fetch
     MAX_POSTS = 500
     
     # ML Model paths
@@ -71,7 +66,7 @@ class PipelineConfig:
     LLM_MODEL = "meta-llama/Llama-3.1-8B-Instruct:novita"
     RATE_LIMIT_DELAY = 1.0  # seconds between LLM calls
     
-    # Output paths
+    # output paths
     OUTPUT_DIR = Path("pipeline_output")
     RAW_TWEETS_FILE = OUTPUT_DIR / "01_raw_tweets.jsonl"
     CLEANED_TWEETS_FILE = OUTPUT_DIR / "02_cleaned_tweets.jsonl"
@@ -79,12 +74,9 @@ class PipelineConfig:
     FINAL_OUTPUT_FILE = OUTPUT_DIR / "04_final_results.jsonl"
 
 
-# ============================================================================
-# STEP 1: FETCH TWEETS FROM BLUESKY
-# ============================================================================
-
+# step 1: fetch tweets from bluesky
 class BlueskyFetcher:
-    """Fetch disaster-related tweets from Bluesky (based on Elijah's code)"""
+    """Fetch disaster-related tweets from Bluesky"""
     
     def __init__(self, config: PipelineConfig):
         self.config = config
@@ -119,7 +111,7 @@ class BlueskyFetcher:
             limit = min(posts_needed, 100)  # API max is 100
             
             try:
-                # Search for posts
+                # search for posts
                 results = self.client.app.bsky.feed.search_posts(
                     params={
                         'q': keyword,
@@ -132,7 +124,7 @@ class BlueskyFetcher:
                         break
                     
                     if hasattr(post.record, 'text') and post.record.text:
-                        # Convert post to dict (matching Elijah's format)
+                        # convert post to dict 
                         post_dict = {
                             'text': post.record.text,
                             'uri': post.uri,
@@ -159,11 +151,7 @@ class BlueskyFetcher:
         print(f"\n✓ Total posts collected: {total_posts}\n")
         return all_tweets
 
-
-# ============================================================================
-# STEP 2: CLEAN AND FORMAT TWEETS
-# ============================================================================
-
+# step 2: clean and format tweets
 class TweetCleaner:
     """Clean and format tweets to standard format"""
     
@@ -190,11 +178,11 @@ class TweetCleaner:
     
     @staticmethod
     def clean_tweet(raw_tweet: Dict) -> Dict:
-        """Clean and format a single tweet (matching Elijah's format)"""
+        """Clean and format a single tweet"""
         text = raw_tweet.get('text', '')
         author = raw_tweet.get('author', {})
         
-        # Extract important fields (matching clean_tweets.py)
+        # extract important fields (matching clean_tweets.py)
         cleaned = {
             'id': TweetCleaner.generate_id(
                 author.get('handle', 'unknown'),
@@ -207,9 +195,9 @@ class TweetCleaner:
             },
             'createdAt': raw_tweet.get('created_at'),
             'keyword': TweetCleaner.extract_keyword(text),
-            'location': None,  # Will be extracted by LLM
+            'location': None,  # will be extracted by LLM
             
-            # Keep metadata
+            # keep metadata
             'uri': raw_tweet.get('uri'),
             'cid': raw_tweet.get('cid'),
             'like_count': raw_tweet.get('like_count', 0),
@@ -241,11 +229,7 @@ class TweetCleaner:
         
         return cleaned
 
-
-# ============================================================================
-# STEP 3: CLASSIFY TWEETS WITH ML
-# ============================================================================
-
+# step 3: classify tweets with classifier
 class DisasterClassifier:
     """XGBoost-based disaster classifier"""
     
@@ -260,17 +244,17 @@ class DisasterClassifier:
         """Load trained XGBoost model"""
         print("Loading ML classifier...")
         
-        # Load config
+        # load config
         with open(self.config.CONFIG_PATH, 'r') as f:
             self.model_config = json.load(f)
         
-        # Load model
+        # load model
         self.classifier = joblib.load(self.config.MODEL_PATH)
         
-        # Load vectorizer
+        # load vectorizer
         self.vectorizer = joblib.load(self.config.VECTORIZER_PATH)
         
-        # Load or create label encoder
+        # load or create label encoder
         if Path(self.config.LABEL_ENCODER_PATH).exists():
             self.label_encoder = joblib.load(self.config.LABEL_ENCODER_PATH)
         else:
@@ -288,19 +272,19 @@ class DisasterClassifier:
         
         print(f"Classifying {len(tweets)} tweets with XGBoost...")
         
-        # Extract texts
+        # extract texts
         texts = [tweet['text'] for tweet in tweets]
         
-        # Transform to features
+        # transform to features
         X = self.vectorizer.transform(texts)
         
-        # Get predictions and probabilities
+        # get predictions and probabilities
         probabilities = self.classifier.predict_proba(X)
         
-        # Get optimal thresholds
+        # get optimal thresholds
         thresholds = self.model_config.get('thresholds_per_class', {})
         
-        # Classify each tweet
+        # classify each tweet
         classified_tweets = []
         for tweet, probs in zip(tweets, probabilities):
             predicted_class_idx = np.argmax(probs)
@@ -331,10 +315,7 @@ class DisasterClassifier:
         return classified_tweets
 
 
-# ============================================================================
-# STEP 4: EXTRACT DETAILS WITH LLM
-# ============================================================================
-
+# step 4: extract details with LLM
 class DisasterState(TypedDict):
     """State for LangGraph workflow"""
     tweet_id: str
@@ -489,7 +470,7 @@ Return ONLY this JSON:
             if i % 10 == 0:
                 print(f"  Processed {i}/{len(disaster_tweets)} tweets...")
         
-        # Add non-disaster tweets without LLM extraction
+        # add non-disaster tweets without LLM extraction
         for tweet in non_disaster_tweets:
             processed.append({
                 **tweet,
@@ -503,11 +484,7 @@ Return ONLY this JSON:
         
         return processed
 
-
-# ============================================================================
-# MAIN PIPELINE
-# ============================================================================
-
+# main pipeline
 class UnifiedPipeline:
     """Main pipeline orchestrator"""
     
@@ -529,7 +506,7 @@ class UnifiedPipeline:
         
         start_time = time.time()
         
-        # Step 1: Fetch tweets
+        # step 1: fetch tweets
         if skip_fetch or use_existing:
             print("⏭Skipping tweet fetch (using existing data)\n")
             if use_existing:
@@ -549,14 +526,14 @@ class UnifiedPipeline:
             print("No tweets to process!")
             return
         
-        # Step 2: Clean tweets
+        # step 2: clean tweets
         print("STEP 2: CLEAN & FORMAT TWEETS")
         print("-" * 70)
         cleaned_tweets = TweetCleaner.clean_tweets(raw_tweets)
         self.save_jsonl(cleaned_tweets, self.config.CLEANED_TWEETS_FILE)
         print(f"Saved to: {self.config.CLEANED_TWEETS_FILE}\n")
         
-        # Step 3: Classify with ML
+        # step 3: classify with ML
         print("STEP 3: CLASSIFY WITH XGBOOST")
         print("-" * 70)
         classifier = DisasterClassifier(self.config)
@@ -564,7 +541,7 @@ class UnifiedPipeline:
         self.save_jsonl(classified_tweets, self.config.CLASSIFIED_TWEETS_FILE)
         print(f"Saved to: {self.config.CLASSIFIED_TWEETS_FILE}\n")
         
-        # Step 4: Extract with LLM
+        # step 4: extract with LLM
         print("STEP 4: EXTRACT DETAILS WITH LLM")
         print("-" * 70)
         extractor = LLMExtractor(self.config)
@@ -572,7 +549,7 @@ class UnifiedPipeline:
         self.save_jsonl(final_results, self.config.FINAL_OUTPUT_FILE)
         print(f"Saved to: {self.config.FINAL_OUTPUT_FILE}\n")
         
-        # Summary
+        # summary
         elapsed = time.time() - start_time
         self._print_summary(final_results, elapsed)
     
@@ -586,7 +563,7 @@ class UnifiedPipeline:
         disasters = sum(1 for r in results if r['ml_classification']['is_disaster'])
         extracted = sum(1 for r in results if r.get('llm_extraction'))
         
-        # Count by disaster type
+        # count by disaster type
         disaster_types = Counter(
             r['ml_classification']['disaster_type'] 
             for r in results 
@@ -608,14 +585,9 @@ class UnifiedPipeline:
         print(f"  1. {self.config.RAW_TWEETS_FILE}")
         print(f"  2. {self.config.CLEANED_TWEETS_FILE}")
         print(f"  3. {self.config.CLASSIFIED_TWEETS_FILE}")
-        print(f"  4. {self.config.FINAL_OUTPUT_FILE} ⭐")
+        print(f"  4. {self.config.FINAL_OUTPUT_FILE}")
         
         print("\n" + "=" * 70 + "\n")
-
-
-# ============================================================================
-# CLI
-# ============================================================================
 
 def main():
     import argparse
@@ -630,7 +602,7 @@ def main():
     
     args = parser.parse_args()
     
-    # Run pipeline
+    # run pipeline
     config = PipelineConfig()
     pipeline = UnifiedPipeline(config)
     
