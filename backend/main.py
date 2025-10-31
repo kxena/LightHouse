@@ -31,10 +31,8 @@ async def root():
 async def test(input: Tweet):
     return {"message": input}
 
-# /tweet: collect tweets through bluesky api for real time input AND add cleaning function here
+# /results: send results from LLM analysis to front end for respective UI components
 
-# /classify: feed cleaned tweet to classifer, return result, feed tweet to /llm-analysis if natural disaster
+# /retrieve_tweets: collect tweets from database for frontend "Live tweets" component
 
-# /llm-analysis: feed tweet to llm for key extractions, feed results to /alerts
-
-# /alerts: send results to front end for respective UI components
+# /search_same: search database and return tweets talking about same disaster
