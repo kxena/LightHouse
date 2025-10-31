@@ -1,15 +1,15 @@
+import sys
+from pathlib import Path
+# Add parent directory to Python path so we can import fetch_tweets
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from fetch_tweets.bluesky_connection import scrape_bluesky_tweets
 from fetch_tweets.clean_tweets import clean_tweets
 from xgboost_classifier.classifier import load_disaster_classifier
 import os
 import json
-import sys
-from pathlib import Path
 from collections import Counter
-
-# # Add fetch_tweets to path so we can import from it
-# sys.path.insert(0, str(Path(__file__).parent / 'fetch_tweets'))
-
+import numpy as np
 
 
 def step1_retrieve_tweets():
@@ -23,7 +23,7 @@ def step1_retrieve_tweets():
     
     # Count tweets in output file
     tweet_count = 0
-    tweets_file = Path('fetch_tweets/bluesky_tweets.jsonl')
+    tweets_file = Path('../fetch_tweets/bluesky_tweets.jsonl')
     if tweets_file.exists():
         with open(tweets_file, 'r') as f:
             tweet_count = sum(1 for _ in f)
@@ -43,7 +43,7 @@ def step2_clean_tweets():
     
     # Count cleaned tweets
     cleaned_count = 0
-    cleaned_file = Path('fetch_tweets/clean_tweets.jsonl')
+    cleaned_file = Path('../fetch_tweets/clean_tweets.jsonl')
     if cleaned_file.exists():
         with open(cleaned_file, 'r') as f:
             cleaned_count = sum(1 for line in f if not line.startswith('ERROR'))
@@ -53,9 +53,9 @@ def step2_clean_tweets():
 
 
 def step3_classify_tweets(
-    input_file='fetch_tweets/clean_tweets.jsonl',
-    output_file='DATA_PIPELINE/classified_tweets.jsonl',
-    model_dir='./xgboost_classifier'
+    input_file='../fetch_tweets/clean_tweets.jsonl',
+    output_file='../DATA_PIPELINE/classified_tweets.jsonl',
+    model_dir='../xgboost_classifier'
 ):
     # Step 3: Classify tweets using XGBoost disaster classifier
     print("-" * 10)
@@ -76,6 +76,10 @@ def step3_classify_tweets(
     if not xgb_config.exists():
         raise FileNotFoundError(f"Config not found at: {xgb_config}")
     
+    # Load config first to get classes
+    with open(xgb_config, 'r') as f:
+        config = json.load(f)
+    
     print(f"  Loading model from: {model_dir}")
     
     # Load the classifier
@@ -86,7 +90,7 @@ def step3_classify_tweets(
     )
     
     print(f"✓ Model loaded successfully")
-    print(f"  Available classes: {', '.join(classifier.label_encoder.classes_)}")
+    print(f"  Available classes: {', '.join(config['classes'])}")  # Use classes from config
     
     # Read tweets
     print(f"\n  Reading tweets from: {input_file}")
@@ -161,7 +165,7 @@ def step3_classify_tweets(
     return len(predictions)
 
 
-def run_pipeline(model_dir='./xgboost_classifier'):
+def run_pipeline(model_dir='../xgboost_classifier'):
     
     # Run the complete disaster tweet classification pipeline
     print("DISASTER TWEET CLASSIFICATION PIPELINE")
@@ -188,7 +192,7 @@ def run_pipeline(model_dir='./xgboost_classifier'):
         print(f"\nOutput files:")
         print(f"  • fetch_tweets/bluesky_tweets.jsonl (raw tweets)")
         print(f"  • fetch_tweets/clean_tweets.jsonl (cleaned tweets)")
-        print(f"  • classified_tweets.jsonl (classified results)")
+        print(f"  • DATA_PIPELINE/classified_tweets.jsonl (classified results)")
         print("\n" + "=" * 60 + "\n")
         
     except Exception as e:
@@ -208,8 +212,8 @@ def main():
     )
     parser.add_argument(
         '--models-dir', 
-        default='./xgboost_classifier', 
-        help='Directory containing saved models (default: ./xgboost_classifier)'
+        default='../xgboost_classifier', 
+        help='Directory containing saved models (default: ../xgboost_classifier)'
     )
     
     args = parser.parse_args()
