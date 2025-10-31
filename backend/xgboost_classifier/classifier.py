@@ -729,7 +729,7 @@ class DisasterClassifier:
         print(f"  Vectorizer: {vectorizer_path}")
         print(f"  Config: {config_path}")
         
-        # Load config
+        # Load config first to get classes
         with open(config_path, 'r') as f:
             config = json.load(f)
         
@@ -740,6 +740,11 @@ class DisasterClassifier:
         # Load vectorizer
         vectorizer = joblib.load(vectorizer_path)
         print(f"  ✓ Loaded vectorizer")
+        
+        # Initialize label encoder with classes from config
+        self.label_encoder = LabelEncoder()
+        self.label_encoder.classes_ = np.array(config['classes'])
+        print(f"  ✓ Initialized label encoder with classes: {config['classes']}")
         
         # Determine the key to store this model under
         if model_key is None:
@@ -753,17 +758,10 @@ class DisasterClassifier:
             else:
                 model_key = 'custom_model'
         
-        # Store the model
+        # Store the model and other components
         self.models[model_key] = model
         self.vectorizer = vectorizer
         self.model_configs[model_key] = config
-        
-        # Load label encoder if specified and not already loaded
-        if 'label_encoder_file' in config and self.label_encoder is None:
-            label_encoder_path = Path(config_path).parent / config['label_encoder_file']
-            if label_encoder_path.exists():
-                self.label_encoder = joblib.load(label_encoder_path)
-                print(f"  ✓ Loaded label encoder")
         
         # Load thresholds if available
         if 'thresholds_per_class' in config:

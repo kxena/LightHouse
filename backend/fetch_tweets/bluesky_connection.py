@@ -5,11 +5,23 @@ import json
 
 load_dotenv()
 
-def main():
-    # Initialize client and login
+def scrape_bluesky_tweets(max_posts: int = 500, output_file: str = "../fetch_tweets/bluesky_tweets.jsonl") -> int:
+    """
+    Scrapes disaster-related posts from Bluesky
+    
+    Args:
+        max_posts: Maximum number of posts to collect (default: 500)
+        output_file: Output filename (default: "bluesky_tweets.jsonl")
+    
+    Returns:
+        int: Number of posts collected
+    
+    Raises:
+        Exception: If login fails or scraping encounters errors
+    """
     client = Client()
     client.login(
-        os.getenv("BLUESKY_IDENTIFIER"),
+        os.getenv("BLUESKY_USER"),
         os.getenv("BLUESKY_PWD")
     )
     
@@ -17,21 +29,17 @@ def main():
     
     disaster_keywords = ["earthquake", "flood", "wildfire", "hurricane", "tornado"]
     total_posts = 0
-    # batch of max posts of 500
-    MAX_POSTS = 500
     
-    # Open file for writing
-    with open("bluesky_tweets.jsonl", "w") as f:
+    with open(output_file, "w") as f:
         for keyword in disaster_keywords:
-            if total_posts >= MAX_POSTS:
-                print("Reached maximum post limit of 500")
+            if total_posts >= max_posts:
+                print(f"Reached maximum post limit of {max_posts}")
                 break
             
             print(f"Searching for posts with keyword: {keyword}")
-            posts_needed = MAX_POSTS - total_posts
+            posts_needed = max_posts - total_posts
             limit = min(posts_needed, 100)  # API max is 100
             
-            # Search for posts
             results = client.app.bsky.feed.search_posts(
                 params={
                     'q': keyword,
@@ -40,13 +48,10 @@ def main():
             )
             
             for post in results.posts:
-                if total_posts >= MAX_POSTS:
+                if total_posts >= max_posts:
                     break
                 
                 if hasattr(post.record, 'text') and post.record.text:
-                    print(f"Disaster-related post: {post.record.text}")
-                    
-                    # Convert post to dict for JSON serialization
                     post_dict = {
                         'text': post.record.text,
                         'uri': post.uri,
@@ -65,6 +70,10 @@ def main():
                     total_posts += 1
     
     print(f"\nTotal posts collected: {total_posts}")
+    return total_posts
 
+
+# For standalone testing
 if __name__ == "__main__":
-    main()
+    total = scrape_bluesky_tweets()
+    print(f"Scraping complete: {total} posts collected")
