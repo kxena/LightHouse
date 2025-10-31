@@ -477,6 +477,50 @@ class LLMExtractor:
         print(f"  Tweets in final output: {len(processed)} (disasters only)\n")
         
         return processed
+    
+    def process_all_tweets_in_batches(self, tweets: List[Dict]) -> List[Dict]:
+        # Process all disaster tweets in batches of 20
+        disaster_tweets = [t for t in tweets if t['ml_classification']['is_disaster']]
+        non_disaster_count = len([t for t in tweets if not t['ml_classification']['is_disaster']])
+        
+        total_disasters = len(disaster_tweets)
+        BATCH_SIZE = 20
+        
+        print(f"Processing {total_disasters} disaster tweets in batches of {BATCH_SIZE}...")
+        print(f"(Filtering out {non_disaster_count} non-disaster tweets)\n")
+        
+        all_processed = []
+        
+        # Process in batches
+        for batch_start in range(0, total_disasters, BATCH_SIZE):
+            batch_end = min(batch_start + BATCH_SIZE, total_disasters)
+            batch = disaster_tweets[batch_start:batch_end]
+            batch_num = (batch_start // BATCH_SIZE) + 1
+            total_batches = (total_disasters + BATCH_SIZE - 1) // BATCH_SIZE
+            
+            print(f"📦 Processing batch {batch_num}/{total_batches} (tweets {batch_start+1}-{batch_end})...")
+            
+            # Reset API call counter for this batch
+            self.llm_calls_made = 0
+            
+            # Process this batch
+            for i, tweet in enumerate(batch, 1):
+                result = self.process_tweet(tweet)
+                all_processed.append(result)
+                
+                if i % 5 == 0:
+                    print(f"  Batch progress: {i}/{len(batch)} tweets...")
+            
+            print(f"  ✓ Batch {batch_num} complete ({len(batch)} tweets)\n")
+            
+            # Brief pause between batches (optional, for rate limiting safety)
+            if batch_end < total_disasters:
+                time.sleep(2)
+        
+        print(f"✓ All {total_disasters} disaster tweets processed!")
+        print(f"  Total API calls: {total_disasters}\n")
+        
+        return all_processed
 
 # main pipeline
 class UnifiedPipeline:
@@ -535,14 +579,26 @@ class UnifiedPipeline:
         self.save_jsonl(classified_tweets, self.config.CLASSIFIED_TWEETS_FILE)
         print(f"Saved to: {self.config.CLASSIFIED_TWEETS_FILE}\n")
         
+        # # step 4: extract with LLM
+        # print("STEP 4: EXTRACT DETAILS WITH LLM")
+        # print("-" * 70)
+        # extractor = LLMExtractor(self.config)
+        # final_results = extractor.process_tweets(classified_tweets, limit=20)
+        # self.save_jsonl(final_results, self.config.FINAL_OUTPUT_FILE)
+        # print(f"Saved to: {self.config.FINAL_OUTPUT_FILE}\n")
+        
         # step 4: extract with LLM
         print("STEP 4: EXTRACT DETAILS WITH LLM")
         print("-" * 70)
         extractor = LLMExtractor(self.config)
-        final_results = extractor.process_tweets(classified_tweets, limit=20)
+
+        # Process in batches of 20 until all are done
+        final_results = extractor.process_all_tweets_in_batches(classified_tweets)
+        
+        # save the results
         self.save_jsonl(final_results, self.config.FINAL_OUTPUT_FILE)
         print(f"Saved to: {self.config.FINAL_OUTPUT_FILE}\n")
-        
+
         # summary
         elapsed = time.time() - start_time
         self._print_summary(final_results, elapsed)
