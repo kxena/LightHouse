@@ -6,6 +6,7 @@ Complete pipeline that:
 2. Cleans and formats them
 3. Classifies them with XGBoost
 4. Extracts detailed info with LLM
+5. Store in Qdrant DB
 """
 
 import os
@@ -25,6 +26,11 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, END
 from typing import TypedDict
 import joblib
+from sentence_transformers import SentenceTransformer
+from qdrant_client.models import PointStruct
+from qdrant_client import QdrantClient
+from qdrant_client.http import models
+import uuid
 
 # Try to import Bluesky client - adjust based on your actual import
 try:
@@ -502,6 +508,61 @@ Return ONLY this JSON:
         
         return processed
 
+# ============================================================================
+# STEP  5: STORE IN QDRANT
+# ============================================================================
+
+def ingest_into_qdrant(qdrant_client, embedder, jsonl_path):
+    """Read tweets from JSONL and insert embeddings + metadata into Qdrant"""
+    points = []
+
+    with open(jsonl_path, "r", encoding="utf-8") as f:
+        for line in f:
+            tweet = json.loads(line)
+            
+            # Only process disaster tweets
+            ml_classification = tweet.get("ml_classification") or {}
+            if not ml_classification.get("is_disaster", False):
+                continue  # Skip non-disaster tweets
+            text = tweet.get("text", "").strip()
+            if not text:
+                continue
+
+            # Compute embedding
+            vector = embedder.encode(text).tolist()
+
+            # Safely extract nested fields
+            ml_classification = tweet.get("ml_classification") or {}
+            llm_extraction = tweet.get("llm_extraction") or {}
+
+            # Prepare metadata
+            payload = {
+                "id": tweet.get("id"),
+                "text": text,
+                "disaster_type": ml_classification.get("disaster_type"),
+                "location": llm_extraction.get("location"),
+                "severity": llm_extraction.get("severity"),
+                "createdAt": tweet.get("createdAt"),
+                # Add some additional useful fields
+                "is_disaster": ml_classification.get("is_disaster", False),
+                "confidence": ml_classification.get("confidence"),
+                "casualties_mentioned": llm_extraction.get("casualties_mentioned"),
+                "damage_mentioned": llm_extraction.get("damage_mentioned"),
+                "needs_help": llm_extraction.get("needs_help"),
+            }
+
+            points.append(PointStruct(
+                id=str(uuid.uuid4()),
+                vector=vector,
+                payload=payload
+            ))
+
+    if points:
+        qdrant_client.upsert(collection_name="disaster_tweets", points=points)
+        print(f"✅ Inserted {len(points)} tweets into Qdrant")
+    else:
+        print("⚠️ No points to insert into Qdrant.")
+
 
 # ============================================================================
 # MAIN PIPELINE
@@ -570,6 +631,55 @@ class UnifiedPipeline:
         final_results = extractor.process_tweets(classified_tweets, limit=20)
         self.save_jsonl(final_results, self.config.FINAL_OUTPUT_FILE)
         print(f"Saved to: {self.config.FINAL_OUTPUT_FILE}\n")
+
+        # STEP 5: INGEST INTO QDRANT
+        print("STEP 5: INGEST INTO QDRANT")
+        print("-" * 70)
+
+        try:
+            # Initialize embedding model
+            embedder = SentenceTransformer("all-MiniLM-L6-v2")
+
+            # Connect to local Qdrant with shorter timeout
+            qdrant_client = QdrantClient(url="http://localhost:6333", timeout=5)
+            
+            # Test connection first
+            try:
+                qdrant_client.get_collections()
+                print("✅ Successfully connected to Qdrant")
+            except Exception as conn_err:
+                raise ConnectionError(
+                    f"Cannot connect to Qdrant at http://localhost:6333. "
+                    f"Please start Qdrant with: docker run -p 6333:6333 qdrant/qdrant"
+                ) from conn_err
+
+            # Create collection (using the newer method to avoid deprecation warning)
+            collection_name = "disaster_tweets"
+            
+            # Check if collection exists, delete if it does
+            collections = qdrant_client.get_collections().collections
+            if any(c.name == collection_name for c in collections):
+                qdrant_client.delete_collection(collection_name=collection_name)
+                print(f"Deleted existing collection: {collection_name}")
+            
+            # Create new collection
+            qdrant_client.create_collection(
+                collection_name=collection_name,
+                vectors_config=models.VectorParams(size=384, distance=models.Distance.COSINE),
+            )
+            print(f"Created collection: {collection_name}")
+
+            # Insert tweets
+            ingest_into_qdrant(qdrant_client, embedder, self.config.FINAL_OUTPUT_FILE)
+            print("✅ Qdrant ingestion complete!\n")
+
+        except ConnectionError as e:
+            print(f"❌ {e}\n")
+        except Exception as e:
+            print(f"❌ Qdrant ingestion failed: {e}\n")
+            import traceback
+            traceback.print_exc()
+
         
         # Summary
         elapsed = time.time() - start_time
