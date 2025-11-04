@@ -371,33 +371,69 @@ class LLMExtractor:
         disaster_type = ml_cls.get("disaster_type", "unknown")
         confidence = ml_cls.get("confidence", 0)
         
-        prompt = f"""Extract key information from this disaster tweet. Return ONLY valid JSON.
+        # prompt = f"""Extract key information from this disaster tweet. Return ONLY valid JSON.
+
+        # Tweet: "{state['tweet_text']}"
+
+        # ML Classifier predicted: {disaster_type} (confidence: {confidence:.2f})
+        # Based on the tweet content, perform another round of classification to confirm if this is a valid disaster-related tweet.
+
+        # Extract these fields (use null if not found):
+        # - llm_classification: boolean (true if disaster-related, false otherwise)
+        # - disaster_type: string
+        # - location: string (city, region, country)
+        # - time: string (when it happened/will happen)
+        # - severity: string (low, medium, high, critical)
+        # - casualties_mentioned: boolean
+        # - damage_mentioned: boolean
+        # - needs_help: boolean
+        # - key_details: string (brief summary)
+        
+        # Return ONLY this JSON:
+        # {{
+        #     "llm_classification": false,
+        #     "disaster_type": "...",
+        #     "location": "...",
+        #     "time": "...",
+        #     "severity": "...",
+        #     "casualties_mentioned": false,
+        #     "damage_mentioned": false,
+        #     "needs_help": false,
+        #     "key_details": "..."
+        # }}"""
+        prompt = f"""Analyze this tweet to verify if it's genuinely about a natural disaster and extract key information. Return ONLY valid JSON.
 
         Tweet: "{state['tweet_text']}"
 
-        ML Classifier predicted: {disaster_type} (confidence: {confidence:.2f})
+        ML Model predicted this as: {disaster_type} (confidence: {confidence:.2f})
 
-        Extract these fields (use null if not found):
-        - disaster_type: string
-        - location: string (city, region, country)
-        - time: string (when it happened/will happen)
-        - severity: string (low, medium, high, critical)
-        - casualties_mentioned: boolean
-        - damage_mentioned: boolean
-        - needs_help: boolean
-        - key_details: string (brief summary)
+        First, carefully evaluate if this tweet is actually about a CURRENT or RECENT natural disaster:
+        - KEY IDEA: Would an emergency responder find this information useful?
+        - It should describe a real disaster event (not metaphorical use, jokes, or general discussion)
+        - It should be about a current/recent event (not historical or hypothetical)
+        - It should be about natural disasters (not man-made disasters or other emergencies)
 
-        Return ONLY this JSON:
+        Then extract detailed information if it's valid.
+
+        Return in this JSON format:
         {{
-            "disaster_type": "...",
-            "location": "...",
-            "time": "...",
-            "severity": "...",
-            "casualties_mentioned": false,
-            "damage_mentioned": false,
-            "needs_help": false,
-            "key_details": "..."
-        }}"""
+            "llm_classification": boolean,  // true ONLY if it's a valid current/recent natural disaster tweet
+            "validation_notes": string,     // brief explanation of why it is/isn't valid
+            "disaster_type": string,        // earthquake/flood/hurricane/wildfire/null
+            "location": string,             // where is this happening
+            "time": string,                 // when did it happen/is happening
+            "severity": string,             // low/medium/high/critical
+            "casualties_mentioned": boolean, // does it mention deaths/injuries
+            "damage_mentioned": boolean,    // does it mention property damage
+            "needs_help": boolean,          // does it request assistance/aid
+            "key_details": string          // brief summary of main points
+        }}
+
+        Example of correct classification:
+        - "Massive earthquake just hit San Francisco" = llm_classification: true
+        - "This hurricane season might be bad" = llm_classification: false
+        - "My life is a disaster rn" = llm_classification: false
+        """
         
         try:
             result = self.llm.invoke(prompt)
