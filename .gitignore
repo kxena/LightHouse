@@ -1,6 +1,12 @@
 # Qdrant local storage
 qdrant_storage/
 
+# Python virtual environments
+venv/
+venv_*/
+*.pyc
+__pycache__/
+
 # Dependencies
 node_modules/
 
@@ -15,4 +21,4 @@ pnpm-debug.log*
 
 # OS junk
 .DS_Store
-Thumbs.db
+Thumbs.db.env
