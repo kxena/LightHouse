@@ -1,9 +1,10 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import SignInPage from "./components/SignIn";
 import SignUpPage from "./components/SignUp";
 import IncidentReport from "./components/IncidentReport";
 import Dashboard from "./components/Dashboard";
+import Profile from "./components/Profile";
 
 export default function App() {
   return (
@@ -11,16 +12,12 @@ export default function App() {
       <Route
         path="/"
         element={
-          <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-blue-100">
+          <div>
             <SignedOut>
               <Navigate to="/sign-in" replace />
             </SignedOut>
-
             <SignedIn>
-              <div className="flex flex-col items-center gap-4">
-                <h1 className="text-3xl font-bold text-gray-800">Welcome to LightHouse 🎉</h1>
-                <UserButton afterSignOutUrl="/sign-in" />
-              </div>
+              <Navigate to="/dashboard" replace />
             </SignedIn>
           </div>
         }
@@ -31,6 +28,7 @@ export default function App() {
       <Route path="/sign-up/*" element={<SignUpPage />} />
       <Route path="/incident/:id" element={<IncidentReport />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/profile" element={<Profile />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
