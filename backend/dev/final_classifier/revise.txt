@@ -1,0 +1,21 @@
+final_classifier false positives:
+17
+65
+67
+90
+109 - expires flood
+110 - expires flood
+116 - talks about cancelling a flood warning
+124 - talks about cancelling a flood warning
+126 - talks about cancelling a flood warning
+
+random_forest false positives:
+17
+26
+27
+67
+109 - expires flood
+110 - expires flood
+116 - talks about cancelling a flood warning
+124 - talks about cancelling a flood warning
+126 - talks about cancelling a flood warning

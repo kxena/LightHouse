@@ -1,0 +1,7 @@
+{
+  "threshold": 0.5689568702579321,
+  "model_file": "bluesky_disaster_classifier_model_20251010_225814.joblib",
+  "vectorizer_file": "bluesky_disaster_classifier_vectorizer_20251010_225814.joblib",
+  "created_at": "20251010_225814",
+  "model_type": "LogisticRegression"
+}
