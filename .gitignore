@@ -16,3 +16,14 @@ pnpm-debug.log*
 # OS junk
 .DS_Store
 Thumbs.db
+
+# pycache
+__pycache__/
+
+#env variables
+.env
+.env.local
+.env.*.local
+
+#virtual environment
+venv/
