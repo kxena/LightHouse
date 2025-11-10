@@ -41,7 +41,7 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         cd backend
-        python unified_disaster_pipeline.py
+        python unified_pipeline.py
     
     - name: Upload results as artifacts
       if: always()
