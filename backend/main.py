@@ -5,6 +5,8 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
+from datetime import datetime
+import os
 import json
 
 app = FastAPI()
@@ -48,6 +50,8 @@ async def get_results():
                 detail="Results file not found. Please run the pipeline first."
             )
         
+        file_modified_time = datetime.fromtimestamp(os.path.getmtime(input_file))
+        
         # Convert JSONL to JSON array
         results = []
         with open(input_file, 'r') as f:
@@ -57,13 +61,23 @@ async def get_results():
                     results.append(tweet)
                 except json.JSONDecodeError:
                     continue
+
+
+        response_data = {
+            "metadata": {
+                "generated_at": datetime.now().isoformat(),  # When this API call was made
+                "pipeline_last_run": file_modified_time.isoformat(),  # When pipeline last generated results
+                "total_tweets": len(results)
+            },
+            "tweets": results
+        }
         
         # Write to JSON file
         with open(output_file, 'w') as f:
-            json.dump({"tweets": results}, f, indent=2)
+            json.dump(response_data, f, indent=2)
         
         # Return the same data to the API caller
-        return {"tweets": results}
+        return response_data
 
     except Exception as e:
         raise HTTPException(
