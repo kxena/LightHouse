@@ -31,7 +31,8 @@ jobs:
     - name: Verify model files exist
       run: |
         cd backend
-        ls -la xgboost_model_*.joblib xgboost_vectorizer_*.joblib xgboost_config_*.json
+        cd xgboost_classifier
+        ls -la xgboost_model*.joblib xgboost_vectorizer*.joblib xgboost_config*.json
     
     - name: Run disaster pipeline
       env:
