@@ -36,7 +36,7 @@ jobs:
     
     - name: Run disaster pipeline
       env:
-        BLUESKY_IDENTIFIER: ${{ secrets.BLUESKY_IDENTIFIER }}
+        BLUESKY_USER: ${{ secrets.BLUESKY_USER }}
         BLUESKY_PWD: ${{ secrets.BLUESKY_PWD }}
         HF_TOKEN: ${{ secrets.HF_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
