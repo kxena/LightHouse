@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import { SignedIn, SignedOut, useClerk, useUser } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, useClerk } from "@clerk/clerk-react";
 import SignInPage from "./components/SignIn";
 import SignUpPage from "./components/SignUp";
 import IncidentReport from "./components/IncidentReport";
@@ -10,14 +10,11 @@ import Profile from "./components/Profile";
 export default function App() {
   const navigate = useNavigate();
   const { signOut } = useClerk();
-  const { user } = useUser();
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/sign-in");
   };
-
-  const displayName = user?.firstName || user?.username || "User";
 
   return (
     <ErrorBoundary>
