@@ -6,6 +6,7 @@ import {
   LogOut,
   User,
   RefreshCw,
+  MapPin,
 } from "lucide-react";
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
@@ -91,6 +92,8 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [nearestIncident, setNearestIncident] = useState<{ distance: number; type: string; city: string } | null>(null);
 
   // Helper function to get time ago string
   const getTimeAgo = (dateString: string) => {
@@ -287,6 +290,111 @@ export default function Dashboard() {
     loadIncidents();
   }, []);
 
+  // Load user location from localStorage and listen for updates
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedLat = localStorage.getItem('userLat');
+      const savedLng = localStorage.getItem('userLng');
+      
+      if (savedLat && savedLng) {
+        setUserLocation({
+          lat: parseFloat(savedLat),
+          lng: parseFloat(savedLng)
+        });
+      } else {
+        setUserLocation(null);
+      }
+    };
+
+    const handleLocationUpdate = () => {
+      handleStorageChange();
+    };
+
+    // Initial load
+    handleStorageChange();
+    
+    // Listen for updates
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('locationUpdated', handleLocationUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('locationUpdated', handleLocationUpdate);
+    };
+  }, []);
+  
+  // Calculate nearest incident when user location or incidents change
+  useEffect(() => {
+    if (!userLocation || incidentsApi.length === 0) {
+      setNearestIncident(null);
+      return;
+    }
+    
+    // Geocode incident locations
+    const incidentCoordinates: { [key: string]: { lat: number; lng: number } } = {
+      'alaska': { lat: 61.3707, lng: -152.4044 },
+      'california': { lat: 36.7783, lng: -119.4179 },
+      'florida': { lat: 27.9944, lng: -81.7603 },
+      'texas': { lat: 31.9686, lng: -99.9018 },
+      'new york': { lat: 40.7128, lng: -74.0060 },
+      'oklahoma': { lat: 35.0078, lng: -97.0929 },
+      'north carolina': { lat: 35.7596, lng: -79.0193 },
+      'louisiana': { lat: 30.9843, lng: -91.9623 },
+      'chile': { lat: -35.6751, lng: -71.5430 },
+      'austin': { lat: 30.2672, lng: -97.7431 },
+      'indonesia': { lat: -0.7893, lng: 113.9213 },
+      'new zealand': { lat: -40.9006, lng: 174.8860 },
+    };
+    
+    let nearest: { distance: number; type: string; city: string } | null = null;
+    let minDistance = Infinity;
+    
+    incidentsApi.forEach(incident => {
+      const location = incident.location?.toLowerCase();
+      if (!location) return;
+      
+      // Try to find coordinates for this location
+      let coords: { lat: number; lng: number } | null = null;
+      
+      // Check direct coordinate parsing first
+      coords = parseLatLng(incident.location);
+      
+      // If no coordinates found, try geocoding common locations
+      if (!coords) {
+        for (const [place, placeCoords] of Object.entries(incidentCoordinates)) {
+          if (location.includes(place)) {
+            coords = placeCoords;
+            break;
+          }
+        }
+      }
+      
+      if (coords) {
+        // Calculate distance using Haversine formula
+        const R = 3959; // Earth's radius in miles
+        const dLat = (coords.lat - userLocation.lat) * (Math.PI / 180);
+        const dLon = (coords.lng - userLocation.lng) * (Math.PI / 180);
+        const a = 
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(userLocation.lat * (Math.PI / 180)) * Math.cos(coords.lat * (Math.PI / 180)) *
+          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+        
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearest = {
+            distance,
+            type: incident.incident_type || 'Unknown',
+            city: incident.location || 'Unknown'
+          };
+        }
+      }
+    });
+    
+    setNearestIncident(nearest);
+  }, [userLocation, incidentsApi]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
       <div className="max-w-7xl mx-auto">
@@ -450,7 +558,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Active Incidents</span>
@@ -466,6 +574,33 @@ export default function Dashboard() {
             <div className="text-2xl font-bold mt-1">
               {(postsPerMin / 1000).toFixed(1)}K
             </div>
+          </div>
+          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">Nearest Incident</span>
+              <MapPin className="h-4 w-4 text-red-500" />
+            </div>
+            {userLocation && nearestIncident ? (
+              <>
+                <div className="text-2xl font-bold mt-1">
+                  {nearestIncident.distance.toFixed(1)} mi
+                </div>
+                <div className="text-xs text-gray-600 mt-1">
+                  from {localStorage.getItem('userCity')}, {localStorage.getItem('userState')}
+                </div>
+                <div className="text-xs text-gray-500 mt-1 truncate">
+                  Closest: {nearestIncident.type} in {nearestIncident.city}
+                </div>
+              </>
+            ) : !userLocation ? (
+              <div className="text-sm text-gray-500 mt-1">
+                Set location in Profile to see nearby incidents
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500 mt-1">
+                No incidents with location data
+              </div>
+            )}
           </div>
           <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
             <div className="flex items-center justify-between">

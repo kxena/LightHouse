@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 export default function Profile() {
   const { user } = useUser();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'personal' | 'preferences'>('personal');
+  const [activeTab, setActiveTab] = useState<'personal' | 'preferences' | 'location'>('personal');
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
@@ -20,6 +20,13 @@ export default function Profile() {
   const [language, setLanguage] = useState('English');
   const [theme, setTheme] = useState('Light');
   const [timezone, setTimezone] = useState('EST (UTC-5)');
+  
+  // Form state for location
+  const [userCity, setUserCity] = useState('');
+  const [userState, setUserState] = useState('');
+  const [userLat, setUserLat] = useState<number | null>(null);
+  const [userLng, setUserLng] = useState<number | null>(null);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
   // Initialize form values when user data loads
   useEffect(() => {
@@ -29,6 +36,19 @@ export default function Profile() {
       setPhoneNumber(user.primaryPhoneNumber?.phoneNumber || '');
     }
   }, [user]);
+
+  // Initialize location data from localStorage
+  useEffect(() => {
+    const savedCity = localStorage.getItem('userCity');
+    const savedState = localStorage.getItem('userState');
+    const savedLat = localStorage.getItem('userLat');
+    const savedLng = localStorage.getItem('userLng');
+    
+    if (savedCity) setUserCity(savedCity);
+    if (savedState) setUserState(savedState);
+    if (savedLat) setUserLat(parseFloat(savedLat));
+    if (savedLng) setUserLng(parseFloat(savedLng));
+  }, []);
 
   const displayName = user?.firstName && user?.lastName 
     ? `${user.firstName} ${user.lastName}` 
@@ -73,6 +93,75 @@ export default function Profile() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const detectLocation = () => {
+    setIsDetectingLocation(true);
+    
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by this browser.');
+      setIsDetectingLocation(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        try {
+          // Use a reverse geocoding service to get city/state
+          const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            const city = data.city || data.locality || '';
+            const state = data.principalSubdivision || '';
+            
+            setUserCity(city);
+            setUserState(state);
+            setUserLat(lat);
+            setUserLng(lng);
+          } else {
+            // Fallback: just set coordinates
+            setUserLat(lat);
+            setUserLng(lng);
+          }
+        } catch (error) {
+          console.error('Error getting location details:', error);
+          // Still set coordinates even if reverse geocoding fails
+          setUserLat(lat);
+          setUserLng(lng);
+        }
+        
+        setIsDetectingLocation(false);
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        alert('Unable to get your location. Please check your browser permissions.');
+        setIsDetectingLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
+      }
+    );
+  };
+
+  const saveLocation = () => {
+    // Save to localStorage
+    localStorage.setItem('userCity', userCity);
+    localStorage.setItem('userState', userState);
+    if (userLat !== null) localStorage.setItem('userLat', userLat.toString());
+    if (userLng !== null) localStorage.setItem('userLng', userLng.toString());
+    
+    // Dispatch event to notify other components
+    window.dispatchEvent(new CustomEvent('locationUpdated'));
+    
+    alert('Location saved successfully!');
   };
 
   return (
@@ -166,6 +255,16 @@ export default function Profile() {
               }`}
             >
               Preferences
+            </button>
+            <button
+              onClick={() => setActiveTab('location')}
+              className={`flex-1 py-4 px-6 text-lg font-semibold transition-colors ${
+                activeTab === 'location'
+                  ? 'text-gray-800 border-b-4 border-gray-800'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Location
             </button>
           </div>
 
@@ -288,6 +387,60 @@ export default function Profile() {
                   ) : (
                     <span className="text-gray-800 font-semibold">{timezone}</span>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Location Tab */}
+            {activeTab === 'location' && (
+              <div className="p-8">
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center pb-4">
+                    <span className="text-gray-600 font-medium">City</span>
+                    <input
+                      type="text"
+                      value={userCity}
+                      onChange={(e) => setUserCity(e.target.value)}
+                      placeholder="Enter your city"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center pb-4">
+                    <span className="text-gray-600 font-medium">State</span>
+                    <input
+                      type="text"
+                      value={userState}
+                      onChange={(e) => setUserState(e.target.value)}
+                      placeholder="Enter your state"
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                  </div>
+                  {userLat && userLng && (
+                    <div className="flex justify-between items-center pb-4">
+                      <span className="text-gray-600 font-medium">Coordinates</span>
+                      <span className="text-gray-800 font-semibold">
+                        {userLat.toFixed(4)}, {userLng.toFixed(4)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      onClick={detectLocation}
+                      disabled={isDetectingLocation}
+                      className="flex-1 py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    >
+                      {isDetectingLocation ? 'Detecting...' : 'Auto-Detect Location'}
+                    </button>
+                    <button
+                      onClick={saveLocation}
+                      className="flex-1 py-2 px-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      Save Location
+                    </button>
+                  </div>
+                  <div className="text-sm text-gray-500 mt-2">
+                    Your location is used to calculate the distance to nearby incidents and will be stored locally in your browser.
+                  </div>
                 </div>
               </div>
             )}
