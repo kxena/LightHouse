@@ -7,6 +7,7 @@ import {
   User,
   RefreshCw,
   MapPin,
+  Filter,
 } from "lucide-react";
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
@@ -94,6 +95,8 @@ export default function Dashboard() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [nearestIncident, setNearestIncident] = useState<{ distance: number; type: string; city: string } | null>(null);
+  const [selectedDisasterTypes, setSelectedDisasterTypes] = useState<Set<string>>(new Set());
+  const [showDisasterFilter, setShowDisasterFilter] = useState(false);
 
   // Helper function to get time ago string
   const getTimeAgo = (dateString: string) => {
@@ -160,6 +163,7 @@ export default function Dashboard() {
     if (s.includes("flood")) return "Flood";
     if (s.includes("wildfire") || s.includes("fire")) return "Wildfire";
     if (s.includes("earthquake") || s.includes("quake")) return "Earthquake";
+    if (s.includes("hurricane") || s.includes("typhoon") || s.includes("cyclone")) return "Hurricane";
     if (s.includes("tornado")) return "Tornado";
     if (s.includes("landslide")) return "Landslide";
     if (s.includes("volcano")) return "Volcano";
@@ -167,6 +171,27 @@ export default function Dashboard() {
     if (s.includes("heat")) return "Heatwave";
     if (s.includes("cold") || s.includes("freeze")) return "Coldwave";
     return "Storm";
+  };
+
+  // Available disaster types for filtering
+  const DISASTER_TYPES = [
+    "Flood", "Wildfire", "Earthquake", "Hurricane"
+  ];
+
+  // Handle disaster type filter toggle
+  const toggleDisasterType = (type: string) => {
+    const newSelected = new Set(selectedDisasterTypes);
+    if (newSelected.has(type)) {
+      newSelected.delete(type);
+    } else {
+      newSelected.add(type);
+    }
+    setSelectedDisasterTypes(newSelected);
+  };
+
+  // Clear all disaster type filters
+  const clearDisasterFilters = () => {
+    setSelectedDisasterTypes(new Set());
   };
 
   const mapSeverity = (sev?: string): 1 | 2 | 3 => {
@@ -223,13 +248,27 @@ export default function Dashboard() {
     return hasTweetHashtag || false;
   };
 
-  // Filter incidents based on selected tag
+  // Filter incidents based on selected tag and disaster types
   const filteredIncidentsApi = useMemo(() => {
-    if (!selectedTag) return incidentsApi;
-    return incidentsApi.filter((incident) =>
-      incidentMatchesTag(incident, selectedTag)
-    );
-  }, [incidentsApi, selectedTag]);
+    let filtered = incidentsApi;
+    
+    // Apply tag filter
+    if (selectedTag) {
+      filtered = filtered.filter((incident) =>
+        incidentMatchesTag(incident, selectedTag)
+      );
+    }
+    
+    // Apply disaster type filter
+    if (selectedDisasterTypes.size > 0) {
+      filtered = filtered.filter((incident) => {
+        const incidentType = mapIncidentType(incident.incident_type);
+        return selectedDisasterTypes.has(incidentType);
+      });
+    }
+    
+    return filtered;
+  }, [incidentsApi, selectedTag, selectedDisasterTypes]);
 
   // MapWidget expects a different Incident shape (with lat/lng, severity as 1-3)
   const incidents: MapIncident[] = filteredIncidentsApi
@@ -251,7 +290,6 @@ export default function Dashboard() {
       } as MapIncident;
     })
     .filter(Boolean) as MapIncident[];
-  const postsPerMin = 0; // TODO: real metric
 
   const handleSignOut = async () => {
     await signOut();
@@ -453,14 +491,75 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <button
-            onClick={handleRefresh}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 hover:bg-white shadow"
-          >
-            <RefreshCw className="h-4 w-4" />
-            <span>Refresh</span>
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowDisasterFilter(!showDisasterFilter)}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl shadow transition-colors ${
+                selectedDisasterTypes.size > 0 
+                  ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                  : 'bg-white/70 hover:bg-white'
+              }`}
+            >
+              <Filter className="h-4 w-4" />
+              <span>Filter ({selectedDisasterTypes.size})</span>
+            </button>
+
+            <button
+              onClick={handleRefresh}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 hover:bg-white shadow"
+            >
+              <RefreshCw className="h-4 w-4" />
+              <span>Refresh</span>
+            </button>
+          </div>
         </div>
+
+        {/* Disaster Type Filter Panel */}
+        {showDisasterFilter && (
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-800">Filter by Disaster Type</h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={clearDisasterFilters}
+                  className="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors"
+                >
+                  Clear All
+                </button>
+                <button
+                  onClick={() => setShowDisasterFilter(false)}
+                  className="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {DISASTER_TYPES.map((type) => (
+                <button
+                  key={type}
+                  onClick={() => toggleDisasterType(type)}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    selectedDisasterTypes.has(type)
+                      ? 'bg-blue-500 text-white hover:bg-blue-600'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+            
+            {selectedDisasterTypes.size > 0 && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  Showing {filteredIncidentsApi.length} incidents of type: {Array.from(selectedDisasterTypes).join(', ')}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Map Card */}
         <div className="bg-white/45 backdrop-blur-sm rounded-2xl p-4 shadow mb-6">
@@ -558,22 +657,13 @@ export default function Dashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Active Incidents</span>
               <Activity className="h-4 w-4" />
             </div>
             <div className="text-2xl font-bold mt-1">{incidentsApi.length}</div>
-          </div>
-          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Posts/Min</span>
-              <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="text-2xl font-bold mt-1">
-              {(postsPerMin / 1000).toFixed(1)}K
-            </div>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
             <div className="flex items-center justify-between">
@@ -618,11 +708,16 @@ export default function Dashboard() {
           {/* Live Feed (same as previous Recent Incidents) */}
           <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5 md:col-span-1">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-semibold">Live Feed</h3>
                 {selectedTag && (
                   <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
                     Filtered by {selectedTag}
+                  </span>
+                )}
+                {selectedDisasterTypes.size > 0 && (
+                  <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                    {selectedDisasterTypes.size} disaster type{selectedDisasterTypes.size > 1 ? 's' : ''}
                   </span>
                 )}
               </div>
@@ -636,15 +731,27 @@ export default function Dashboard() {
               <div className="text-gray-600 text-sm">
                 No incidents yet. Try seeding or check back soon.
               </div>
-            ) : filteredIncidentsApi.length === 0 && selectedTag ? (
+            ) : filteredIncidentsApi.length === 0 && (selectedTag || selectedDisasterTypes.size > 0) ? (
               <div className="text-gray-600 text-sm">
-                No incidents found for tag "{selectedTag}".
-                <button
-                  onClick={() => setSelectedTag(null)}
-                  className="text-purple-600 hover:underline ml-1"
-                >
-                  Clear filter
-                </button>
+                No incidents found for current filters.
+                <div className="mt-2 flex gap-2">
+                  {selectedTag && (
+                    <button
+                      onClick={() => setSelectedTag(null)}
+                      className="text-purple-600 hover:underline"
+                    >
+                      Clear tag filter
+                    </button>
+                  )}
+                  {selectedDisasterTypes.size > 0 && (
+                    <button
+                      onClick={clearDisasterFilters}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Clear disaster filters
+                    </button>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-3 max-h-80 overflow-y-auto pr-1">

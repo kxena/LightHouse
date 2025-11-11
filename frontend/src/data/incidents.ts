@@ -12,6 +12,7 @@ export type Incident = {
     | "Flood"
     | "Wildfire"
     | "Earthquake"
+    | "Hurricane"
     | "Storm"
     | "Avalanche"
     | "Tornado"
