@@ -23,6 +23,8 @@ from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, END
 from typing import TypedDict
 import joblib
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 # import Bluesky
 try:
@@ -613,6 +615,49 @@ class UnifiedPipeline:
         else:
             print(f"✓ No new tweets to append to: {self.config.FINAL_OUTPUT_FILE}\n")
         
+        # step 5: upload tweets into MongoDB
+        print("STEP 5: UPLOAD TWEETS INTO MONGODB")
+        print("-" * 70)
+
+        uri = "mongodb+srv://LightHouse:LightHouse@cluster0.wxuiypz.mongodb.net/?appName=Cluster0"
+        # Create a new client and connect to the server
+        client = MongoClient(uri, server_api=ServerApi('1'))
+        # Send a ping to confirm a successful connection
+        try:
+            client = MongoClient(uri, server_api=ServerApi('1'))
+            client.admin.command('ping')
+            print("✓ Successfully connected to MongoDB Atlas")
+
+            # Choose database and collection
+            db = client["DisasterTweetsDB"]
+            collection = db["ProcessedTweets"]
+
+            # Read all final results
+            final_file = self.config.FINAL_OUTPUT_FILE
+            if not final_file.exists():
+                print(f"⚠️ No final output file found at {final_file}")
+            else:
+                print(f"Reading tweets from {final_file}...")
+                with open(final_file, "r", encoding="utf-8") as f:
+                    tweets_to_upload = [json.loads(line) for line in f if line.strip()]
+
+                # Prevent duplicates by checking IDs
+                existing_ids = set(doc["id"] for doc in collection.find({}, {"id": 1}))
+                new_tweets = [tweet for tweet in tweets_to_upload if tweet["id"] not in existing_ids]
+
+                if new_tweets:
+                    result = collection.insert_many(new_tweets)
+                    print(f"✓ Inserted {len(result.inserted_ids)} new tweets into MongoDB collection '{collection.name}'")
+                else:
+                    print("✓ No new tweets to insert — all are already in MongoDB.")
+
+        except Exception as e:
+            print(f"❌ MongoDB upload failed: {e}")
+        finally:
+            client.close()
+            print("Connection to MongoDB closed.\n")
+
+
         # summary
         elapsed = time.time() - start_time
         self._print_summary(newly_processed, elapsed)
