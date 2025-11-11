@@ -14,6 +14,11 @@ export function DarkModeToggle({
 }: DarkModeToggleProps) {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   
+  const handleClick = () => {
+    console.log('DarkModeToggle clicked - current mode:', isDarkMode ? 'dark' : 'light');
+    toggleDarkMode();
+  };
+  
   const sizeClasses = {
     sm: 'p-2 w-4 h-4',
     md: 'p-3 w-5 h-5', 
@@ -26,7 +31,7 @@ export function DarkModeToggle({
   
   return (
     <button
-      onClick={toggleDarkMode}
+      onClick={handleClick}
       className={`${positionClasses} bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all duration-200 ${className}`}
       aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
     >

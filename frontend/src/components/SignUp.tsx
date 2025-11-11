@@ -1,14 +1,18 @@
 import { SignUp } from "@clerk/clerk-react";
 import titleImg from "../assets/logo.png";
+import { DarkModeToggle } from "./DarkModeToggle";
 
 export default function SignUpPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 px-4 py-8">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 dark:from-slate-800 dark:via-purple-900 dark:to-blue-900 px-4 py-8">
+      {/* Dark Mode Toggle */}
+      <DarkModeToggle />
+      
       <div className="flex flex-col items-center gap-8">
         <img
           src={titleImg}
           alt="LightHouse Logo"
-          className="w-40 h-40 object-contain"
+          className="w-40 h-40 object-contain dark:brightness-200 dark:contrast-125"
         />
 
         <div className="bg-[#2B3F5F] text-white rounded-3xl shadow-2xl p-10 w-full max-w-lg">

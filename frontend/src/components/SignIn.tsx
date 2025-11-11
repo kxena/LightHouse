@@ -1,9 +1,13 @@
 import { SignIn } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
+import { DarkModeToggle } from "./DarkModeToggle";
 
 export default function SignInPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 dark:from-slate-800 dark:via-purple-900 dark:to-blue-900 px-4">
+      {/* Dark Mode Toggle */}
+      <DarkModeToggle />
+      
       <div className="flex flex-col lg:flex-row items-center justify-between gap-12 w-full max-w-5xl">
         <div className="flex flex-col items-center gap-6 lg:w-1/2">
           <img
@@ -17,10 +21,10 @@ export default function SignInPage() {
               <img
                 src="src/assets/title.png"
                 alt="LightHouse Logo"
-                className="object-contain max-h-12"
+                className="object-contain max-h-12 dark:brightness-200 dark:contrast-125"
               />
             </div>
-            <p className="text-gray-600 mt-2">New to LightHouse?</p>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">New to LightHouse?</p>
             <Link
               to="/sign-up"
               className="inline-block mt-4 px-8 py-2 bg-cyan-600 text-white rounded-full shadow-md hover:bg-cyan-700 transition"

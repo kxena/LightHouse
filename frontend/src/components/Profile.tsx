@@ -2,6 +2,7 @@ import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User as UserIcon, Edit2, Save, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { DarkModeToggle } from './DarkModeToggle';
 
 export default function Profile() {
   const { user } = useUser();
@@ -165,24 +166,27 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 dark:from-slate-800 dark:via-purple-900 dark:to-blue-900 p-8">
       <div className="max-w-4xl mx-auto">
+        {/* Dark Mode Toggle */}
+        <DarkModeToggle />
+        
         {/* Back Button */}
         <button
           onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 mb-6 text-gray-700 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-2 mb-6 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Dashboard
         </button>
 
         {/* Profile Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 mb-6">
+        <div className="bg-white dark:bg-slate-700 rounded-3xl shadow-2xl p-8 mb-6">
           <div className="flex flex-col items-center">
-            <div className="w-24 h-24 rounded-full border-4 border-gray-800 flex items-center justify-center mb-4">
-              <UserIcon className="w-12 h-12 text-gray-800" />
+            <div className="w-24 h-24 rounded-full border-4 border-gray-800 dark:border-gray-300 flex items-center justify-center mb-4">
+              <UserIcon className="w-12 h-12 text-gray-800 dark:text-gray-300" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{displayName}</h1>
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-2">{displayName}</h1>
             <p className="text-gray-600 mb-1">{email}</p>
             <p className="text-gray-600 mb-4">{role}</p>
             {!isEditing ? (

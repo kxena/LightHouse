@@ -25,7 +25,7 @@ export default function App() {
         <Route
           path="/"
           element={
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 dark:from-slate-800 dark:to-purple-800">
               <SignedOut>
                 <Navigate to="/sign-in" replace />
               </SignedOut>
@@ -34,7 +34,7 @@ export default function App() {
                 {/* Dark Mode Toggle - positioned absolutely */}
                 <button
                   onClick={toggleDarkMode}
-                  className="fixed top-4 right-4 p-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all duration-200 z-10"
+                  className="fixed top-4 right-4 p-3 bg-white/80 dark:bg-slate-700/80 backdrop-blur-sm rounded-full shadow-lg hover:bg-white dark:hover:bg-slate-700 transition-all duration-200 z-10"
                   aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
                 >
                   {isDarkMode ? (
@@ -44,7 +44,7 @@ export default function App() {
                   )}
                 </button>
 
-                <div className="flex flex-col items-center gap-8 p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4">
+                <div className="flex flex-col items-center gap-8 p-8 bg-white dark:bg-slate-700 rounded-2xl shadow-2xl max-w-md w-full mx-4">
                   <div className="flex flex-col items-center gap-4">
                     <img
                       src="src/assets/logo.png"
@@ -55,7 +55,7 @@ export default function App() {
                       <img
                         src="src/assets/title.png"
                         alt="LightHouse Logo"
-                        className="object-contain max-h-12"
+                        className="object-contain max-h-12 dark:brightness-200 dark:contrast-125"
                       />
                     </div>
                     <p className="text-gray-600 dark:text-gray-300 text-center">
