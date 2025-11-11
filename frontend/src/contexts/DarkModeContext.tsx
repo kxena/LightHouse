@@ -1,12 +1,6 @@
-import { createContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-
-interface DarkModeContextType {
-  isDarkMode: boolean;
-  toggleDarkMode: () => void;
-}
-
-export const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined);
+import { DarkModeContext } from './DarkModeContextDefinition';
 
 export function DarkModeProvider({ children }: { children: ReactNode }) {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
