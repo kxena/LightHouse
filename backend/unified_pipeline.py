@@ -1,5 +1,3 @@
-# to run: cd backend, python3 unified_pipeline.py
-
 """
 Unified Disaster Tweet Pipeline
 ================================
