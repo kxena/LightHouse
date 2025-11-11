@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import MapWidget from "./MapWidget";
 import type { Incident as MapIncident } from "../data/incidents";
 import { IncidentAPI, type IncidentResponse } from "../services/incidentAPI";
+import { DarkModeToggle } from "./DarkModeToggle";
 
 // Compact, dynamic vertical list for trending topics (adjacent to Live Feed)
 function TrendingList({
@@ -434,8 +435,11 @@ export default function Dashboard() {
   }, [userLocation, incidentsApi]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 p-8">
       <div className="max-w-7xl mx-auto">
+        {/* Dark Mode Toggle */}
+        <DarkModeToggle />
+
         {/* Header */}
         <div className="mb-8">
           {/* Top: Centered brand/logo */}
@@ -449,12 +453,12 @@ export default function Dashboard() {
 
           {/* Bottom: Left welcome, right date + actions */}
           <div className="flex justify-between items-center">
-            <p className="text-gray-600 text-xl mt-1">Welcome {displayName},</p>
+            <p className="text-gray-600 dark:text-gray-300 text-xl mt-1">Welcome {displayName},</p>
             <div className="flex items-center gap-4">
-              <p className="text-gray-600 text-xl">{currentDate}</p>
+              <p className="text-gray-600 dark:text-gray-300 text-xl">{currentDate}</p>
               <button
                 onClick={handleProfile}
-                className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm text-gray-800 font-semibold rounded-lg shadow-md hover:bg-white/80 transition-all duration-200"
+                className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-800 dark:text-gray-200 font-semibold rounded-lg shadow-md hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all duration-200"
               >
                 <User className="w-4 h-4" />
                 Profile
@@ -472,10 +476,10 @@ export default function Dashboard() {
 
         {/* Controls */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="flex items-center bg-white/70 rounded-xl shadow overflow-hidden">
+          <div className="flex items-center bg-white/70 dark:bg-gray-800/70 rounded-xl shadow overflow-hidden">
             <button
               className={`px-3 py-1 text-sm ${
-                viewMode === "points" ? "bg-white font-semibold" : "opacity-70"
+                viewMode === "points" ? "bg-white dark:bg-gray-700 font-semibold text-gray-900 dark:text-gray-100" : "opacity-70 text-gray-700 dark:text-gray-300"
               }`}
               onClick={() => setViewMode("points")}
             >
@@ -483,7 +487,7 @@ export default function Dashboard() {
             </button>
             <button
               className={`px-3 py-1 text-sm ${
-                viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"
+                viewMode === "heat" ? "bg-white dark:bg-gray-700 font-semibold text-gray-900 dark:text-gray-100" : "opacity-70 text-gray-700 dark:text-gray-300"
               }`}
               onClick={() => setViewMode("heat")}
             >
@@ -516,19 +520,19 @@ export default function Dashboard() {
 
         {/* Disaster Type Filter Panel */}
         {showDisasterFilter && (
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow mb-6">
+          <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl p-4 shadow mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Filter by Disaster Type</h3>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Filter by Disaster Type</h3>
               <div className="flex gap-2">
                 <button
                   onClick={clearDisasterFilters}
-                  className="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors"
+                  className="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-gray-600 dark:text-gray-300 transition-colors"
                 >
                   Clear All
                 </button>
                 <button
                   onClick={() => setShowDisasterFilter(false)}
-                  className="text-sm px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition-colors"
+                  className="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-gray-600 dark:text-gray-300 transition-colors"
                 >
                   Close
                 </button>
@@ -552,8 +556,8 @@ export default function Dashboard() {
             </div>
             
             {selectedDisasterTypes.size > 0 && (
-              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-800">
+              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
                   Showing {filteredIncidentsApi.length} incidents of type: {Array.from(selectedDisasterTypes).join(', ')}
                 </p>
               </div>
@@ -562,7 +566,7 @@ export default function Dashboard() {
         )}
 
         {/* Map Card */}
-        <div className="bg-white/45 backdrop-blur-sm rounded-2xl p-4 shadow mb-6">
+        <div className="bg-white/45 dark:bg-gray-800/45 backdrop-blur-sm rounded-2xl p-4 shadow mb-6">
           <MapWidget
             incidents={incidents}
             heightClass="h-72"
@@ -587,7 +591,7 @@ export default function Dashboard() {
             }}
             onFocus={() => setShowSearchResults(searchQuery.trim().length > 0)}
             placeholder="Search incidents by type, location, or description..."
-            className="w-full rounded-xl px-4 py-2 bg-white/70 focus:bg-white outline-none shadow"
+            className="w-full rounded-xl px-4 py-2 bg-white/70 dark:bg-gray-800/70 focus:bg-white dark:focus:bg-gray-800 outline-none shadow text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
           />
 
           {/* Search results dropdown */}
