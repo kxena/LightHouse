@@ -5,7 +5,7 @@ Complete pipeline that:
 1. Fetches tweets from Bluesky
 2. Cleans and formats them
 3. Classifies them with XGBoost
-4. Extracts detailed info with LLM (incrementally)
+4. Extracts detailed info with LLM
 """
 
 import os
@@ -15,7 +15,7 @@ import hashlib
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Set
+from typing import Optional, List, Dict
 import numpy as np
 from collections import Counter
 from dotenv import load_dotenv
@@ -49,6 +49,7 @@ class PipelineConfig:
         "flood",
         "wildfire", 
         "hurricane"
+        # "tornado" # no more tornado
     ]
     
     # maximum total posts to fetch
@@ -370,6 +371,36 @@ class LLMExtractor:
         disaster_type = ml_cls.get("disaster_type", "unknown")
         confidence = ml_cls.get("confidence", 0)
         
+        # prompt = f"""Extract key information from this disaster tweet. Return ONLY valid JSON.
+
+        # Tweet: "{state['tweet_text']}"
+
+        # ML Classifier predicted: {disaster_type} (confidence: {confidence:.2f})
+        # Based on the tweet content, perform another round of classification to confirm if this is a valid disaster-related tweet.
+
+        # Extract these fields (use null if not found):
+        # - llm_classification: boolean (true if disaster-related, false otherwise)
+        # - disaster_type: string
+        # - location: string (city, region, country)
+        # - time: string (when it happened/will happen)
+        # - severity: string (low, medium, high, critical)
+        # - casualties_mentioned: boolean
+        # - damage_mentioned: boolean
+        # - needs_help: boolean
+        # - key_details: string (brief summary)
+        
+        # Return ONLY this JSON:
+        # {{
+        #     "llm_classification": false,
+        #     "disaster_type": "...",
+        #     "location": "...",
+        #     "time": "...",
+        #     "severity": "...",
+        #     "casualties_mentioned": false,
+        #     "damage_mentioned": false,
+        #     "needs_help": false,
+        #     "key_details": "..."
+        # }}"""
         prompt = f"""Analyze this tweet to verify if it's genuinely about a natural disaster and extract key information. Return ONLY valid JSON.
 
         Tweet: "{state['tweet_text']}"
@@ -455,88 +486,77 @@ class LLMExtractor:
             'llm_error': final_state['error']
         }
     
-    def load_existing_processed_ids(self, filepath: Path) -> Set[str]:
-        """Load IDs of already-processed tweets from existing output file"""
-        existing_ids = set()
+    def process_tweets(self, tweets: List[Dict], limit: Optional[int] = None) -> List[Dict]:
+        """Process all disaster tweets"""
+        disaster_tweets = [t for t in tweets if t['ml_classification']['is_disaster']]
+        non_disaster_count = len([t for t in tweets if not t['ml_classification']['is_disaster']])
+
+        if limit:
+            print(f"Limiting LLM extraction to first {limit} disaster tweets for testing.")
+            disaster_tweets = disaster_tweets[:limit]
         
-        if not filepath.exists():
-            print(f"  No existing output file found at {filepath}")
-            return existing_ids
+        print(f"Extracting details for {len(disaster_tweets)} disaster tweets with LLM...")
+        print(f"(Filtering out {non_disaster_count} non-disaster tweets from final output)\n")
         
-        try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                for line in f:
-                    if line.strip():
-                        tweet = json.loads(line)
-                        tweet_id = tweet.get('id')
-                        if tweet_id:
-                            existing_ids.add(tweet_id)
+        processed = []
+        for i, tweet in enumerate(disaster_tweets, 1):
+            result = self.process_tweet(tweet)
+            processed.append(result)
             
-            print(f"  Found {len(existing_ids)} existing processed tweets")
-        except Exception as e:
-            print(f"  Error loading existing tweets: {e}")
+            if i % 10 == 0:
+                print(f"  Processed {i}/{len(disaster_tweets)} tweets...")
         
-        return existing_ids
+        # ✅ REMOVED: Don't add non-disaster tweets to output
+        
+        print(f"\n✓ LLM extraction complete")
+        print(f"  API calls made: {self.llm_calls_made}")
+        print(f"  Tweets in final output: {len(processed)} (disasters only)\n")
+        
+        return processed
     
-    def process_tweets_incrementally(self, tweets: List[Dict], output_file: Path) -> List[Dict]:
-        """Process only new tweets and append to existing output"""
-        
-        # Load existing processed tweet IDs
-        print("Checking for existing processed tweets...")
-        existing_ids = self.load_existing_processed_ids(output_file)
-        
-        # Filter to only disaster tweets
+    def process_all_tweets_in_batches(self, tweets: List[Dict]) -> List[Dict]:
+        # Process all disaster tweets in batches of 20
         disaster_tweets = [t for t in tweets if t['ml_classification']['is_disaster']]
         non_disaster_count = len([t for t in tweets if not t['ml_classification']['is_disaster']])
         
-        # Separate new tweets from already-processed tweets
-        new_tweets = [t for t in disaster_tweets if t['id'] not in existing_ids]
-        skipped_tweets = [t for t in disaster_tweets if t['id'] in existing_ids]
-        
-        print(f"\n📊 Tweet Processing Summary:")
-        print(f"  Total disaster tweets: {len(disaster_tweets)}")
-        print(f"  Already processed (skipping): {len(skipped_tweets)}")
-        print(f"  New tweets to process: {len(new_tweets)}")
-        print(f"  Non-disasters (filtered): {non_disaster_count}\n")
-        
-        if not new_tweets:
-            print("✓ No new tweets to process!\n")
-            return []
-        
-        # Process new tweets in batches
+        total_disasters = len(disaster_tweets)
         BATCH_SIZE = 20
-        total_new = len(new_tweets)
         
-        print(f"Processing {total_new} new disaster tweets in batches of {BATCH_SIZE}...\n")
+        print(f"Processing {total_disasters} disaster tweets in batches of {BATCH_SIZE}...")
+        print(f"(Filtering out {non_disaster_count} non-disaster tweets)\n")
         
-        newly_processed = []
+        all_processed = []
         
-        for batch_start in range(0, total_new, BATCH_SIZE):
-            batch_end = min(batch_start + BATCH_SIZE, total_new)
-            batch = new_tweets[batch_start:batch_end]
+        # Process in batches
+        for batch_start in range(0, total_disasters, BATCH_SIZE):
+            batch_end = min(batch_start + BATCH_SIZE, total_disasters)
+            batch = disaster_tweets[batch_start:batch_end]
             batch_num = (batch_start // BATCH_SIZE) + 1
-            total_batches = (total_new + BATCH_SIZE - 1) // BATCH_SIZE
+            total_batches = (total_disasters + BATCH_SIZE - 1) // BATCH_SIZE
             
             print(f"📦 Processing batch {batch_num}/{total_batches} (tweets {batch_start+1}-{batch_end})...")
+            
+            # Reset API call counter for this batch
+            self.llm_calls_made = 0
             
             # Process this batch
             for i, tweet in enumerate(batch, 1):
                 result = self.process_tweet(tweet)
-                newly_processed.append(result)
+                all_processed.append(result)
                 
                 if i % 5 == 0:
                     print(f"  Batch progress: {i}/{len(batch)} tweets...")
             
             print(f"  ✓ Batch {batch_num} complete ({len(batch)} tweets)\n")
             
-            # Brief pause between batches
-            if batch_end < total_new:
+            # Brief pause between batches (optional, for rate limiting safety)
+            if batch_end < total_disasters:
                 time.sleep(2)
         
-        print(f"✓ All {total_new} new disaster tweets processed!")
-        print(f"  Total API calls: {total_new}\n")
+        print(f"✓ All {total_disasters} disaster tweets processed!")
+        print(f"  Total API calls: {total_disasters}\n")
         
-        return newly_processed
+        return all_processed
 
 # main pipeline
 class UnifiedPipeline:
@@ -546,23 +566,23 @@ class UnifiedPipeline:
         self.config = config
         self.config.OUTPUT_DIR.mkdir(exist_ok=True)
     
-    def save_jsonl(self, data: List[Dict], filepath: Path, mode='w'):
-        """Save data as JSONL (mode='w' overwrites, mode='a' appends)"""
-        with open(filepath, mode, encoding='utf-8') as f:
+    def save_jsonl(self, data: List[Dict], filepath: Path):
+        """Save data as JSONL"""
+        with open(filepath, 'w', encoding='utf-8') as f:
             for item in data:
                 f.write(json.dumps(item, ensure_ascii=False, default=str) + '\n')
     
     def run(self, skip_fetch: bool = False, use_existing: Optional[str] = None):
         """Run the complete pipeline"""
         print("\n" + "=" * 70)
-        print("UNIFIED DISASTER TWEET PIPELINE (INCREMENTAL MODE)")
+        print("UNIFIED DISASTER TWEET PIPELINE")
         print("=" * 70 + "\n")
         
         start_time = time.time()
         
         # step 1: fetch tweets
         if skip_fetch or use_existing:
-            print("⏭ Skipping tweet fetch (using existing data)\n")
+            print("⏭Skipping tweet fetch (using existing data)\n")
             if use_existing:
                 with open(use_existing, 'r') as f:
                     raw_tweets = [json.loads(line) for line in f if line.strip()]
@@ -595,67 +615,63 @@ class UnifiedPipeline:
         self.save_jsonl(classified_tweets, self.config.CLASSIFIED_TWEETS_FILE)
         print(f"Saved to: {self.config.CLASSIFIED_TWEETS_FILE}\n")
         
-        # step 4: extract with LLM (INCREMENTAL)
-        print("STEP 4: EXTRACT DETAILS WITH LLM (INCREMENTAL)")
+        # # step 4: extract with LLM
+        # print("STEP 4: EXTRACT DETAILS WITH LLM")
+        # print("-" * 70)
+        # extractor = LLMExtractor(self.config)
+        # final_results = extractor.process_tweets(classified_tweets, limit=20)
+        # self.save_jsonl(final_results, self.config.FINAL_OUTPUT_FILE)
+        # print(f"Saved to: {self.config.FINAL_OUTPUT_FILE}\n")
+        
+        # step 4: extract with LLM
+        print("STEP 4: EXTRACT DETAILS WITH LLM")
         print("-" * 70)
         extractor = LLMExtractor(self.config)
+
+        # Process in batches of 20 until all are done
+        final_results = extractor.process_all_tweets_in_batches(classified_tweets)
         
-        # Process only new tweets incrementally
-        newly_processed = extractor.process_tweets_incrementally(
-            classified_tweets, 
-            self.config.FINAL_OUTPUT_FILE
-        )
-        
-        # Append new results to existing file (don't overwrite!)
-        if newly_processed:
-            self.save_jsonl(newly_processed, self.config.FINAL_OUTPUT_FILE, mode='a')
-            print(f"✓ Appended {len(newly_processed)} new tweets to: {self.config.FINAL_OUTPUT_FILE}\n")
-        else:
-            print(f"✓ No new tweets to append to: {self.config.FINAL_OUTPUT_FILE}\n")
-        
+        # save the results
+        self.save_jsonl(final_results, self.config.FINAL_OUTPUT_FILE)
+        print(f"Saved to: {self.config.FINAL_OUTPUT_FILE}\n")
+
         # summary
         elapsed = time.time() - start_time
-        self._print_summary(newly_processed, elapsed)
+        self._print_summary(final_results, elapsed)
     
-    def _print_summary(self, newly_processed: List[Dict], elapsed: float):
+    def _print_summary(self, results: List[Dict], elapsed: float):
         """Print pipeline summary"""
         print("=" * 70)
         print("Pipeline Complete")
         print("=" * 70)
         
-        # Count total tweets in final output file
-        total_in_file = 0
-        if self.config.FINAL_OUTPUT_FILE.exists():
-            with open(self.config.FINAL_OUTPUT_FILE, 'r', encoding='utf-8') as f:  # ← ADD encoding='utf-8'
-                total_in_file = sum(1 for line in f if line.strip())
+        total = len(results)
+        disasters = sum(1 for r in results if r['ml_classification']['is_disaster'])
+        extracted = sum(1 for r in results if r.get('llm_extraction'))
         
-        new_count = len(newly_processed)
+        # count by disaster type
+        disaster_types = Counter(
+            r['ml_classification']['disaster_type'] 
+            for r in results 
+            if r['ml_classification']['is_disaster']
+        )
         
         print(f"\nSummary:")
-        print(f"  Newly processed tweets: {new_count}")
-        print(f"  Total tweets in output file: {total_in_file}")
+        print(f"  Total tweets processed: {total}")
+        print(f"  Disasters detected: {disasters}")
+        print(f"  Non-disasters: {total - disasters}")
+        print(f"  LLM extractions: {extracted}")
+        print(f"  Total time: {elapsed:.1f}s ({elapsed/total:.2f}s per tweet)")
         
-        if new_count > 0:
-            print(f"  Processing time: {elapsed:.1f}s ({elapsed/new_count:.2f}s per new tweet)")
-            
-            # Count by disaster type (only for newly processed)
-            disaster_types = Counter(
-                t['ml_classification']['disaster_type'] 
-                for t in newly_processed 
-                if t['ml_classification']['is_disaster']
-            )
-            
-            print(f"\nNew disaster breakdown:")
-            for dtype, count in disaster_types.most_common():
-                print(f"  {dtype:12s}: {count:3d}")
-        else:
-            print(f"  Processing time: {elapsed:.1f}s")
+        print(f"\nDisaster breakdown:")
+        for dtype, count in disaster_types.most_common():
+            print(f"  {dtype:12s}: {count:3d} ({100*count/disasters:.1f}%)")
         
         print(f"\nOutput files:")
         print(f"  1. {self.config.RAW_TWEETS_FILE}")
         print(f"  2. {self.config.CLEANED_TWEETS_FILE}")
         print(f"  3. {self.config.CLASSIFIED_TWEETS_FILE}")
-        print(f"  4. {self.config.FINAL_OUTPUT_FILE} (incremental)")
+        print(f"  4. {self.config.FINAL_OUTPUT_FILE}")
         
         print("\n" + "=" * 70 + "\n")
 
