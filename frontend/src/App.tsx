@@ -23,19 +23,19 @@ export default function App() {
       <Route
         path="/"
         element={
-          <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-blue-100">
+          <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-950 dark:to-blue-950 transition-colors duration-300">
             <SignedOut>
               <Navigate to="/sign-in" replace />
             </SignedOut>
 
             <SignedIn>
-              <div className="flex flex-col items-center gap-8 p-8 bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
+              <div className="flex flex-col items-center gap-8 p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full mx-4">
                 <div className="flex flex-col items-center gap-4">
                   <div className="text-6xl">🏠</div>
-                  <h1 className="text-4xl font-bold text-gray-800 text-center">
+                  <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 text-center">
                     Welcome, {displayName}!
                   </h1>
-                  <p className="text-gray-600 text-center">
+                  <p className="text-gray-600 dark:text-gray-300 text-center">
                     Your disaster response management system
                   </p>
                 </div>
@@ -50,7 +50,7 @@ export default function App() {
 
                   <button
                     onClick={handleSignOut}
-                    className="w-full py-3 px-6 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md hover:bg-gray-300 transition-all duration-200"
+                    className="w-full py-3 px-6 bg-gray-200 dark:bg-slate-700 text-gray-800 dark:text-gray-100 font-semibold rounded-lg shadow-md hover:bg-gray-300 dark:hover:bg-slate-600 transition-all duration-200"
                   >
                     Log Out
                   </button>

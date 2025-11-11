@@ -1,4 +1,4 @@
-import { Activity, TrendingUp, Globe, LogOut, User, RefreshCw } from 'lucide-react';
+import { Activity, TrendingUp, Globe, LogOut, User, RefreshCw, MapPin } from 'lucide-react';
 import { useUser, useClerk } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -50,6 +50,8 @@ export default function Dashboard() {
   const [postsPerMin, setPostsPerMin] = useState(0);
   const [activeStates, setActiveStates] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [nearestIncident, setNearestIncident] = useState<{ distance: number; type: string; city: string } | null>(null);
   
   const currentDate = new Date().toLocaleDateString('en-US', {
     month: '2-digit',
@@ -241,6 +243,175 @@ export default function Dashboard() {
     }
   };
 
+  // Get user's location from localStorage and geocode it
+  useEffect(() => {
+    const loadUserLocation = () => {
+      const savedCity = localStorage.getItem('userCity');
+      const savedState = localStorage.getItem('userState');
+      
+      if (savedCity) {
+        // Simple geocoding lookup for common cities
+        const cityCoordinates: { [key: string]: { lat: number; lng: number } } = {
+          // US Cities
+          'san francisco': { lat: 37.7749, lng: -122.4194 },
+          'los angeles': { lat: 34.0522, lng: -118.2437 },
+          'new york': { lat: 40.7128, lng: -74.0060 },
+          'chicago': { lat: 41.8781, lng: -87.6298 },
+          'houston': { lat: 29.7604, lng: -95.3698 },
+          'phoenix': { lat: 33.4484, lng: -112.0740 },
+          'miami': { lat: 25.7617, lng: -80.1918 },
+          'seattle': { lat: 47.6062, lng: -122.3321 },
+          'boston': { lat: 42.3601, lng: -71.0589 },
+          'austin': { lat: 30.2672, lng: -97.7431 },
+          'denver': { lat: 39.7392, lng: -104.9903 },
+          'portland': { lat: 45.5152, lng: -122.6784 },
+          'atlanta': { lat: 33.7490, lng: -84.3880 },
+          'dallas': { lat: 32.7767, lng: -96.7970 },
+          'philadelphia': { lat: 39.9526, lng: -75.1652 },
+          'washington': { lat: 38.9072, lng: -77.0369 },
+          'las vegas': { lat: 36.1699, lng: -115.1398 },
+          'anchorage': { lat: 61.2181, lng: -149.9003 },
+          
+          // International Cities
+          'tokyo': { lat: 35.6762, lng: 139.6503 },
+          'london': { lat: 51.5074, lng: -0.1278 },
+          'paris': { lat: 48.8566, lng: 2.3522 },
+          'sydney': { lat: -33.8688, lng: 151.2093 },
+          'toronto': { lat: 43.6532, lng: -79.3832 },
+          'mexico city': { lat: 19.4326, lng: -99.1332 },
+          'vancouver': { lat: 49.2827, lng: -123.1207 },
+          'madrid': { lat: 40.4168, lng: -3.7038 },
+          'rome': { lat: 41.9028, lng: 12.4964 },
+          'berlin': { lat: 52.5200, lng: 13.4050 },
+          'mumbai': { lat: 19.0760, lng: 72.8777 },
+          'shanghai': { lat: 31.2304, lng: 121.4737 },
+          'beijing': { lat: 39.9042, lng: 116.4074 },
+          'singapore': { lat: 1.3521, lng: 103.8198 },
+          'dubai': { lat: 25.2048, lng: 55.2708 },
+          'hong kong': { lat: 22.3193, lng: 114.1694 },
+          'seoul': { lat: 37.5665, lng: 126.9780 },
+          'bangkok': { lat: 13.7563, lng: 100.5018 },
+          'istanbul': { lat: 41.0082, lng: 28.9784 },
+          'athens': { lat: 37.9838, lng: 23.7275 },
+        };
+        
+        const cityKey = savedCity.toLowerCase().trim();
+        const coords = cityCoordinates[cityKey];
+        
+        if (coords) {
+          setUserLocation(coords);
+          console.log(`User location set from profile: ${savedCity}, ${savedState} (${coords.lat}, ${coords.lng})`);
+        } else {
+          console.log(`City "${savedCity}" not found in geocoding database. Please add coordinates manually.`);
+        }
+      } else {
+        console.log("No user location set. Please set your location in Profile settings.");
+        setUserLocation(null);
+      }
+    };
+
+    // Load location on mount
+    loadUserLocation();
+
+    // Listen for storage changes (when Profile is updated)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'userCity' || e.key === 'userState') {
+        console.log('User location updated in Profile, reloading...');
+        loadUserLocation();
+      }
+    };
+
+    // Listen for custom event from same tab (since StorageEvent only fires on other tabs)
+    const handleLocationUpdate = () => {
+      console.log('Location updated event received, reloading...');
+      loadUserLocation();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('locationUpdated', handleLocationUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('locationUpdated', handleLocationUpdate);
+    };
+  }, []);
+  
+  // Calculate nearest incident when user location or incidents change
+  useEffect(() => {
+    if (!userLocation || incidents.length === 0) {
+      setNearestIncident(null);
+      return;
+    }
+    
+    // Geocode incident locations
+    const incidentCoordinates: { [key: string]: { lat: number; lng: number } } = {
+      'alaska': { lat: 61.3707, lng: -152.4044 },
+      'california': { lat: 36.7783, lng: -119.4179 },
+      'florida': { lat: 27.9944, lng: -81.7603 },
+      'texas': { lat: 31.9686, lng: -99.9018 },
+      'new york': { lat: 40.7128, lng: -74.0060 },
+      'oklahoma': { lat: 35.0078, lng: -97.0929 },
+      'north carolina': { lat: 35.7596, lng: -79.0193 },
+      'louisiana': { lat: 30.9843, lng: -91.9623 },
+      'chile': { lat: -35.6751, lng: -71.5430 },
+      'austin': { lat: 30.2672, lng: -97.7431 },
+      'indonesia': { lat: -0.7893, lng: 113.9213 },
+      'new zealand': { lat: -40.9006, lng: 174.8860 },
+      'japan': { lat: 36.2048, lng: 138.2529 },
+      'afghanistan': { lat: 33.9391, lng: 67.7100 },
+      'philippines': { lat: 12.8797, lng: 121.7740 },
+      'italy': { lat: 41.8719, lng: 12.5674 },
+      'namibia': { lat: -22.9576, lng: 18.4904 },
+      'spain': { lat: 40.4637, lng: -3.7492 },
+      'bolivia': { lat: -16.2902, lng: -63.5887 },
+      'colombia': { lat: 4.5709, lng: -74.2973 },
+      'nova scotia': { lat: 44.6820, lng: -63.7443 },
+      'fiji islands': { lat: -17.7134, lng: 178.0650 },
+      'north dakota': { lat: 47.5515, lng: -101.0020 },
+    };
+    
+    // Calculate distance using Haversine formula
+    const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+      const R = 3959; // Earth's radius in miles
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    };
+    
+    let closestIncident: { distance: number; type: string; city: string } | null = null;
+    let minDistance = Infinity;
+    
+    incidents.forEach(incident => {
+      const cityKey = incident.city.toLowerCase().trim();
+      const incidentCoords = incidentCoordinates[cityKey];
+      
+      if (incidentCoords) {
+        const distance = calculateDistance(
+          userLocation.lat,
+          userLocation.lng,
+          incidentCoords.lat,
+          incidentCoords.lng
+        );
+        
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestIncident = {
+            distance,
+            type: incident.type,
+            city: incident.city
+          };
+        }
+      }
+    });
+    
+    setNearestIncident(closestIncident);
+  }, [userLocation, incidents]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
       <div className="max-w-7xl mx-auto">
@@ -401,10 +572,30 @@ export default function Dashboard() {
               </div>
               <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">System Status</span>
-                  <TrendingUp className="h-4 w-4" />
+                  <span className="text-sm text-gray-500">Nearest Incident</span>
+                  <MapPin className="h-4 w-4 text-red-500" />
                 </div>
-                <div className="text-2xl font-bold mt-1">{(postsPerMin / 1000).toFixed(1)}K posts/min</div>
+                {userLocation && nearestIncident ? (
+                  <>
+                    <div className="text-2xl font-bold mt-1">
+                      {nearestIncident.distance.toFixed(1)} mi
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      from {localStorage.getItem('userCity')}, {localStorage.getItem('userState')}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 truncate">
+                      Closest: {nearestIncident.type} in {nearestIncident.city}
+                    </div>
+                  </>
+                ) : !userLocation ? (
+                  <div className="text-sm text-gray-500 mt-1">
+                    Set location in Profile to see nearby incidents
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-500 mt-1">
+                    No incidents with location data
+                  </div>
+                )}
               </div>
               <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
                 <div className="flex items-center justify-between">
