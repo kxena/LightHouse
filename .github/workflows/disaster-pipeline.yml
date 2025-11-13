@@ -52,7 +52,7 @@ jobs:
         python unified_pipeline.py
         
         echo "Processing incidents and uploading to MongoDB..."
-        python regenerate_incidents_mongodb.py --update
+        python regenerate_incidents.py --update
     
     - name: Check MongoDB upload status
       if: success()
