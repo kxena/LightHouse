@@ -1,9 +1,9 @@
 name: Disaster Tweet Pipeline
 
 on:
-  # Eventually run 1-2 times a day
+  # Run twice a day at 5 AM and 5 PM UTC
   schedule:
-    - cron: '0 5,17 * * *'  # twice a day at 4 PM
+    - cron: '0 5,17 * * *'
   
   # Allow manual runs from GitHub UI
   workflow_dispatch:
@@ -26,50 +26,125 @@ jobs:
       run: |
         cd backend
         pip install --upgrade pip
-        pip install python-dotenv langchain-openai langgraph atproto joblib scikit-learn xgboost numpy
+        pip install -r requirements.txt
     
     - name: Verify model files exist
       run: |
-        cd backend
-        cd xgboost_classifier
+        cd backend/xgboost_classifier
         ls -la xgboost_model*.joblib xgboost_vectorizer*.joblib xgboost_config*.json
     
-    - name: Run disaster pipeline
+    - name: Verify MongoDB connection
+      env:
+        MDB_URI: ${{ secrets.MDB_URI }}
+      run: |
+        cd backend
+        python mongodb_handler.py
+    
+    - name: Run disaster tweet pipeline
       env:
         BLUESKY_USER: ${{ secrets.BLUESKY_USER }}
         BLUESKY_PWD: ${{ secrets.BLUESKY_PWD }}
         HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        MDB_URI: ${{ secrets.MDB_URI }}
       run: |
         cd backend
+        echo "Starting unified pipeline..."
         python unified_pipeline.py
+        
+        echo "Processing incidents and uploading to MongoDB..."
+        python regenerate_incidents_mongodb.py --update
     
-    - name: Upload results as artifacts
+    - name: Check MongoDB upload status
+      if: success()
+      env:
+        MDB_URI: ${{ secrets.MDB_URI }}
+      run: |
+        cd backend
+        python -c "
+        from mongodb_handler import MongoDBHandler
+        handler = MongoDBHandler()
+        if handler.connect():
+            stats = handler.get_statistics()
+            print(f'📊 MongoDB Statistics:')
+            print(f'   Total incidents: {stats[\"total_incidents\"]}')
+            print(f'   Active incidents: {stats[\"active_incidents\"]}')
+            print(f'   By type: {stats[\"by_type\"]}')
+            handler.close()
+        else:
+            print('⚠️ Could not verify MongoDB upload')
+        "
+    
+    - name: Upload pipeline results as artifacts
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: pipeline-results-${{ github.run_number }}
-        path: backend/pipeline_output/
+        path: |
+          backend/pipeline_output/
+          backend/incidents.json
         retention-days: 30
     
-    - name: Commit and push results to repo (optional)
+    - name: Create summary
+      if: always()
+      run: |
+        cd backend
+        echo "## 📊 Pipeline Run Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Run Time:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+        echo "**Status:** ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f pipeline_output/04_final_results.jsonl ]; then
+          TWEET_COUNT=$(wc -l < pipeline_output/04_final_results.jsonl)
+          echo "**Tweets Processed:** $TWEET_COUNT" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ -f incidents.json ]; then
+          INCIDENT_COUNT=$(python -c "import json; data=json.load(open('incidents.json')); print(len(data.get('incidents', [])))")
+          echo "**Incidents Created:** $INCIDENT_COUNT" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📁 Output Files" >> $GITHUB_STEP_SUMMARY
+        echo "- Raw tweets: \`pipeline_output/01_raw_tweets.jsonl\`" >> $GITHUB_STEP_SUMMARY
+        echo "- Cleaned tweets: \`pipeline_output/02_cleaned_tweets.jsonl\`" >> $GITHUB_STEP_SUMMARY
+        echo "- ML classifications: \`pipeline_output/03_classified_tweets.jsonl\`" >> $GITHUB_STEP_SUMMARY
+        echo "- LLM validations: \`pipeline_output/04_final_results.jsonl\`" >> $GITHUB_STEP_SUMMARY
+        echo "- Final incidents: \`incidents.json\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **MongoDB**: Incidents uploaded to \`lighthouse.incidents\` collection" >> $GITHUB_STEP_SUMMARY
+    
+    - name: Optional - Commit results to repo
       if: success()
+      continue-on-error: true
       run: |
         cd backend
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add pipeline_output/ || true
-        git diff --staged --quiet || git commit -m "Pipeline results: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-        git push || echo "No changes to push"
+        
+        # Only commit the final incidents.json (pipeline_output is temp)
+        git add incidents.json || true
+        
+        if ! git diff --staged --quiet; then
+          git commit -m "🤖 Auto-update: Pipeline run $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          git push
+        else
+          echo "No changes to commit"
+        fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: Report status
+    - name: Report final status
       if: always()
       run: |
+        echo "=================================="
         if [ "${{ job.status }}" == "success" ]; then
           echo "✅ Pipeline completed successfully"
+          echo "✅ Tweets fetched and classified"
+          echo "✅ Incidents uploaded to MongoDB"
+          echo "✅ Results available in artifacts"
         else
           echo "❌ Pipeline failed"
+          echo "Check logs above for error details"
           exit 1
         fi
+        echo "=================================="
