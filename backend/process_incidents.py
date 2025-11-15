@@ -123,6 +123,10 @@ def extract_coordinates_from_location(location: str) -> Optional[tuple[float, fl
 
 # Map LLM severity to 1-3 scale for frontend
 def severity_map(llm_severity: str) -> int:
+    """Map LLM severity to 1-3 scale for frontend."""
+    if not llm_severity:
+        return 1  # Fallback just in case
+    
     mapping = {
         "low": 1,
         "medium": 2,
@@ -130,7 +134,6 @@ def severity_map(llm_severity: str) -> int:
         "critical": 3
     }
     return mapping.get(llm_severity.lower(), 2)
-
 
 # Normalize disaster type to match frontend expectations
 def disaster_type_normalize(disaster_type: str) -> str:
@@ -155,6 +158,11 @@ def generate_incident_id(tweet_id: str, location: str) -> str:
 def tweet_to_incident(tweet: Dict) -> Optional[Dict]:
     llm = tweet.get('llm_extraction', {})
     ml = tweet.get('ml_classification', {})
+
+    # Skip tweets with null or empty severity
+    severity_value = llm.get('severity')
+    if not severity_value or (isinstance(severity_value, str) and severity_value.strip() == ''):
+        return None
     
     location = llm.get('location', 'Location TBD')
     if not location or location.strip() == '':

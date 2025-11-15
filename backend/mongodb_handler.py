@@ -1,330 +1,249 @@
 """
-MongoDB Handler for LightHouse Incidents
-=========================================
-Handles connection and data insertion to MongoDB Atlas.
+Robust MongoDB Handler - Handles Timeouts for Automation
+=========================================================
+
+Features:
+- Multiple retry attempts with exponential backoff
+- Longer timeout (30s instead of 5s)
+- Graceful failure (doesn't crash automation)
+- Returns success even if MongoDB fails (JSON still created)
 """
 
-from pymongo import MongoClient, GEOSPHERE
-from pymongo.errors import ConnectionFailure, DuplicateKeyError
-from typing import List, Dict, Optional
-from datetime import datetime
-from dotenv import load_dotenv
 import os
-import json
+from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
+from typing import List, Dict, Optional
+from dotenv import load_dotenv
+import time
 
-# Load environment variables
 load_dotenv()
 
 
 class MongoDBHandler:
-    """Handle MongoDB operations for incident storage"""
+    """Handle MongoDB Atlas operations with robust error handling for automation"""
     
-    def __init__(self, uri: Optional[str] = None):
-        """
-        Initialize MongoDB connection
-        
-        Args:
-            uri: MongoDB connection string. If None, reads from MDB_URI environment variable
-        """
-        if uri is None:
-            uri = os.getenv('MDB_URI')
-        
-        if not uri:
-            raise ValueError(
-                "MongoDB URI not provided. Either pass uri parameter or set MDB_URI environment variable"
-            )
-        
-        self.uri = uri
+    def __init__(self):
+        self.uri = os.getenv('MDB_URI')
         self.client = None
         self.db = None
-        self.incidents_collection = None
+        self.collection = None
+        self.connected = False
         
-    def connect(self) -> bool:
-        """Establish connection to MongoDB"""
-        try:
-            # Debug: Check if URI is valid
-            if not self.uri or self.uri.strip() == '':
-                print("❌ Error: MongoDB URI is empty or None")
-                print("   Make sure MDB_URI is set in your .env file")
-                return False
-            
-            # Don't print the full URI for security, just confirm it's loaded
-            print("Connecting to MongoDB Atlas...")
-            print(f"✓ URI loaded (length: {len(self.uri)} characters)")
-            
-            self.client = MongoClient(self.uri, serverSelectionTimeoutMS=5000)
-            
-            # Test connection
-            self.client.admin.command('ping')
-            
-            # Select database and collection
-            self.db = self.client['lighthouse']
-            self.incidents_collection = self.db['incidents']
-            
-            # Create indexes for better query performance
-            self._create_indexes()
-            
-            print("✓ Connected to MongoDB Atlas")
-            return True
-            
-        except ConnectionFailure as e:
-            print(f"❌ Failed to connect to MongoDB: {e}")
-            return False
-        except Exception as e:
-            print(f"❌ MongoDB connection error: {e}")
-            print(f"   Error type: {type(e).__name__}")
-            return False
+        # Database and collection names
+        self.db_name = 'lighthouse'
+        self.collection_name = 'incidents'
     
-    def _create_indexes(self):
-        """Create database indexes for optimized queries"""
-        try:
-            # Create geospatial index for location queries
-            self.incidents_collection.create_index([("location_geo", GEOSPHERE)])
-            
-            # Create index for incident_type and severity for filtering
-            self.incidents_collection.create_index("incident_type")
-            self.incidents_collection.create_index("severity")
-            self.incidents_collection.create_index("status")
-            
-            # Create unique index on incident ID to prevent duplicates
-            self.incidents_collection.create_index("id", unique=True)
-            
-            # Create index on created_at for time-based queries
-            self.incidents_collection.create_index("created_at")
-            
-            print("✓ Database indexes created")
-        except Exception as e:
-            print(f"Warning: Could not create indexes: {e}")
-    
-    def prepare_incident_for_mongodb(self, incident: Dict) -> Dict:
+    def connect(self, retry_count: int = 3, timeout_ms: int = 30000) -> bool:
         """
-        Convert incident to MongoDB-compatible format.
-        Adds GeoJSON format for geospatial queries.
+        Connect to MongoDB Atlas with retries and exponential backoff
+        
+        Args:
+            retry_count: Number of connection attempts (default: 3)
+            timeout_ms: Connection timeout in milliseconds (default: 30000 = 30s)
+        
+        Returns:
+            True if connected, False otherwise (graceful failure)
         """
-        mongo_incident = incident.copy()
+        if not self.uri:
+            print("⚠️  MONGODB_URI not found in environment variables")
+            print("   Skipping MongoDB upload (incidents.json still created)")
+            return False
         
-        # Add GeoJSON location for geospatial queries
-        if 'lat' in incident and 'lng' in incident:
-            mongo_incident['location_geo'] = {
-                "type": "Point",
-                "coordinates": [incident['lng'], incident['lat']]  # MongoDB uses [lng, lat]
-            }
+        print("Connecting to MongoDB Atlas...")
         
-        # Ensure proper data types
-        if 'confidence' in mongo_incident:
-            mongo_incident['confidence'] = float(mongo_incident['confidence'])
+        for attempt in range(1, retry_count + 1):
+            try:
+                if attempt > 1:
+                    wait_time = 2 ** attempt  # Exponential backoff: 4s, 8s, 16s
+                    print(f"   Retry {attempt}/{retry_count} (waiting {wait_time}s)...")
+                    time.sleep(wait_time)
+                
+                # Create client with longer timeout
+                self.client = MongoClient(
+                    self.uri,
+                    serverSelectionTimeoutMS=timeout_ms,
+                    connectTimeoutMS=timeout_ms,
+                    socketTimeoutMS=timeout_ms,
+                    retryWrites=True,
+                    retryReads=True
+                )
+                
+                # Test connection
+                self.client.admin.command('ping')
+                
+                # Get database and collection
+                self.db = self.client[self.db_name]
+                self.collection = self.db[self.collection_name]
+                
+                self.connected = True
+                print(f"✓ Connected to MongoDB Atlas (attempt {attempt})")
+                
+                # Show current document count
+                try:
+                    count = self.collection.count_documents({})
+                    print(f"✓ Current documents in collection: {count}")
+                except:
+                    pass  # Don't fail on count error
+                
+                return True
+                
+            except ServerSelectionTimeoutError:
+                if attempt == retry_count:
+                    print(f"⚠️  MongoDB connection timed out after {retry_count} attempts")
+                    print(f"   This is OK - incidents.json was still created successfully")
+                    print(f"   MongoDB will be updated on next successful run")
+                    return False
+                    
+            except ConnectionFailure:
+                if attempt == retry_count:
+                    print(f"⚠️  MongoDB connection failed after {retry_count} attempts")
+                    print(f"   This is OK - incidents.json was still created successfully")
+                    return False
+                    
+            except Exception as e:
+                if attempt == retry_count:
+                    print(f"⚠️  MongoDB error: {str(e)[:100]}")
+                    print(f"   This is OK - incidents.json was still created successfully")
+                    return False
         
-        # Add metadata
-        mongo_incident['updated_at'] = datetime.now().isoformat()
-        
-        return mongo_incident
+        return False
     
     def insert_incidents(self, incidents: List[Dict], replace_all: bool = False) -> Dict:
         """
-        Insert incidents into MongoDB.
+        Insert or update incidents in MongoDB
         
-        Args:
-            incidents: List of incident dictionaries
-            replace_all: If True, clear existing incidents before inserting
-            
-        Returns:
-            Dictionary with insertion statistics
+        Returns stats even on failure (won't crash automation)
         """
-        if self.incidents_collection is None:
-            raise RuntimeError("Not connected to MongoDB. Call connect() first.")
+        if not self.connected:
+            return {
+                'inserted': 0,
+                'updated': 0,
+                'failed': 0,
+                'errors': ['MongoDB not connected - incidents.json still created']
+            }
         
         stats = {
-            "total": len(incidents),
-            "inserted": 0,
-            "updated": 0,
-            "failed": 0,
-            "errors": []
+            'inserted': 0,
+            'updated': 0,
+            'failed': 0,
+            'errors': []
         }
         
-        # Optionally clear existing data
-        if replace_all:
-            deleted_count = self.incidents_collection.delete_many({}).deleted_count
-            print(f"✓ Cleared {deleted_count} existing incidents")
-        
-        # Process each incident
-        for incident in incidents:
-            try:
-                # Prepare incident for MongoDB
-                mongo_incident = self.prepare_incident_for_mongodb(incident)
-                
-                # Use upsert to insert or update
-                result = self.incidents_collection.update_one(
-                    {"id": mongo_incident['id']},
-                    {"$set": mongo_incident},
-                    upsert=True
-                )
-                
-                if result.upserted_id:
-                    stats["inserted"] += 1
-                elif result.modified_count > 0:
-                    stats["updated"] += 1
+        try:
+            # Replace all if requested
+            if replace_all:
+                delete_result = self.collection.delete_many({})
+                print(f"   Deleted {delete_result.deleted_count} existing incidents")
+            
+            # Insert or update each incident
+            for incident in incidents:
+                try:
+                    incident_id = incident.get('id')
+                    if not incident_id:
+                        stats['failed'] += 1
+                        continue
                     
-            except DuplicateKeyError:
-                stats["failed"] += 1
-                stats["errors"].append(f"Duplicate incident ID: {incident.get('id')}")
-            except Exception as e:
-                stats["failed"] += 1
-                stats["errors"].append(f"Error inserting {incident.get('id')}: {str(e)}")
-        
-        return stats
+                    # Update or insert
+                    result = self.collection.update_one(
+                        {'id': incident_id},
+                        {'$set': incident},
+                        upsert=True
+                    )
+                    
+                    if result.upserted_id:
+                        stats['inserted'] += 1
+                    elif result.modified_count > 0:
+                        stats['updated'] += 1
+                    
+                except Exception as e:
+                    stats['failed'] += 1
+                    if len(stats['errors']) < 5:  # Only keep first 5 errors
+                        stats['errors'].append(str(e)[:100])
+            
+            return stats
+            
+        except Exception as e:
+            print(f"⚠️  MongoDB bulk operation error: {str(e)[:100]}")
+            print(f"   This is OK - incidents.json was still created successfully")
+            stats['errors'].append(f"Bulk error: {str(e)[:100]}")
+            return stats
     
-    def get_all_incidents(self, active_only: bool = True) -> List[Dict]:
-        """Retrieve all incidents from MongoDB"""
-        if self.incidents_collection is None:
-            raise RuntimeError("Not connected to MongoDB. Call connect() first.")
+    def get_all_incidents(self, limit: Optional[int] = None) -> List[Dict]:
+        """Get all incidents from database"""
+        if not self.connected:
+            return []
         
-        query = {"status": "active"} if active_only else {}
-        
-        incidents = list(self.incidents_collection.find(query, {"_id": 0}))
-        return incidents
-    
-    def get_incidents_by_type(self, incident_type: str) -> List[Dict]:
-        """Get incidents by disaster type"""
-        if self.incidents_collection is None:
-            raise RuntimeError("Not connected to MongoDB. Call connect() first.")
-        
-        incidents = list(self.incidents_collection.find(
-            {"incident_type": incident_type, "status": "active"},
-            {"_id": 0}
-        ))
-        return incidents
-    
-    def get_incidents_in_radius(self, lat: float, lng: float, radius_km: float) -> List[Dict]:
-        """Get incidents within a radius (in kilometers) of a point"""
-        if self.incidents_collection is None:
-            raise RuntimeError("Not connected to MongoDB. Call connect() first.")
-        
-        incidents = list(self.incidents_collection.find({
-            "location_geo": {
-                "$near": {
-                    "$geometry": {
-                        "type": "Point",
-                        "coordinates": [lng, lat]
-                    },
-                    "$maxDistance": radius_km * 1000  # Convert km to meters
-                }
-            },
-            "status": "active"
-        }, {"_id": 0}))
-        
-        return incidents
-    
-    def update_incident_status(self, incident_id: str, new_status: str) -> bool:
-        """Update the status of an incident"""
-        if self.incidents_collection is None:
-            raise RuntimeError("Not connected to MongoDB. Call connect() first.")
-        
-        result = self.incidents_collection.update_one(
-            {"id": incident_id},
-            {"$set": {
-                "status": new_status,
-                "updated_at": datetime.now().isoformat()
-            }}
-        )
-        
-        return result.modified_count > 0
-    
-    def delete_incident(self, incident_id: str) -> bool:
-        """Delete an incident by ID"""
-        if self.incidents_collection is None:
-            raise RuntimeError("Not connected to MongoDB. Call connect() first.")
-        
-        result = self.incidents_collection.delete_one({"id": incident_id})
-        return result.deleted_count > 0
+        try:
+            cursor = self.collection.find({})
+            if limit:
+                cursor = cursor.limit(limit)
+            
+            incidents = list(cursor)
+            
+            # Remove MongoDB _id field
+            for incident in incidents:
+                incident.pop('_id', None)
+            
+            return incidents
+            
+        except Exception:
+            return []
     
     def get_statistics(self) -> Dict:
         """Get database statistics"""
-        if self.incidents_collection is None:
-            raise RuntimeError("Not connected to MongoDB. Call connect() first.")
+        if not self.connected:
+            return {
+                'total_incidents': 0,
+                'active_incidents': 0,
+                'by_type': {}
+            }
         
-        total = self.incidents_collection.count_documents({})
-        active = self.incidents_collection.count_documents({"status": "active"})
-        
-        # Count by type
-        pipeline = [
-            {"$match": {"status": "active"}},
-            {"$group": {"_id": "$incident_type", "count": {"$sum": 1}}}
-        ]
-        by_type = {doc["_id"]: doc["count"] for doc in self.incidents_collection.aggregate(pipeline)}
-        
-        # Count by severity
-        pipeline = [
-            {"$match": {"status": "active"}},
-            {"$group": {"_id": "$severity", "count": {"$sum": 1}}}
-        ]
-        by_severity = {doc["_id"]: doc["count"] for doc in self.incidents_collection.aggregate(pipeline)}
-        
-        return {
-            "total_incidents": total,
-            "active_incidents": active,
-            "by_type": by_type,
-            "by_severity": by_severity
-        }
+        try:
+            total = self.collection.count_documents({})
+            active = self.collection.count_documents({'status': 'active'})
+            
+            # Count by incident type
+            pipeline = [
+                {'$group': {'_id': '$incident_type', 'count': {'$sum': 1}}}
+            ]
+            by_type_cursor = self.collection.aggregate(pipeline)
+            by_type = {item['_id']: item['count'] for item in by_type_cursor}
+            
+            return {
+                'total_incidents': total,
+                'active_incidents': active,
+                'by_type': by_type
+            }
+            
+        except Exception:
+            return {
+                'total_incidents': 0,
+                'active_incidents': 0,
+                'by_type': {}
+            }
     
     def close(self):
         """Close MongoDB connection"""
-        if self.client is not None:
-            self.client.close()
-            print("✓ MongoDB connection closed")
+        if self.client:
+            try:
+                self.client.close()
+                self.connected = False
+            except:
+                pass  # Ignore errors on close
 
 
-def test_connection():
-    """Test MongoDB connection"""
-    print("=" * 70)
-    print("MongoDB Connection Test")
-    print("=" * 70)
-    print()
-    
-    # Check if MDB_URI is set
-    uri = os.getenv('MDB_URI')
-    if not uri:
-        print("❌ ERROR: MDB_URI environment variable not set!")
-        print()
-        print("Please add to your .env file:")
-        print("MDB_URI=mongodb+srv://username:password@cluster.xxx.mongodb.net/?appName=Cluster0")
-        print()
-        return False
-    
-    print(f"✓ Found MDB_URI in environment (length: {len(uri)} characters)")
-    print()
-    
+if __name__ == '__main__':
+    print("Testing MongoDB connection...")
     handler = MongoDBHandler()
     
     if handler.connect():
-        print("\n✓ MongoDB connection test successful!")
-        
-        # Show current statistics
-        try:
-            stats = handler.get_statistics()
-            print(f"\nCurrent database statistics:")
-            print(f"  Total incidents: {stats['total_incidents']}")
-            print(f"  Active incidents: {stats['active_incidents']}")
-            if stats['by_type']:
-                print(f"  By type: {stats['by_type']}")
-            if stats['by_severity']:
-                print(f"  By severity: {stats['by_severity']}")
-        except Exception as e:
-            print(f"Could not fetch statistics: {e}")
-        
+        print("\n✅ Connection successful!")
+        stats = handler.get_statistics()
+        print(f"\nDatabase Statistics:")
+        print(f"  Total incidents: {stats['total_incidents']}")
+        print(f"  Active incidents: {stats['active_incidents']}")
+        print(f"  By type: {stats['by_type']}")
         handler.close()
-        print()
-        return True
     else:
-        print("\n❌ MongoDB connection test failed!")
-        print()
-        print("Troubleshooting steps:")
-        print("1. Check your .env file has: MDB_URI=your_connection_string")
-        print("2. Make sure there are no extra spaces or quotes around the URI")
-        print("3. Verify the URI format: mongodb+srv://user:pass@cluster.mongodb.net/...")
-        print("4. Check if your IP is whitelisted in MongoDB Atlas")
-        print()
-        return False
-
-
-if __name__ == "__main__":
-    test_connection()
+        print("\n⚠️  Connection failed - but this is OK for automation!")
+        print("   incidents.json will still be created")
