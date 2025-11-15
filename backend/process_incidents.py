@@ -1,6 +1,7 @@
 """
 Process tweets from final_results.json and convert them to incidents.
 Only includes tweets where both ML and LLM classifications are true.
+NOW WITH MONGODB INTEGRATION!
 
 WORKFLOW OVERVIEW
 =================
@@ -38,11 +39,12 @@ This script transforms classified tweets into map-displayable incidents:
 - Example: 5 earthquake reports in California → 1 incident with 5 source tweets
 - Takes highest severity level when merging
 
-6. OUTPUT
+6. OUTPUT & DATABASE
 - Saves incidents.json with:
-    -- incidents: Array of 12 merged incidents ready for frontend map display
+    -- incidents: Array of merged incidents ready for frontend map display
     -- metadata: Stats about processing (total tweets, filtered, created, skipped)
-- Frontend loads this file and displays incidents on interactive map
+- **NEW**: Also inserts all incidents into MongoDB Atlas
+- Frontend can load from either JSON file or MongoDB API
 
 KEY CONCEPT: DOUBLE VALIDATION
 ==============================
@@ -59,6 +61,8 @@ import hashlib
 from typing import List, Dict, Optional
 from datetime import datetime
 from pathlib import Path
+from mongodb_handler import MongoDBHandler
+
 
 # extract coordinates from location strings
 def extract_coordinates_from_location(location: str) -> Optional[tuple[float, float]]:
@@ -119,6 +123,10 @@ def extract_coordinates_from_location(location: str) -> Optional[tuple[float, fl
 
 # Map LLM severity to 1-3 scale for frontend
 def severity_map(llm_severity: str) -> int:
+    """Map LLM severity to 1-3 scale for frontend."""
+    if not llm_severity:
+        return 1  # Fallback just in case
+    
     mapping = {
         "low": 1,
         "medium": 2,
@@ -127,7 +135,6 @@ def severity_map(llm_severity: str) -> int:
     }
     return mapping.get(llm_severity.lower(), 2)
 
-
 # Normalize disaster type to match frontend expectations
 def disaster_type_normalize(disaster_type: str) -> str:
     type_mapping = {
@@ -135,18 +142,6 @@ def disaster_type_normalize(disaster_type: str) -> str:
         "flood": "Flood",
         "hurricane": "Hurricane",
         "wildfire": "Wildfire",
-        # "tornado": "Tornado",
-        # "storm": "Storm",
-        # "tsunami": "Flood",
-        # "typhoon": "Storm",
-        # "cyclone": "Storm",
-        # "avalanche": "Avalanche",
-        # "landslide": "Landslide",
-        # "volcano": "Volcano",
-        # "volcanic": "Volcano",
-        # "drought": "Drought",
-        # "heatwave": "Heatwave",
-        # "coldwave": "Coldwave",
     }
     return type_mapping.get(disaster_type.lower(), "Storm")
 
@@ -163,6 +158,11 @@ def generate_incident_id(tweet_id: str, location: str) -> str:
 def tweet_to_incident(tweet: Dict) -> Optional[Dict]:
     llm = tweet.get('llm_extraction', {})
     ml = tweet.get('ml_classification', {})
+
+    # Skip tweets with null or empty severity
+    severity_value = llm.get('severity')
+    if not severity_value or (isinstance(severity_value, str) and severity_value.strip() == ''):
+        return None
     
     location = llm.get('location', 'Location TBD')
     if not location or location.strip() == '':
@@ -273,7 +273,24 @@ def merge_similar_incidents(incidents: List[Dict]) -> List[Dict]:
 
 # Process final_results.json and create incidents.json
 # Only includes tweets where both ML and LLM classifications are true.
-def process_final_results(input_file: str = 'final_results.json', output_file: str = 'incidents.json') -> Dict:
+def process_final_results(
+    input_file: str = 'final_results.json', 
+    output_file: str = 'incidents.json',
+    save_to_mongodb: bool = True,
+    replace_mongodb: bool = True
+) -> Dict:
+    """
+    Process final results and optionally save to MongoDB.
+    
+    Args:
+        input_file: Path to final_results.json
+        output_file: Path to output incidents.json
+        save_to_mongodb: Whether to save to MongoDB
+        replace_mongodb: Whether to replace all existing MongoDB data
+        
+    Returns:
+        Dictionary with processing results and metadata
+    """
     input_path = Path(__file__).parent / input_file
     output_path = Path(__file__).parent / output_file
     
@@ -307,7 +324,7 @@ def process_final_results(input_file: str = 'final_results.json', output_file: s
     # Group by location and merge similar incidents
     merged_incidents = merge_similar_incidents(incidents)
     
-    # Save to file with combined metadata
+    # Prepare result dictionary
     result = {
         "metadata": {
             # API metadata from final_results.json
@@ -328,6 +345,7 @@ def process_final_results(input_file: str = 'final_results.json', output_file: s
         "incidents": merged_incidents
     }
     
+    # Save to JSON file
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(result, f, indent=2, ensure_ascii=False)
     
@@ -336,11 +354,72 @@ def process_final_results(input_file: str = 'final_results.json', output_file: s
     print(f"✓ Skipped {skipped} tweets without coordinates")
     print(f"✓ Saved to {output_path}")
     
+    # Save to MongoDB if requested
+    if save_to_mongodb and merged_incidents:
+        print("\n" + "=" * 60)
+        print("SAVING TO MONGODB")
+        print("=" * 60)
+        
+        try:
+            mongo_handler = MongoDBHandler()
+            
+            if mongo_handler.connect():
+                # Insert incidents
+                stats = mongo_handler.insert_incidents(
+                    merged_incidents, 
+                    replace_all=replace_mongodb
+                )
+                
+                print(f"\n✓ MongoDB insertion complete:")
+                print(f"  Inserted: {stats['inserted']}")
+                print(f"  Updated: {stats['updated']}")
+                print(f"  Failed: {stats['failed']}")
+                
+                if stats['errors']:
+                    print(f"\nErrors:")
+                    for error in stats['errors'][:5]:  # Show first 5 errors
+                        print(f"  - {error}")
+                
+                # Show database statistics
+                db_stats = mongo_handler.get_statistics()
+                print(f"\nDatabase statistics:")
+                print(f"  Total incidents: {db_stats['total_incidents']}")
+                print(f"  Active incidents: {db_stats['active_incidents']}")
+                if db_stats['by_type']:
+                    print(f"  By type: {db_stats['by_type']}")
+                
+                # Add MongoDB info to result
+                result['metadata']['mongodb'] = {
+                    'saved': True,
+                    'stats': stats,
+                    'database_stats': db_stats
+                }
+                
+                mongo_handler.close()
+            else:
+                print("❌ Failed to connect to MongoDB")
+                result['metadata']['mongodb'] = {'saved': False, 'error': 'Connection failed'}
+                
+        except Exception as e:
+            print(f"❌ MongoDB error: {e}")
+            result['metadata']['mongodb'] = {'saved': False, 'error': str(e)}
+    
     return result
 
 
 if __name__ == '__main__':
-    result = process_final_results()
+    result = process_final_results(
+        save_to_mongodb=True,
+        replace_mongodb=True  # Set to False to update existing data instead of replacing
+    )
+    
+    print(f"\n{'=' * 60}")
+    print("PROCESSING COMPLETE")
+    print("=" * 60)
     print(f"\nSample incident:")
     if result['incidents']:
-        print(json.dumps(result['incidents'][0], indent=2))
+        sample = result['incidents'][0].copy()
+        # Truncate source_tweets for display
+        if 'source_tweets' in sample and len(sample['source_tweets']) > 1:
+            sample['source_tweets'] = [sample['source_tweets'][0], "..."]
+        print(json.dumps(sample, indent=2))
