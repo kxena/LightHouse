@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
+import sys
 import json
 from typing import List, Dict, Any, Optional
 
@@ -102,11 +103,15 @@ async def get_results_jsonl():
 
 def load_incidents() -> Dict[str, Any]:
     """Load incidents from incidents.json file"""
-    incidents_file = Path(__file__).parent / 'incidents.json'
+    incidents_file = Path(__file__).parent / 'incidents_validation.json'
     
     if not incidents_file.exists():
         # Try to generate incidents if they don't exist
         try:
+            # Prefer processing code from the `processing_bundle` folder if present
+            bundle = Path(__file__).parent / 'processing_bundle'
+            if bundle.exists():
+                sys.path.insert(0, str(bundle))
             from process_incidents import process_final_results
             process_final_results()
         except Exception as e:
@@ -207,6 +212,10 @@ async def regenerate_incidents() -> Dict[str, Any]:
     Useful after running the pipeline with new tweet data.
     """
     try:
+        # Ensure processing_bundle is on path when regenerating from the API
+        bundle = Path(__file__).parent / 'processing_bundle'
+        if bundle.exists():
+            sys.path.insert(0, str(bundle))
         from process_incidents import process_final_results
         result = process_final_results()
         return {
