@@ -40,34 +40,6 @@ async def test(input: Tweet):
 # /results: convert pipeline JSONL results file to JSON file for frontend to retrieve
 @app.get("/results")
 async def get_results():
-    # try:
-    #     # Define input and output paths
-    #     input_file = Path(__file__).parent / 'pipeline_output' / '04_final_results.jsonl'
-    #     output_file = Path(__file__).parent / 'final_results.json'
-    #     if not input_file.exists():
-    #         raise HTTPException(
-    #             status_code=404,
-    #             detail="Results file not found. Please run the pipeline first."
-    #         )
-    #     # Convert JSONL to JSON array
-    #     results = []
-    #     with open(input_file, 'r') as f:
-    #         for line in f:
-    #             try:
-    #                 tweet = json.loads(line)
-    #                 results.append(tweet)
-    #             except json.JSONDecodeError:
-    #                 continue
-    #     # Write to JSON file
-    #     with open(output_file, 'w') as f:
-    #         json.dump({"tweets": results}, f, indent=2)
-    #     # Return the same data to the API caller
-    #     return {"tweets": results}
-    # except Exception as e:
-    #     raise HTTPException(
-    #         status_code=500,
-    #         detail=f"Error processing results: {str(e)}"
-    #     )
     try:
         # Define input and output paths
         input_file = Path(__file__).parent / 'pipeline_output' / '04_final_results.jsonl'
