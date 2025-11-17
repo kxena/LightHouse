@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import sys
 import json
+import os
+import glob
 from typing import List, Dict, Any, Optional
 
 app = FastAPI()
@@ -227,3 +229,59 @@ async def regenerate_incidents() -> Dict[str, Any]:
             status_code=500,
             detail=f"Error regenerating incidents: {str(e)}"
         )
+
+
+# Historical data endpoints
+def history_dir() -> Path:
+    """Return path to historical data folder."""
+    return Path(__file__).parent / 'historical'
+
+
+@app.get("/history/dates")
+async def list_history_dates() -> Dict[str, Any]:
+    """List available dates for historical data (based on files in `backend/historical`)."""
+    hd = history_dir()
+    if not hd.exists():
+        return {"dates": []}
+
+    # Only consider precomputed incidents files as the source of truth for history
+    pattern = str(hd / '*_incidents.json')
+    files = glob.glob(pattern)
+    dates = []
+    for fp in files:
+        name = os.path.basename(fp)
+        if name.endswith('_incidents.json'):
+            date_part = name.replace('_incidents.json', '')
+            dates.append(date_part)
+
+    dates.sort()
+    return {"dates": dates}
+
+
+@app.get("/history/results/{date}")
+async def get_history_results(date: str) -> Dict[str, Any]:
+    """Return the `final_results` JSON for a given date (format YYYY-MM-DD)."""
+    # For this deployment we only store precomputed incidents. Raw final_results
+    # are not kept in the historical folder. Requesting raw results will return
+    # a helpful 404 directing clients to use the incidents endpoint.
+    raise HTTPException(
+        status_code=404,
+        detail=(
+            "Historical raw results are not stored. "
+            "Please request precomputed incidents with /history/incidents/{date}."
+        ),
+    )
+
+
+@app.get("/history/incidents/{date}")
+async def get_history_incidents(date: str) -> Dict[str, Any]:
+    """Return incidents for a given date if precomputed and stored under `backend/historical`."""
+    file_path = history_dir() / f"{date}_incidents.json"
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Historical incidents not found")
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error reading historical incidents: {str(e)}")

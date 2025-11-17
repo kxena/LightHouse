@@ -1,0 +1,43 @@
+{
+  "metadata": { "date": "2025-11-15" },
+  "incidents": [
+    {
+      "id": "inc-20251115-1",
+      "incident_type": "earthquake",
+      "location": "Smallville (34.05,-118.25)",
+      "lat": 34.05,
+      "lng": -118.25,
+      "tags": ["earthquake", "smallville"],
+      "severity": "low",
+      "tweets": ["hist-20251115-1"],
+      "source_tweets": [
+        {
+          "tweet_id": "hist-20251115-1",
+          "text": "#earthquake Minor earthquake reported near #Smallville",
+          "author": "ews.volcanoyt",
+          "timestamp": "2025-11-15T08:12:00Z"
+        }
+      ],
+      "description": "Minor earthquake with no reported damage"
+    },
+    {
+      "id": "inc-20251115-2",
+      "incident_type": "flood",
+      "location": "Lakeside (40.71,-74.01)",
+      "lat": 40.71,
+      "lng": -74.01,
+      "tags": ["flood", "lakeside"],
+      "severity": "medium",
+      "tweets": ["hist-20251115-2"],
+      "source_tweets": [
+        {
+          "tweet_id": "hist-20251115-2",
+          "text": "#flood Flood warnings after heavy rains in #Lakeside",
+          "author": "localalerts",
+          "timestamp": "2025-11-15T12:30:00Z"
+        }
+      ],
+      "description": "Flood warnings after heavy rains"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "metadata": { "date": "2025-11-16" },
+  "incidents": [
+    {
+      "id": "inc-20251116-1",
+      "incident_type": "wildfire",
+      "location": "Pine Ridge (37.77,-122.42)",
+      "lat": 37.77,
+      "lng": -122.42,
+      "tags": ["wildfire", "pineridge"],
+      "severity": "high",
+      "tweets": ["hist-20251116-1"],
+      "source_tweets": [
+        {
+          "tweet_id": "hist-20251116-1",
+          "text": "#wildfire Rapidly spreading #PineRidge wildfire spotted",
+          "author": "firewatch",
+          "timestamp": "2025-11-16T14:05:00Z"
+        }
+      ],
+      "description": "Rapidly spreading wildfire reported near Pine Ridge"
+    },
+    {
+      "id": "inc-20251116-2",
+      "incident_type": "earthquake",
+      "location": "Smallville (34.05,-118.25)",
+      "lat": 34.05,
+      "lng": -118.25,
+      "tags": ["earthquake", "smallville"],
+      "severity": "low",
+      "tweets": ["hist-20251116-2"],
+      "source_tweets": [
+        {
+          "tweet_id": "hist-20251116-2",
+          "text": "#aftershock Aftershock reported near #Smallville",
+          "author": "earthquakelive",
+          "timestamp": "2025-11-16T09:20:00Z"
+        }
+      ],
+      "description": "Aftershock following earlier quake"
+    }
+  ]
+}
