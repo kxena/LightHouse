@@ -102,7 +102,7 @@ async def get_results_jsonl():
 # Incident Management Endpoints
 
 def load_incidents() -> Dict[str, Any]:
-    """Load incidents from incidents.json file"""
+    """Load incidents from incidents_validation.json file"""
     incidents_file = Path(__file__).parent / 'incidents_validation.json'
     
     if not incidents_file.exists():

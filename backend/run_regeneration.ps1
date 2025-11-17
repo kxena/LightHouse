@@ -1,29 +1,15 @@
 <#
 PowerShell helper to:
-- back up original processing scripts to a timestamped folder
 - install Python requirements
-- remove originals and validate regeneration using the copy in `processing_bundle/`
+- remove original processing scripts (no backup)
+- validate regeneration using the copy in `processing_bundle/`
 
 Run from the `backend/` folder: `./run_regeneration.ps1`
 #>
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$timestamp = Get-Date -Format "yyyy-MM-ddTHHmmss"
-$backup = Join-Path $root "originals_backup_$timestamp"
-
-Write-Host "Creating backup folder: $backup"
-New-Item -ItemType Directory -Path $backup -Force | Out-Null
 
 $files = @("process_incidents.py","enrich_location_db.py","regenerate_incidents.py","run_thresholds.py")
-foreach ($f in $files) {
-    $src = Join-Path $root $f
-    if (Test-Path $src) {
-        Copy-Item -Path $src -Destination $backup -Force
-        Write-Host "Backed up $f"
-    } else {
-        Write-Host "Warning: $f not found, skipping backup"
-    }
-}
 
 # Install requirements
 $req = Join-Path $root 'requirements.txt'
@@ -63,4 +49,4 @@ python $valpath
 
 if (Test-Path $valpath) { Remove-Item $valpath -Force }
 
-Write-Host "Done. Backed up originals to $backup, removed originals, and ran a validation run."
+Write-Host "Done. Removed originals (no backup) and ran a validation run."
