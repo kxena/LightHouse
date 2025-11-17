@@ -13,7 +13,7 @@ import json
 import re
 import hashlib
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional, List, Dict
 import numpy as np
@@ -637,6 +637,15 @@ class UnifiedPipeline:
 
         # summary
         elapsed = time.time() - start_time
+        timestamp_file = self.config.OUTPUT_DIR / 'last_update.json'
+        timestamp_data = {
+            "last_update": datetime.now().isoformat(),
+            "next_update": (datetime.now() + timedelta(hours=6)).isoformat()
+        }
+
+        with open(timestamp_file, 'w') as f:
+            json.dump(timestamp_data, f, indent=2)
+        print(f"Timestamp updated for frontend\n")
         self._print_summary(final_results, elapsed)
     
     def _print_summary(self, results: List[Dict], elapsed: float):

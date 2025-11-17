@@ -5,12 +5,14 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import json
 import os
 import glob
+import sys
 from typing import List, Dict, Any, Optional
+TIMESTAMP_FILE = Path(__file__).parent / 'pipeline_output' / 'last_update.json'
 
 app = FastAPI()
 
@@ -138,6 +140,27 @@ def load_incidents() -> Dict[str, Any]:
     with open(incidents_file, 'r', encoding='utf-8') as f:
         return json.load(f)
 
+def save_timestamp():
+    """Save the current timestamp after pipeline runs"""
+    TIMESTAMP_FILE.parent.mkdir(exist_ok=True)
+    timestamp_data = {
+        "last_update": datetime.now().isoformat(),
+        "next_update": (datetime.now() + timedelta(hours=6)).isoformat()
+    }
+    with open(TIMESTAMP_FILE, 'w') as f:
+        json.dump(timestamp_data, f, indent=2)
+    return timestamp_data
+
+def load_timestamp():
+    """Load the last update timestamp"""
+    if not TIMESTAMP_FILE.exists():
+        return None
+    try:
+        with open(TIMESTAMP_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return None
+
 
 @app.get("/incidents")
 async def get_all_incidents() -> List[Dict[str, Any]]:
@@ -243,7 +266,6 @@ async def regenerate_incidents() -> Dict[str, Any]:
             detail=f"Error regenerating incidents: {str(e)}"
         )
 
-
 # Historical data endpoints
 def history_dir() -> Path:
     """Return path to historical data folder."""
@@ -298,3 +320,32 @@ async def get_history_incidents(date: str) -> Dict[str, Any]:
             return json.load(f)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reading historical incidents: {str(e)}")
+
+@app.get("/timestamp")
+async def get_timestamp():
+    """
+    Lightweight endpoint that returns when data was last updated.
+    Frontend polls this every minute to check for new data.
+    """
+    timestamp_data = load_timestamp()
+    
+    if not timestamp_data:
+        results_file = Path(__file__).parent / 'pipeline_output' / '04_final_results.jsonl'
+        if results_file.exists():
+            file_time = datetime.fromtimestamp(os.path.getmtime(results_file))
+            return {
+                "last_update": file_time.isoformat(),
+                "next_update": (file_time + timedelta(hours=6)).isoformat(),
+                "has_data": True
+            }
+        return {
+            "last_update": None,
+            "next_update": None,
+            "has_data": False
+        }
+    
+    return {
+        "last_update": timestamp_data.get("last_update"),
+        "next_update": timestamp_data.get("next_update"),
+        "has_data": True
+    }
