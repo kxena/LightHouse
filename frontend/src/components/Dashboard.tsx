@@ -92,6 +92,8 @@ export default function Dashboard() {
   const [incidentsApi, setIncidentsApi] = useState<IncidentResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [historyDates, setHistoryDates] = useState<string[]>([]);
+  const [selectedHistory, setSelectedHistory] = useState<string>("live");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -156,6 +158,80 @@ export default function Dashboard() {
   // Stub data/handlers — replace with real data wiring
   const handleRefresh = async () => {
     await loadIncidents();
+  };
+
+  // History loading
+  const loadHistoryDates = async () => {
+    try {
+      const res = await IncidentAPI.getHistoryDates();
+      // prefer most-recent-first ordering for UX
+      const dates = (res.dates || []).slice().sort().reverse();
+      setHistoryDates(dates);
+    } catch (err) {
+      console.warn("Failed to load history dates:", err);
+      setHistoryDates([]);
+    }
+  };
+
+  const loadHistoryForDate = async (date: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await IncidentAPI.getHistoryIncidents(date);
+      // res expected to be { metadata: {...}, incidents: [...] }
+
+      const incidentsRaw = res.incidents || [];
+
+      // Map historical incident shape to IncidentResponse used by the UI
+      const mapped: IncidentResponse[] = incidentsRaw.map(
+        (it: Record<string, unknown>) => {
+          const rawTweets =
+            (it.source_tweets as unknown) || (it.tweets as unknown) || [];
+          const source_tweets = Array.isArray(rawTweets)
+            ? rawTweets.map((t) => {
+                if (typeof t === "string")
+                  return { text: t, author: "", timestamp: "", tweet_id: t };
+                const tr = t as Record<string, unknown>;
+                return {
+                  text: (tr.text as string) || "",
+                  author: (tr.author as string) || "",
+                  timestamp: (tr.timestamp as string) || "",
+                  tweet_id: (tr.tweet_id as string) || (tr.id as string) || "",
+                };
+              })
+            : [];
+
+          return {
+            id: (it.id as string) || Math.random().toString(36).slice(2, 9),
+            title: (it.incident_type as string)
+              ? `${it.incident_type} — ${it.location || ""}`
+              : (it.description as string) || (it.id as string) || "",
+            description: (it.description as string) || "",
+            location: (it.location as string) || "",
+            severity: (it.severity as string) || "unknown",
+            incident_type: (it.incident_type as string) || "",
+            tags: (it.tags as string[]) || [],
+            estimated_restoration:
+              (it.estimated_restoration as string) || undefined,
+            affected_area: (it.affected_area as string) || undefined,
+            created_at:
+              res.metadata && (res.metadata.date as string)
+                ? `${res.metadata.date as string}T00:00:00Z`
+                : new Date().toISOString(),
+            status: (it.status as string) || "",
+            source_tweets,
+          } as IncidentResponse;
+        }
+      );
+
+      setIncidentsApi(mapped);
+    } catch (err) {
+      console.error("Failed to load historical incidents:", err);
+      setError(err instanceof Error ? err.message : String(err));
+      setIncidentsApi([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Helpers
@@ -310,6 +386,12 @@ export default function Dashboard() {
     }
   };
 
+  const goToIncident = (id: string) => {
+    const dateParam =
+      selectedHistory === "live" ? "" : `?date=${selectedHistory}`;
+    navigate(`/incident/${id}${dateParam}`);
+  };
+
   const loadIncidents = async () => {
     try {
       setLoading(true);
@@ -319,6 +401,40 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Failed to load incidents:", err);
       setError(err instanceof Error ? err.message : "Failed to load incidents");
+      setIncidentsApi([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadHistoryDates = async () => {
+    try {
+      // Fetch available history dates from API
+      const response = await fetch("http://localhost:3001/api/incidents/history/dates");
+      if (response.ok) {
+        const dates = await response.json();
+        setHistoryDates(dates);
+      }
+    } catch (err) {
+      console.error("Failed to load history dates:", err);
+      setHistoryDates([]);
+    }
+  };
+
+  const loadHistoryForDate = async (date: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`http://localhost:3001/api/incidents/history/${date}`);
+      if (response.ok) {
+        const data = await response.json();
+        setIncidentsApi(data);
+      } else {
+        throw new Error(`Failed to fetch data for ${date}`);
+      }
+    } catch (err) {
+      console.error("Failed to load historical data:", err);
+      setError(err instanceof Error ? err.message : "Failed to load historical data");
       setIncidentsApi([]);
     } finally {
       setLoading(false);
@@ -434,6 +550,20 @@ export default function Dashboard() {
     setNearestIncident(nearest);
   }, [userLocation, incidentsApi]);
 
+  useEffect(() => {
+    // load available history dates on mount
+    loadHistoryDates();
+  }, []);
+
+  useEffect(() => {
+    // When selectedHistory changes, load either live or historical incidents
+    if (selectedHistory === "live") {
+      loadIncidents();
+    } else {
+      loadHistoryForDate(selectedHistory);
+    }
+  }, [selectedHistory]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 dark:from-slate-800 dark:via-purple-900 dark:to-blue-900 p-8">
       <div className="max-w-7xl mx-auto">
@@ -455,7 +585,58 @@ export default function Dashboard() {
           <div className="flex justify-between items-center">
             <p className="text-gray-600 dark:text-gray-300 text-xl mt-1">Welcome {displayName},</p>
             <div className="flex items-center gap-4">
-              <p className="text-gray-600 dark:text-gray-300 text-xl">{currentDate}</p>
+            <div className="flex items-center gap-2">
+                <p className="text-gray-600 dark:text-gray-300 text-xl">
+                  {selectedHistory === "live"
+                    ? currentDate
+                    : new Date(selectedHistory).toLocaleDateString("en-US")}
+                </p>
+
+                <div className="flex items-center gap-1 bg-white/60 dark:bg-slate-700/60 rounded-lg">
+                  <button
+                    onClick={() => {
+                      // Prev => go to older date
+                      const options = ["live", ...historyDates];
+                      const idx = options.indexOf(selectedHistory);
+                      if (idx < options.length - 1) {
+                        setSelectedHistory(options[idx + 1]);
+                      }
+                    }}
+                    className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-slate-600 dark:text-gray-200"
+                    title="Previous day"
+                  >
+                    ◀
+                  </button>
+
+                  <select
+                    value={selectedHistory}
+                    onChange={(e) => setSelectedHistory(e.target.value)}
+                    className="px-2 py-1 text-sm bg-transparent outline-none dark:text-gray-200"
+                  >
+                    <option value="live">Live</option>
+                    {historyDates.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    onClick={() => {
+                      // Next => go to newer date
+                      const options = ["live", ...historyDates];
+                      const idx = options.indexOf(selectedHistory);
+                      if (idx > 0) {
+                        setSelectedHistory(options[idx - 1]);
+                      }
+                    }}
+                    className="px-2 py-1 text-sm hover:bg-gray-100 dark:hover:bg-slate-600 dark:text-gray-200"
+                    title="Next day"
+                  >
+                    ▶
+                  </button>
+                </div>
+              </div>
               <button
                 onClick={handleProfile}
                 className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-slate-700/60 backdrop-blur-sm text-gray-800 dark:text-gray-200 font-semibold rounded-lg shadow-md hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all duration-200"
@@ -576,9 +757,7 @@ export default function Dashboard() {
             initialZoom={2}
             lockSingleWorld={true}
             viewMode={viewMode}
-            onPointClick={(id: MapIncident["id"]) =>
-              navigate(`/incident/${id}`)
-            }
+            onPointClick={(id: MapIncident["id"]) => goToIncident(id)}
           />
         </div>
 
@@ -619,7 +798,7 @@ export default function Dashboard() {
                   <div
                     key={incident.id}
                     onClick={() => {
-                      navigate(`/incident/${incident.id}`);
+                      goToIncident(incident.id);
                       setShowSearchResults(false);
                     }}
                     className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-colors"
@@ -764,7 +943,7 @@ export default function Dashboard() {
                 {filteredIncidentsApi.map((it) => (
                   <button
                     key={it.id}
-                    onClick={() => navigate(`/incident/${it.id}`)}
+                    onClick={() => goToIncident(it.id)}
                     className="text-left p-4 rounded-xl border border-gray-200 hover:border-purple-500 hover:bg-purple-50 transition"
                   >
                     <div className="flex items-center justify-between mb-1">

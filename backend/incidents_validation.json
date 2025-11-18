@@ -1,0 +1,240 @@
+{
+  "metadata": {
+    "api": {
+      "generated_at": "2025-11-15T00:59:48.537983",
+      "pipeline_last_run": "2025-11-15T00:59:48.537983",
+      "total_tweets_from_pipeline": 199,
+      "source_file": "pipeline_output\\04_final_results.jsonl"
+    },
+    "processing": {
+      "processed_at": "2025-11-15T00:59:48.537983",
+      "total_tweets": 199,
+      "filtered_tweets": 96,
+      "incidents_created": 50,
+      "skipped_no_coords": 33
+    }
+  },
+  "incidents": [
+    {
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.8589347004890442,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "tags": [
+        "Earthquake",
+        "Light",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T05:49:01.377Z",
+      "source_tweets": [
+        {
+          "text": "🌏 Earthquake Event\nMagnitude: 5.4\nLocation: Sarangani, Philippines\nDepth: 35.6 km\nPerceived Severity: 🟨Light\nTime: 16 minutes ago\n#earthquake #quake\n\nMore Info",
+          "author": "planetshift.bsky.social",
+          "timestamp": "2025-11-15T05:49:01.377Z",
+          "tweet_id": "6574d4adf5",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9923368096351624,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "lat": 39.8,
+      "lng": -117.0,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T20:36:46.411Z",
+      "source_tweets": [
+        {
+          "text": "“California is currently grappling with a dual environmental crisis, as a fast-moving wildfire rages near the Nevada border while successive storms threaten Los Angeles.” www.independent.co.uk/news/world/a... - @the-independent.com \n\n#CAFire #CAwx #MonoCounty #PackFire",
+          "author": "bcwildfirewkly.bsky.social",
+          "timestamp": "2025-11-14T20:36:46.411Z",
+          "tweet_id": "235cfd77a4",
+          "engagement": {
+            "likes": 3,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.998231828212738,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "37615b06480d",
+      "title": "A wildfire is burning in Southern California, with evacuation orders in place, a",
+      "description": "A wildfire is burning in Southern California, with evacuation orders in place, and the importance of prevention and preparedness is emphasized.",
+      "location": "Southern California",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "medium/high (evacuation orders are in place)",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "medium/high (evacuation orders are in place)",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T20:28:03.000Z",
+      "source_tweets": [
+        {
+          "text": "It’s November, and while California has seen recent rain, #EvacuationOrders are in place as a wildfire burns in Southern California.\n\n#FireSeason is year-round in California and it’s important to never let your guard down. Prevention and preparedness remain essential.\n\n📷 Mammoth Lakes Police",
+          "author": "calfire.bsky.social",
+          "timestamp": "2025-11-14T20:28:03.000Z",
+          "tweet_id": "bcc0e5f1c4",
+          "engagement": {
+            "likes": 21,
+            "retweets": 5,
+            "replies": 1
+          }
+        }
+      ],
+      "confidence": 0.9983640313148499,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "55986d817ed1",
+      "title": "A fast-moving wildfire raged across thousands of acres of California prairie nea",
+      "description": "A fast-moving wildfire raged across thousands of acres of California prairie near the Nevada border, while Los Angeles was in the throes of back-to-back storms that could trigger flooding and mudslides in areas.",
+      "location": "California prairie near the Nevada border",
+      "lat": 39.8,
+      "lng": -117.0,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T19:49:39.900Z",
+      "source_tweets": [
+        {
+          "text": "A fast-moving wildfire raged across thousands of acres of California prairie near the Nevada border on Friday, while Los Angeles was in the throes of back-to-back storms that could trigger flooding and mudslides in areas\n\ngvwire.com/2025/11/14/a...",
+          "author": "gvwire.bsky.social",
+          "timestamp": "2025-11-14T19:49:39.900Z",
+          "tweet_id": "734348a8b0",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9945513606071472,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "f1036e2b4361",
+      "title": "California wildfire threatens Los Angeles with floods and mudslides",
+      "description": "California wildfire threatens Los Angeles with floods and mudslides",
+      "location": "California, Los Angeles",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T18:17:03.336Z",
+      "source_tweets": [
+        {
+          "text": "🔵  AS CALIFORNIA WILDFIRE RAGES, LOS ANGELES THREATENED WITH FLOODS, MUDSLIDES\n\nFull Story → https://m.piqsuite.com/reuters/as-california-wildfire-rages-los-angeles-threatened-with-floods-mudslides-2025-11-14-18-16-52",
+          "author": "sandconsole.bsky.social",
+          "timestamp": "2025-11-14T18:17:03.336Z",
+          "tweet_id": "aa593301c0",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9845582842826843,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "162198377f10",
+      "title": "The Pack Fire, a wildfire in Central California, sparked on Thursday and grew to",
+      "description": "The Pack Fire, a wildfire in Central California, sparked on Thursday and grew to 3,400 acres by Friday morning.",
+      "location": "Central California",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T17:20:47+00:00",
+      "source_tweets": [
+        {
+          "text": "Storm whips up Central California wildfire, helps bring relief\n\nhttps://www.newsbeep.com/us-ca/53203/\n\nThe Pack Fire sparked around midday Thursday and quickly grew to about 3,400 acres by Friday morning. Photo…",
+          "author": "us-ca-nb.bsky.social",
+          "timestamp": "2025-11-14T17:20:47+00:00",
+          "tweet_id": "8cc018f200",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9961392283439636,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    }
+}

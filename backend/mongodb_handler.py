@@ -45,7 +45,7 @@ class MongoDBHandler:
             True if connected, False otherwise (graceful failure)
         """
         if not self.uri:
-            print("⚠️  MONGODB_URI not found in environment variables")
+            print("⚠️  MDB_URI not found in environment variables")
             print("   Skipping MongoDB upload (incidents.json still created)")
             return False
         
