@@ -1,708 +1,303 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  Activity,
-  TrendingUp,
-  Globe,
-  LogOut,
-  User,
-  RefreshCw,
-} from "lucide-react";
-import { useUser, useClerk } from "@clerk/clerk-react";
-import { useNavigate } from "react-router-dom";
-import MapWidget from "./MapWidget";
-import type { Incident as MapIncident } from "../data/incidents";
-import { IncidentAPI, type IncidentResponse } from "../services/incidentAPI";
+import { Activity, TrendingUp, Globe, User, RefreshCw, Clock } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
+import { useState, useEffect, useCallback } from 'react';
+import { useAutoUpdate } from '../hooks/useAutoUpdate';
 
-// Compact, dynamic vertical list for trending topics (adjacent to Live Feed)
-function TrendingList({
-  trending,
-  selectedTag,
-  onTagClick,
-}: {
-  trending: Array<[string, number]>;
-  selectedTag: string | null;
-  onTagClick: (tag: string) => void;
-}) {
-  const max = trending.length ? Math.max(...trending.map(([, c]) => c)) : 1;
-  const formatCount = (n: number) => n.toString();
-  return (
-    <div className="flex flex-col gap-2 max-h-80 overflow-y-auto pr-1">
-      {trending.map(([tag, count]) => {
-        const ratio = count / max;
-        const isSelected = selectedTag === tag;
-        let textCls = "text-sm md:text-base";
-        let gradCls = "text-blue-700";
-        if (ratio >= 0.75) {
-          textCls = "text-lg md:text-xl";
-          gradCls =
-            "bg-gradient-to-r from-fuchsia-600 to-rose-600 bg-clip-text text-transparent";
-        } else if (ratio >= 0.5) {
-          textCls = "text-base md:text-lg";
-          gradCls =
-            "bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent";
-        } else if (ratio >= 0.25) {
-          textCls = "text-base";
-          gradCls =
-            "bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent";
-        }
-        return (
-          <div
-            key={tag}
-            onClick={() => onTagClick(tag)}
-            className={`flex items-center justify-between rounded-lg px-2 py-1.5 transition cursor-pointer ${
-              isSelected
-                ? "bg-purple-100 ring-2 ring-purple-500"
-                : "hover:bg-gray-50"
-            }`}
-            title={`${count} incident${count !== 1 ? "s" : ""} - Click to ${
-              isSelected ? "clear filter" : "filter"
-            }`}
-          >
-            <span className={`font-semibold ${textCls} ${gradCls}`}>{tag}</span>
-            <span className="text-xs md:text-sm text-gray-600 tabular-nums">
-              {formatCount(count)}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
+const API_BASE_URL = 'http://localhost:8000';
+
+interface TweetData {
+  id: string;
+  text: string;
+  ml_classification: {
+    is_disaster: boolean;
+    disaster_type: string | null;
+    confidence: number;
+  };
+  llm_extraction?: {
+    llm_classification: boolean;
+    disaster_type: string;
+    location: string;
+    severity: string;
+    key_details: string;
+  };
+  createdAt: string;
+}
+
+interface ResultsData {
+  metadata: {
+    generated_at: string;
+    pipeline_last_run: string;
+    total_tweets: number;
+  };
+  tweets: TweetData[];
+}
+
+// Helper to calculate disaster stats
+function calculateStats(tweets: TweetData[]) {
+  const disasters = tweets.filter(t => t.ml_classification.is_disaster);
+  const disasterTypes: Record<string, number> = {};
+  
+  disasters.forEach(tweet => {
+    const type = tweet.ml_classification.disaster_type || 'unknown';
+    disasterTypes[type] = (disasterTypes[type] || 0) + 1;
+  });
+
+  return {
+    disaster_count: disasters.length,
+    disaster_types: disasterTypes
+  };
 }
 
 export default function Dashboard() {
-  const { user } = useUser();
-  const { signOut } = useClerk();
-  const navigate = useNavigate();
+  const { user, isLoaded } = useUser();
+  const [data, setData] = useState<ResultsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const displayName = user?.firstName || user?.username || "User";
+  // Fetch data from API
+  const fetchData = useCallback(async () => {
+    try {
+      setRefreshing(true);
+      const response = await fetch(`${API_BASE_URL}/results`, { cache: 'no-store' });
+      if (!response.ok) throw new Error('Failed to fetch');
+      
+      const jsonData: ResultsData = await response.json();
+      setData(jsonData);
+      console.log('Data refreshed:', new Date().toLocaleTimeString());
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
-  // Format current date as MM/DD/YYYY
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    month: "2-digit",
-    day: "2-digit",
-    year: "numeric",
+  // Auto-update when new data is available
+  const { lastUpdate, nextUpdate, hasNewData, isChecking } = useAutoUpdate({
+    onUpdate: () => {
+      console.log('🔄 New data detected - refreshing dashboard...');
+      fetchData();
+    },
+    pollInterval: 60000, // Check every minute
+    enabled: true
   });
 
-  const [viewMode, setViewMode] = useState<"points" | "heat">("points");
-  const [activeStates] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [incidentsApi, setIncidentsApi] = useState<IncidentResponse[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [historyDates, setHistoryDates] = useState<string[]>([]);
-  const [selectedHistory, setSelectedHistory] = useState<string>("live");
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  // Initial data fetch
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  // Helper function to get time ago string
-  const getTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return `${diffDays}d ago`;
-  };
-
-  // Computed search results
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase();
-    return incidentsApi.filter((incident) => {
-      return (
-        incident.title?.toLowerCase().includes(query) ||
-        incident.location?.toLowerCase().includes(query) ||
-        incident.incident_type?.toLowerCase().includes(query) ||
-        incident.description?.toLowerCase().includes(query)
-      );
+  // Format time helper
+  const formatTime = (isoString: string | null) => {
+    if (!isoString) return 'N/A';
+    const date = new Date(isoString);
+    return date.toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit'
     });
-  }, [searchQuery, incidentsApi]);
-
-  const trending = useMemo(() => {
-    const freq: Record<string, number> = {};
-    const hashtagRegex = /#[\p{L}0-9_]+/giu; // unicode letters, numbers, underscore
-    for (const it of incidentsApi) {
-      const perIncident = new Set<string>();
-      // From structured tags
-      (it.tags || []).forEach((t) =>
-        perIncident.add(`#${String(t).toLowerCase()}`)
-      );
-      // From tweet texts
-      (it.source_tweets || []).forEach((tw) => {
-        const matches = tw.text.match(hashtagRegex) || [];
-        matches.forEach((h) => perIncident.add(h.toLowerCase()));
-      });
-      // Accumulate once per incident
-      for (const h of perIncident) {
-        freq[h] = (freq[h] || 0) + 1;
-      }
-    }
-    return Object.entries(freq)
-      .filter(([, count]) => count >= 2) // shared/frequent across incidents
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 12);
-  }, [incidentsApi]);
-
-  // Stub data/handlers — replace with real data wiring
-  const handleRefresh = async () => {
-    await loadIncidents();
   };
 
-  // History loading
-  const loadHistoryDates = async () => {
-    try {
-      const res = await IncidentAPI.getHistoryDates();
-      // prefer most-recent-first ordering for UX
-      const dates = (res.dates || []).slice().sort().reverse();
-      setHistoryDates(dates);
-    } catch (err) {
-      console.warn("Failed to load history dates:", err);
-      setHistoryDates([]);
-    }
-  };
+  // Get recent tweets (last 5)
+  const recentTweets = data?.tweets.slice(0, 5) || [];
 
-  const loadHistoryForDate = async (date: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await IncidentAPI.getHistoryIncidents(date);
-      // res expected to be { metadata: {...}, incidents: [...] }
+  // Calculate stats
+  const stats = data ? calculateStats(data.tweets) : { disaster_count: 0, disaster_types: {} };
+  const disasterTypes = stats.disaster_types;
+  const topDisasterTypes = Object.entries(disasterTypes)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5);
 
-      const incidentsRaw = res.incidents || [];
-
-      // Map historical incident shape to IncidentResponse used by the UI
-      const mapped: IncidentResponse[] = incidentsRaw.map(
-        (it: Record<string, unknown>) => {
-          const rawTweets =
-            (it.source_tweets as unknown) || (it.tweets as unknown) || [];
-          const source_tweets = Array.isArray(rawTweets)
-            ? rawTweets.map((t) => {
-                if (typeof t === "string")
-                  return { text: t, author: "", timestamp: "", tweet_id: t };
-                const tr = t as Record<string, unknown>;
-                return {
-                  text: (tr.text as string) || "",
-                  author: (tr.author as string) || "",
-                  timestamp: (tr.timestamp as string) || "",
-                  tweet_id: (tr.tweet_id as string) || (tr.id as string) || "",
-                };
-              })
-            : [];
-
-          return {
-            id: (it.id as string) || Math.random().toString(36).slice(2, 9),
-            title: (it.incident_type as string)
-              ? `${it.incident_type} — ${it.location || ""}`
-              : (it.description as string) || (it.id as string) || "",
-            description: (it.description as string) || "",
-            location: (it.location as string) || "",
-            severity: (it.severity as string) || "unknown",
-            incident_type: (it.incident_type as string) || "",
-            tags: (it.tags as string[]) || [],
-            estimated_restoration:
-              (it.estimated_restoration as string) || undefined,
-            affected_area: (it.affected_area as string) || undefined,
-            created_at:
-              res.metadata && (res.metadata.date as string)
-                ? `${res.metadata.date as string}T00:00:00Z`
-                : new Date().toISOString(),
-            status: (it.status as string) || "",
-            source_tweets,
-          } as IncidentResponse;
-        }
-      );
-
-      setIncidentsApi(mapped);
-    } catch (err) {
-      console.error("Failed to load historical incidents:", err);
-      setError(err instanceof Error ? err.message : String(err));
-      setIncidentsApi([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Helpers
-  const mapIncidentType = (raw?: string): MapIncident["type"] => {
-    const s = (raw || "").toLowerCase();
-    if (s.includes("flood")) return "Flood";
-    if (s.includes("wildfire") || s.includes("fire")) return "Wildfire";
-    if (s.includes("earthquake") || s.includes("quake")) return "Earthquake";
-    if (s.includes("tornado")) return "Tornado";
-    if (s.includes("landslide")) return "Landslide";
-    if (s.includes("volcano")) return "Volcano";
-    if (s.includes("drought")) return "Drought";
-    if (s.includes("heat")) return "Heatwave";
-    if (s.includes("cold") || s.includes("freeze")) return "Coldwave";
-    return "Storm";
-  };
-
-  const mapSeverity = (sev?: string): 1 | 2 | 3 => {
-    const s = (sev || "").toLowerCase();
-    if (s === "critical") return 3;
-    if (s === "high") return 2;
-    return 1;
-  };
-
-  const parseLatLng = (
-    location?: string
-  ): { lat: number; lng: number } | null => {
-    if (!location) return null;
-    // Try to find "(lat,lng)" or "lat,lng" patterns
-    const parenMatch = location.match(
-      /\((-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)\)/
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-12 h-12 text-pink-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-700 text-lg">Loading dashboard...</p>
+        </div>
+      </div>
     );
-    if (parenMatch) {
-      const lat = parseFloat(parenMatch[1]);
-      const lng = parseFloat(parenMatch[2]);
-      if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
-    }
-    const looseMatch = location.match(
-      /(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/
-    );
-    if (looseMatch) {
-      const lat = parseFloat(looseMatch[1]);
-      const lng = parseFloat(looseMatch[2]);
-      if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
-    }
-    return null;
-  };
-
-  // Helper function to check if incident matches selected tag
-  const incidentMatchesTag = (
-    incident: IncidentResponse,
-    tag: string
-  ): boolean => {
-    const tagLower = tag.toLowerCase();
-    const hashtagRegex = /#[\p{L}0-9_]+/giu;
-
-    // Check structured tags
-    const hasTags = incident.tags?.some(
-      (t) => `#${String(t).toLowerCase()}` === tagLower
-    );
-    if (hasTags) return true;
-
-    // Check hashtags in tweet texts
-    const hasTweetHashtag = incident.source_tweets?.some((tw) => {
-      const matches = tw.text.match(hashtagRegex) || [];
-      return matches.some((h) => h.toLowerCase() === tagLower);
-    });
-
-    return hasTweetHashtag || false;
-  };
-
-  // Filter incidents based on selected tag
-  const filteredIncidentsApi = useMemo(() => {
-    if (!selectedTag) return incidentsApi;
-    return incidentsApi.filter((incident) =>
-      incidentMatchesTag(incident, selectedTag)
-    );
-  }, [incidentsApi, selectedTag]);
-
-  // MapWidget expects a different Incident shape (with lat/lng, severity as 1-3)
-  const incidents: MapIncident[] = filteredIncidentsApi
-    .map((i: IncidentResponse) => {
-      const coords =
-        typeof i.lat === "number" && typeof i.lng === "number"
-          ? { lat: i.lat, lng: i.lng }
-          : parseLatLng(i.location);
-      if (!coords) return null;
-      return {
-        id: i.id,
-        title: i.title,
-        type: mapIncidentType(i.incident_type),
-        severity: mapSeverity(i.severity),
-        radiusKm: 10,
-        city: i.location,
-        lat: coords.lat,
-        lng: coords.lng,
-      } as MapIncident;
-    })
-    .filter(Boolean) as MapIncident[];
-  const postsPerMin = 0; // TODO: real metric
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/sign-in");
-  };
-
-  const handleProfile = () => {
-    navigate("/profile");
-  };
-
-  const handleTagClick = (tag: string) => {
-    // Toggle: if same tag is clicked, deselect it; otherwise select it
-    if (selectedTag === tag) {
-      setSelectedTag(null);
-    } else {
-      setSelectedTag(tag);
-    }
-  };
-
-  const goToIncident = (id: string) => {
-    const dateParam =
-      selectedHistory === "live" ? "" : `?date=${selectedHistory}`;
-    navigate(`/incident/${id}${dateParam}`);
-  };
-
-  const loadIncidents = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await IncidentAPI.getAllIncidents();
-      setIncidentsApi(data);
-    } catch (err) {
-      console.error("Failed to load incidents:", err);
-      setError(err instanceof Error ? err.message : "Failed to load incidents");
-      setIncidentsApi([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadIncidents();
-  }, []);
-
-  useEffect(() => {
-    // load available history dates on mount
-    loadHistoryDates();
-  }, []);
-
-  useEffect(() => {
-    // When selectedHistory changes, load either live or historical incidents
-    if (selectedHistory === "live") {
-      loadIncidents();
-    } else {
-      loadHistoryForDate(selectedHistory);
-    }
-  }, [selectedHistory]);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          {/* Top: Centered brand/logo */}
-          <div className="flex justify-center items-center h-12 mb-3">
-            <img
-              src="src/assets/title.png"
-              alt="LightHouse Logo"
-              className="object-contain max-h-12"
-            />
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-4xl font-bold">
+              <span className="text-gray-800">Light</span>
+              <span className="text-pink-600">House</span>
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Welcome {isLoaded && user ? (user.fullName || user.firstName || 'User') : 'User'}
+            </p>
           </div>
-
-          {/* Bottom: Left welcome, right date + actions */}
-          <div className="flex justify-between items-center">
-            <p className="text-gray-600 text-xl mt-1">Welcome {displayName},</p>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <p className="text-gray-600 text-xl">
-                  {selectedHistory === "live"
-                    ? currentDate
-                    : new Date(selectedHistory).toLocaleDateString("en-US")}
-                </p>
-
-                <div className="flex items-center gap-1 bg-white/60 rounded-lg">
-                  <button
-                    onClick={() => {
-                      // Prev => go to older date
-                      const options = ["live", ...historyDates];
-                      const idx = options.indexOf(selectedHistory);
-                      if (idx < options.length - 1) {
-                        setSelectedHistory(options[idx + 1]);
-                      }
-                    }}
-                    className="px-2 py-1 text-sm hover:bg-gray-100"
-                    title="Previous day"
-                  >
-                    ◀
-                  </button>
-
-                  <select
-                    value={selectedHistory}
-                    onChange={(e) => setSelectedHistory(e.target.value)}
-                    className="px-2 py-1 text-sm bg-transparent outline-none"
-                  >
-                    <option value="live">Live</option>
-                    {historyDates.map((d) => (
-                      <option key={d} value={d}>
-                        {d}
-                      </option>
-                    ))}
-                  </select>
-
-                  <button
-                    onClick={() => {
-                      // Next => go to newer date
-                      const options = ["live", ...historyDates];
-                      const idx = options.indexOf(selectedHistory);
-                      if (idx > 0) {
-                        setSelectedHistory(options[idx - 1]);
-                      }
-                    }}
-                    className="px-2 py-1 text-sm hover:bg-gray-100"
-                    title="Next day"
-                  >
-                    ▶
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={handleProfile}
-                className="flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm text-gray-800 font-semibold rounded-lg shadow-md hover:bg-white/80 transition-all duration-200"
-              >
-                <User className="w-4 h-4" />
-                Profile
-              </button>
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-2 px-4 py-2 bg-red-500/80 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition-all duration-200"
-              >
-                <LogOut className="w-4 h-4" />
-                Log Out
-              </button>
-            </div>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/profile"
+              className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border-2 border-white hover:bg-white/80 transition-colors duration-200"
+            >
+              <User className="w-5 h-5 text-gray-700" />
+              <span className="text-gray-700 font-medium">Profile</span>
+            </Link>
+            <p className="text-gray-600">{new Date().toLocaleDateString()}</p>
           </div>
         </div>
 
-        {/* Controls */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex items-center bg-white/70 rounded-xl shadow overflow-hidden">
-            <button
-              className={`px-3 py-1 text-sm ${
-                viewMode === "points" ? "bg-white font-semibold" : "opacity-70"
-              }`}
-              onClick={() => setViewMode("points")}
-            >
-              Points
-            </button>
-            <button
-              className={`px-3 py-1 text-sm ${
-                viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"
-              }`}
-              onClick={() => setViewMode("heat")}
-            >
-              Heat
-            </button>
+        {/* Data Status Banner */}
+        <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 mb-6 shadow-lg border-2 border-white flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Clock className={`w-5 h-5 ${isChecking ? 'animate-spin text-pink-600' : 'text-gray-700'}`} />
+            <div>
+              <p className="text-sm font-medium text-gray-700">
+                Last Updated: {formatTime(lastUpdate)}
+              </p>
+              <p className="text-xs text-gray-600">
+                Next Update: {formatTime(nextUpdate)}
+              </p>
+            </div>
+            {hasNewData && (
+              <span className="ml-3 px-2 py-1 bg-green-500 text-white text-xs font-semibold rounded-full animate-pulse">
+                NEW DATA
+              </span>
+            )}
           </div>
-
           <button
-            onClick={handleRefresh}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/70 hover:bg-white shadow"
+            onClick={fetchData}
+            disabled={refreshing}
+            className="flex items-center gap-2 bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <RefreshCw className="h-4 w-4" />
-            <span>Refresh</span>
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Refreshing...' : 'Refresh Now'}
           </button>
         </div>
 
-        {/* Map Card */}
-        <div className="bg-white/45 backdrop-blur-sm rounded-2xl p-4 shadow mb-6">
-          <MapWidget
-            incidents={incidents}
-            heightClass="h-72"
-            initialCenter={[20, 0]}
-            initialZoom={2}
-            lockSingleWorld={true}
-            viewMode={viewMode}
-            onPointClick={(id: MapIncident["id"]) => goToIncident(id)}
-          />
+        {/* Map Placeholder */}
+        <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg mb-6">
+          <div className="w-full h-64 bg-gradient-to-br from-blue-900 to-blue-700 rounded-lg flex items-center justify-center">
+            <p className="text-white/50 text-lg">Map Container</p>
+          </div>
         </div>
 
-        {/* Search with dropdown results */}
-        <div className="mb-4 relative">
+        {/* Search */}
+        <div className="mb-6">
           <input
             type="text"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setShowSearchResults(e.target.value.trim().length > 0);
-            }}
-            onFocus={() => setShowSearchResults(searchQuery.trim().length > 0)}
-            placeholder="Search incidents by type, location, or description..."
-            className="w-full rounded-xl px-4 py-2 bg-white/70 focus:bg-white outline-none shadow"
+            placeholder="Search disasters, locations..."
+            className="w-full px-4 py-3 rounded-xl bg-white/60 backdrop-blur-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-400"
           />
-
-          {/* Search results dropdown */}
-          {showSearchResults && searchResults.length > 0 && (
-            <div className="absolute z-10 w-full mt-2 bg-white rounded-xl shadow-lg max-h-96 overflow-y-auto">
-              <div className="p-2">
-                <div className="flex justify-between items-center px-3 py-2 border-b">
-                  <span className="text-sm font-semibold text-gray-700">
-                    Found {searchResults.length} incident
-                    {searchResults.length !== 1 ? "s" : ""}
-                  </span>
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setShowSearchResults(false);
-                    }}
-                    className="text-xs text-gray-500 hover:text-gray-700"
-                  >
-                    Clear
-                  </button>
-                </div>
-                {searchResults.map((incident) => (
-                  <div
-                    key={incident.id}
-                    onClick={() => {
-                      goToIncident(incident.id);
-                      setShowSearchResults(false);
-                    }}
-                    className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 transition-colors"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="font-semibold text-gray-900">
-                          {incident.title}
-                        </div>
-                        <div className="text-sm text-gray-600 mt-1">
-                          {incident.location}
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {incident.incident_type}
-                          {incident.source_tweets?.[0]?.author &&
-                            ` • @${incident.source_tweets[0].author}`}
-                        </div>
-                        <div className="text-xs text-gray-400 mt-1">
-                          {new Date(incident.created_at).toLocaleString()}
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-500 ml-2 whitespace-nowrap">
-                        {getTimeAgo(incident.created_at)}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {showSearchResults &&
-            searchResults.length === 0 &&
-            searchQuery.trim() && (
-              <div className="absolute z-10 w-full mt-2 bg-white rounded-xl shadow-lg p-4">
-                <p className="text-sm text-gray-500 text-center">
-                  No incidents found matching "{searchQuery}"
-                </p>
-              </div>
-            )}
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Active Incidents</span>
-              <Activity className="h-4 w-4" />
-            </div>
-            <div className="text-2xl font-bold mt-1">{incidentsApi.length}</div>
-          </div>
-          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Posts/Min</span>
-              <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="text-2xl font-bold mt-1">
-              {(postsPerMin / 1000).toFixed(1)}K
-            </div>
-          </div>
-          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Coverage Area</span>
-              <Globe className="h-4 w-4" />
-            </div>
-            <div className="text-2xl font-bold mt-1">
-              {activeStates} Locations
-            </div>
-          </div>
-        </div>
-
-        {/* Content cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Live Feed (same as previous Recent Incidents) */}
-          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5 md:col-span-1">
-            <div className="flex items-center justify-between mb-3">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-2 border-white">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <h3 className="font-semibold">Live Feed</h3>
-                {selectedTag && (
-                  <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
-                    Filtered by {selectedTag}
-                  </span>
+                <Activity className="w-5 h-5 text-gray-700" />
+                <span className="text-sm text-gray-600">Active Disasters</span>
+              </div>
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            </div>
+            <p className="text-4xl font-bold text-gray-800">
+              {stats.disaster_count}
+            </p>
+          </div>
+
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-2 border-white">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-gray-700" />
+                <span className="text-sm text-gray-600">Total Tweets</span>
+              </div>
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            </div>
+            <p className="text-4xl font-bold text-gray-800">
+              {data?.metadata.total_tweets || 0}
+            </p>
+          </div>
+
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-2 border-white">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Globe className="w-5 h-5 text-gray-700" />
+                <span className="text-sm text-gray-600">Disaster Types</span>
+              </div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            </div>
+            <p className="text-4xl font-bold text-gray-800">
+              {Object.keys(disasterTypes).length}
+            </p>
+          </div>
+        </div>
+
+        {/* Live Feed and Trending */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Live Feed */}
+          <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
+            <div className="bg-white rounded-xl p-6 h-96 overflow-y-auto">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Live Feed</h2>
+              <div className="space-y-4">
+                {recentTweets.length > 0 ? (
+                  recentTweets.map((tweet) => (
+                    <div key={tweet.id} className="border-b border-gray-200 pb-3 last:border-0">
+                      <div className="flex items-start gap-2 mb-2">
+                        <span className={`px-2 py-1 text-xs font-semibold rounded ${
+                          tweet.ml_classification.disaster_type === 'earthquake' ? 'bg-orange-100 text-orange-700' :
+                          tweet.ml_classification.disaster_type === 'flood' ? 'bg-blue-100 text-blue-700' :
+                          tweet.ml_classification.disaster_type === 'wildfire' ? 'bg-red-100 text-red-700' :
+                          tweet.ml_classification.disaster_type === 'hurricane' ? 'bg-purple-100 text-purple-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {tweet.ml_classification.disaster_type || 'Unknown'}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(tweet.createdAt).toLocaleTimeString()}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 line-clamp-2">{tweet.text}</p>
+                      {tweet.llm_extraction?.location && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          📍 {tweet.llm_extraction.location}
+                        </p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-center py-8">No recent disasters</p>
                 )}
               </div>
-              {loading && (
-                <span className="text-sm text-gray-500">Loading…</span>
-              )}
             </div>
-            {error ? (
-              <div className="text-red-600 text-sm">{error}</div>
-            ) : incidentsApi.length === 0 ? (
-              <div className="text-gray-600 text-sm">
-                No incidents yet. Try seeding or check back soon.
-              </div>
-            ) : filteredIncidentsApi.length === 0 && selectedTag ? (
-              <div className="text-gray-600 text-sm">
-                No incidents found for tag "{selectedTag}".
-                <button
-                  onClick={() => setSelectedTag(null)}
-                  className="text-purple-600 hover:underline ml-1"
-                >
-                  Clear filter
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-3 max-h-80 overflow-y-auto pr-1">
-                {filteredIncidentsApi.map((it) => (
-                  <button
-                    key={it.id}
-                    onClick={() => goToIncident(it.id)}
-                    className="text-left p-4 rounded-xl border border-gray-200 hover:border-purple-500 hover:bg-purple-50 transition"
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-sm">
-                        {it.incident_type}
-                      </span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
-                        {it.severity}
-                      </span>
-                    </div>
-                    <div className="text-xs text-gray-600 truncate">
-                      {it.location}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-1">
-                      {new Date(it.created_at).toLocaleString()}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* Trending Topics computed from shared/frequent tags across incidents */}
-          <div className="bg-white rounded-2xl p-6 min-h-[220px] shadow ring-1 ring-black/5 md:col-span-1">
-            <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="h-4 w-4 text-gray-700" />
-              <h3 className="font-semibold">Trending Topics</h3>
-            </div>
-            {incidentsApi.length === 0 ? (
-              <div className="text-gray-600 text-sm">No data yet.</div>
-            ) : trending.length === 0 ? (
-              <div className="text-gray-600 text-sm">
-                No trending topics yet.
+          {/* Trending Topics */}
+          <div className="bg-white/40 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
+            <div className="bg-white rounded-xl p-6 h-96">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Disaster Breakdown</h2>
+              <div className="space-y-3">
+                {topDisasterTypes.length > 0 ? (
+                  topDisasterTypes.map(([type, count]) => {
+                    const percentage = data ? (count / data.metadata.total_tweets * 100).toFixed(1) : 0;
+                    return (
+                      <div key={type} className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1">
+                          <span className="text-gray-700 font-medium capitalize">{type}</span>
+                          <div className="flex-1 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-pink-600 h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                        <span className="text-gray-600 font-semibold ml-3">{count}</span>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-gray-400 text-center py-8">No data available</p>
+                )}
               </div>
-            ) : (
-              <TrendingList
-                trending={trending}
-                selectedTag={selectedTag}
-                onTagClick={handleTagClick}
-              />
-            )}
+            </div>
           </div>
         </div>
       </div>
