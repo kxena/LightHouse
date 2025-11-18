@@ -65,9 +65,9 @@ class Incident(BaseModel):
     created_at: str
     tags: List[str]
     confidence: float
-    casualties_mentioned: bool
-    damage_mentioned: bool
-    needs_help: bool
+    casualties_mentioned: Optional[bool] = False
+    damage_mentioned: Optional[bool] = False
+    needs_help: Optional[bool] = False
     source_tweets: List[SourceTweet]
 
 
@@ -143,10 +143,11 @@ async def get_incidents(
         raise HTTPException(status_code=503, detail="MongoDB not connected")
     
     try:
-        incidents = mongo_handler.get_all_incidents(active_only=active_only)
+        incidents = mongo_handler.get_all_incidents(limit=limit)
         
-        if limit:
-            incidents = incidents[:limit]
+        # Filter for active only if requested
+        if active_only:
+            incidents = [inc for inc in incidents if inc.get('status') != 'resolved']
         
         return incidents
     except Exception as e:
