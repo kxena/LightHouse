@@ -28,3 +28,6 @@ Thumbs.db
 
 # Pipeline results 
 # backend/pipeline_output/
+
+# env variables
+.env

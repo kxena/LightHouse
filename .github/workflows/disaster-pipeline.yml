@@ -44,7 +44,12 @@ jobs:
       env:
         BLUESKY_USER: ${{ secrets.BLUESKY_USER }}
         BLUESKY_PWD: ${{ secrets.BLUESKY_PWD }}
-        HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        HF_TOKEN1: ${{ secrets.HF_TOKEN1 }}
+        HF_TOKEN2: ${{ secrets.HF_TOKEN2 }}
+        HF_TOKEN3: ${{ secrets.HF_TOKEN3 }}
+        HF_TOKEN4: ${{ secrets.HF_TOKEN4 }}
+        HF_TOKEN5: ${{ secrets.HF_TOKEN5 }}
+        HF_TOKEN6: ${{ secrets.HF_TOKEN6 }}
         MDB_URI: ${{ secrets.MDB_URI }}
       run: |
         cd backend
@@ -112,26 +117,27 @@ jobs:
         echo "- LLM validations: \`pipeline_output/04_final_results.jsonl\`" >> $GITHUB_STEP_SUMMARY
         echo "- Final incidents: \`incidents.json\`" >> $GITHUB_STEP_SUMMARY
         echo "- **MongoDB**: Incidents uploaded to \`lighthouse.incidents\` collection" >> $GITHUB_STEP_SUMMARY
+
     
-    - name: Optional - Commit results to repo
-      if: success()
-      continue-on-error: true
-      run: |
-        cd backend
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
+ #   - name: Optional - Commit results to repo
+ #     if: success()
+ #     continue-on-error: true
+ #     run: |
+ #       cd backend
+ #       git config --local user.email "github-actions[bot]@users.noreply.github.com"
+ #       git config --local user.name "github-actions[bot]"
         
-        # Only commit the final incidents.json (pipeline_output is temp)
-        git add incidents.json || true
+ #       # Only commit the final incidents.json (pipeline_output is temp)
+ #       git add incidents.json || true
         
-        if ! git diff --staged --quiet; then
-          git commit -m "🤖 Auto-update: Pipeline run $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-          git push
-        else
-          echo "No changes to commit"
-        fi
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+ #       if ! git diff --staged --quiet; then
+ #         git commit -m "🤖 Auto-update: Pipeline run $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+ #         git push
+ #       else
+ #         echo "No changes to commit"
+ #       fi
+ #     env:
+ #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Report final status
       if: always()

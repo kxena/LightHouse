@@ -218,37 +218,37 @@ async def get_statistics():
         raise HTTPException(status_code=500, detail=f"Error fetching statistics: {str(e)}")
 
 
-@app.post("/api/admin/update")
-async def trigger_update(api_key: str = Query(..., description="Admin API key")):
-    """
-    Trigger pipeline update (admin only).
-    This will run the unified pipeline and regenerate incidents.
+# @app.post("/api/admin/update")
+# async def trigger_update(api_key: str = Query(..., description="Admin API key")):
+#     """
+#     Trigger pipeline update (admin only).
+#     This will run the unified pipeline and regenerate incidents.
     
-    In production, protect this endpoint with proper authentication!
-    """
-    # Simple API key check (in production, use proper auth)
-    if api_key != "your_secret_key_here":  # Change this!
-        raise HTTPException(status_code=403, detail="Invalid API key")
+#     In production, protect this endpoint with proper authentication!
+#     """
+#     # Simple API key check (in production, use proper auth)
+#     if api_key != "your_secret_key_here":  # Change this!
+#         raise HTTPException(status_code=403, detail="Invalid API key")
     
-    try:
-        # Run the pipeline
-        print("Starting pipeline update...")
-        subprocess.run(["python", "unified_pipeline.py"], check=True)
-        subprocess.run(["python", "regenerate_incidents_mongodb.py"], check=True)
+#     try:
+#         # Run the pipeline
+#         print("Starting pipeline update...")
+#         subprocess.run(["python", "unified_pipeline.py"], check=True)
+#         subprocess.run(["python", "regenerate_incidents_mongodb.py"], check=True)
         
-        # Get updated stats
-        stats = mongo_handler.get_statistics()
+#         # Get updated stats
+#         stats = mongo_handler.get_statistics()
         
-        return {
-            "status": "success",
-            "message": "Pipeline updated successfully",
-            "timestamp": datetime.now().isoformat(),
-            "incidents_count": stats["total_incidents"]
-        }
-    except subprocess.CalledProcessError as e:
-        raise HTTPException(status_code=500, detail=f"Pipeline failed: {str(e)}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Update failed: {str(e)}")
+#         return {
+#             "status": "success",
+#             "message": "Pipeline updated successfully",
+#             "timestamp": datetime.now().isoformat(),
+#             "incidents_count": stats["total_incidents"]
+#         }
+#     except subprocess.CalledProcessError as e:
+#         raise HTTPException(status_code=500, detail=f"Pipeline failed: {str(e)}")
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Update failed: {str(e)}")
 
 
 # Additional utility endpoints

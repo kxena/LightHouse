@@ -7,6 +7,7 @@ import IncidentReport from "./components/IncidentReport";
 import Dashboard from "./components/Dashboard";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Profile from "./components/Profile";
+import LandingPage from "./components/LandingPage";
 import { useDarkMode } from "./hooks/useDarkMode";
 
 export default function App() {
@@ -27,7 +28,7 @@ export default function App() {
           element={
             <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-100 to-blue-100 dark:from-slate-800 dark:to-purple-800">
               <SignedOut>
-                <Navigate to="/sign-in" replace />
+                <LandingPage />
               </SignedOut>
 
               <SignedIn>
@@ -69,6 +70,13 @@ export default function App() {
                       className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg shadow-md hover:from-purple-700 hover:to-blue-700 transition-all duration-200 transform hover:scale-105"
                     >
                       Go to Dashboard
+                    </button>
+
+                    <button
+                      onClick={() => navigate("/profile")}
+                      className="w-full py-3 px-6 bg-green-600 dark:bg-green-700 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 dark:hover:bg-green-800 transition-all duration-200"
+                    >
+                      View Profile
                     </button>
 
                     <button
