@@ -161,10 +161,7 @@ async def get_incident(incident_id: str):
         raise HTTPException(status_code=503, detail="MongoDB not connected")
     
     try:
-        result = mongo_handler.incidents_collection.find_one(
-            {"id": incident_id},
-            {"_id": 0}
-        )
+        result = mongo_handler.get_incident_by_id(incident_id)
         
         if not result:
             raise HTTPException(status_code=404, detail="Incident not found")

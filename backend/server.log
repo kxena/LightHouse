@@ -1,4 +1,4 @@
-INFO:     Started server process [64526]
+INFO:     Started server process [67796]
 INFO:     Waiting for application startup.
 /opt/anaconda3/lib/python3.13/site-packages/pymongo/uri_parser.py:321: UserWarning: Unknown option (http://lighthouse:lighthouse@cluster0.wxuiypz.mongodb.net/?appname
   return get_validated_options(opts, warn)
@@ -8,18 +8,4 @@ Connecting to MongoDB Atlas...
 ✓ Connected to MongoDB Atlas (attempt 1)
 ✓ Current documents in collection: 223
 ✓ API server ready and connected to MongoDB
-INFO:     127.0.0.1:57242 - "GET /api/incidents HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57261 - "GET /api/incidents HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57263 - "GET /api/incidents HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57267 - "GET /api/incidents HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57269 - "GET /api/incidents HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57269 - "GET /api/incidents/54418db9ac14 HTTP/1.1" 500 Internal Server Error
-INFO:     127.0.0.1:57267 - "GET /api/incidents/54418db9ac14 HTTP/1.1" 500 Internal Server Error
-INFO:     127.0.0.1:57267 - "GET /api/incidents HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57269 - "GET /api/incidents HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57269 - "GET /api/incidents/6c54275db1b9 HTTP/1.1" 500 Internal Server Error
-INFO:     127.0.0.1:57267 - "GET /api/incidents/6c54275db1b9 HTTP/1.1" 500 Internal Server Error
-INFO:     127.0.0.1:57267 - "GET /api/incidents HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57269 - "GET /api/incidents HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57280 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     127.0.0.1:57282 - "GET /api/incidents?limit=5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57487 - "GET /api/incidents/225b701e5b53 HTTP/1.1" 200 OK
