@@ -1,0 +1,3882 @@
+{
+  "metadata": {
+    "api": {
+      "generated_at": "2025-11-15T00:59:48.537983",
+      "pipeline_last_run": "2025-11-15T00:59:48.537983",
+      "total_tweets_from_pipeline": 199,
+      "source_file": "pipeline_output\\04_final_results.jsonl"
+    },
+    "processing": {
+      "processed_at": "2025-11-15T00:59:48.537983",
+      "total_tweets": 199,
+      "filtered_tweets": 96,
+      "incidents_created": 50,
+      "skipped_no_coords": 33
+    }
+  },
+  "incidents": [
+    {
+<<<<<<< HEAD:backend/incidents.json
+      "id": "225b701e5b53",
+      "title": "Multiple Earthquake reports in 200 km SE of Sarangani, Philippines",
+      "description": "2 reports of earthquake activity in 200 km SE of Sarangani, Philippines",
+      "location": "200 km SE of Sarangani, Philippines",
+      "lat": 12.8797,
+      "lng": 121.774,
+      "severity": "medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T05:49:02.000Z",
+      "source_tweets": [
+        {
+          "text": "New earthquake reported: M 5.4 - 200 km SE of Sarangani, Philippines - 2025-11-15T05:48:21.040Z",
+          "author": "earthquake.skybot.party",
+          "timestamp": "2025-11-15T05:49:02.000Z",
+          "tweet_id": "10cf54893e",
+=======
+      "id": "6bc508924a8e",
+      "title": "A 2.1 magnitude earthquake occurred on November 4, 2025, at 19:17:05 UTC in the ",
+      "description": "A 2.1 magnitude earthquake occurred on November 4, 2025, at 19:17:05 UTC in the Dodecanese Islands, Greece, with a depth of 2.40 km.",
+      "location": "DODECANESE ISLANDS, GREECE",
+      "original_lat": 39.0742,
+      "original_lng": 21.8243,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 39.0742,
+      "lng": 21.8243,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T19:33:10.374Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: DODECANESE ISLANDS, GREECE\n📏 Magnitude (ml): 2.1\n🔽 Depth: 2.40 km\n⏰ Time: 2025-11-04 19:17:05 UTC\n🔗 Source: EMSC\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T19:33:10.374Z",
+          "tweet_id": "a68f792790",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9820349216461182,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "50c81049067f",
+      "title": "Multiple Earthquake reports in Afghanistan, near Mazar-e Sharif",
+      "description": "7 reports of earthquake activity",
+      "location": "Afghanistan, near Mazar-e Sharif",
+      "original_lat": 33.9391,
+      "original_lng": 67.71,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 33.9391,
+      "lng": 67.71,
+      "severity": "high",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "high",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T19:31:12.000Z",
+      "source_tweets": [
+        {
+          "text": "Magnitude-6.3 earthquake kills at least 20 people in Afghanistan\n\nThe US Geological Survey said the quake hit at a depth of 28km near Mazar-e Sharif, a city of around 523,000 people famous for its shrines and historic sites […]",
+          "author": "publicnewsfeed.mastodon.social.ap.brid.gy",
+          "timestamp": "2025-11-04T19:31:12.000Z",
+          "tweet_id": "e9f747745f",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "UNCAPTIONED: At Least 20 Dead After 6.3-Magnitude Earthquake Strikes Northern Afghanistan\n\nflip.it/_75JtB\nHopefully all the dead are taliban scum",
+          "author": "bunnyw999.bsky.social",
+          "timestamp": "2025-11-04T18:49:14.987Z",
+          "tweet_id": "79743823cb",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "#Afghanistan #Earthquake #Disaster #Rescue #SeismicActivity #climate #anomaly #climatecrisis #destruction\n🇦🇫 Aftermath of the Powerful Earthquake in Northern Afghanistan\n\n💔 According to the Ministry of Health, more than 20 people have been confirmed dead, and at least 534 have been injured.",
+          "author": "tali-deu.bsky.social",
+          "timestamp": "2025-11-04T18:28:50.652Z",
+          "tweet_id": "b51d63a9b4",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Afghans dig through rubble after earthquake kills at least 27\n\nA boy sits next to his damaged house, in the aftermath of an earthquake, in Samangan province, Afghanistan, November 4, 2025.— Reuters Quake leaves almost 1,000 injured, destroys several buildings. Poor infrastructure causes “immense”…",
+          "author": "10bmnews.bsky.social",
+          "timestamp": "2025-11-04T17:25:51Z",
+          "tweet_id": "c4a631264d",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Another earthquake has struck Afghanistan. Our hearts are with all affected. \n\nAfghan women—already restricted from aid, health care, and work—suffer most under Taliban rule. \n\nGender apartheid amplifies every disaster. \n\nLearn more: righttolearn.ca/earthquakes-...",
+          "author": "righttolearn.ca",
+          "timestamp": "2025-11-04T16:23:23.622Z",
+          "tweet_id": "fab6e04709",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Survivors of a powerful earthquake in northern Afghanistan are digging through the rubble of their homes after spending a bitterly cold night outdoors. ",
+          "author": "apnews.com",
+          "timestamp": "2025-11-04T16:00:29Z",
+          "tweet_id": "9fbb7688b0",
+          "engagement": {
+            "likes": 40,
+            "retweets": 10,
+            "replies": 3
+          }
+        },
+        {
+          "text": "\n#Afghan   #Afghanistan   #earthquake",
+          "author": "toppnews.bsky.social",
+          "timestamp": "2025-11-04T15:50:13.818685+00:00",
+          "tweet_id": "03bb9fea4e",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.988289475440979,
+      "casualties_mentioned": true,
+      "damage_mentioned": false,
+      "needs_help": false,
+      "cluster_member_coords": [
+        {
+          "id": "50c81049067f",
+          "lat": 33.9391,
+          "lng": 67.71
+        },
+        {
+          "id": "e00d75e6a37d",
+          "lat": 33.9391,
+          "lng": 67.71
+        },
+        {
+          "id": "c7845f4b5479",
+          "lat": 33.9391,
+          "lng": 67.71
+        },
+        {
+          "id": "4f1bd679eb79",
+          "lat": 33.9391,
+          "lng": 67.71
+        },
+        {
+          "id": "5024e8bd140f",
+          "lat": 33.9391,
+          "lng": 67.71
+        },
+        {
+          "id": "38ff29565390",
+          "lat": 33.9391,
+          "lng": 67.71
+        },
+        {
+          "id": "88a7af256544",
+          "lat": 33.9391,
+          "lng": 67.71
+        }
+      ],
+      "cluster_member_ids": [
+        "50c81049067f",
+        "e00d75e6a37d",
+        "c7845f4b5479",
+        "4f1bd679eb79",
+        "5024e8bd140f",
+        "38ff29565390",
+        "88a7af256544"
+      ]
+    },
+    {
+      "id": "4c4384fb5ad5",
+      "title": "Multiple Earthquake reports in West Papua, Indonesia",
+      "description": "22 reports of earthquake activity",
+      "location": "West Papua, Indonesia",
+      "original_lat": -0.7893,
+      "original_lng": 113.9213,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": -0.7893,
+      "lng": 113.92129999999999,
+      "severity": "high",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T19:29:30.088Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: West Papua, Indonesia\n📏 Magnitude (M): 2.6\n🔽 Depth: 26.10 km\n⏰ Time: 2025-11-04 19:21:41 UTC\n🔗 Source: BMKG\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T19:29:30.088Z",
+          "tweet_id": "4621a4e708",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: South of Bali, Indonesia\n📏 Magnitude (M): 3.3\n🔽 Depth: 27.67 km\n⏰ Time: 2025-11-04 19:01:43 UTC\n🔗 Source: BMKG\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T19:04:43.013Z",
+          "tweet_id": "218af1b61d",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: Java, Indonesia\n📏 Magnitude (M): 2.6\n🔽 Depth: 111.70 km\n⏰ Time: 2025-11-04 17:59:29 UTC\n🔗 Source: BMKG\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T18:03:08.747Z",
+          "tweet_id": "cfc805cf54",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🟠 UPDATE: M5.2 mb earthquake, 113 km W of Tobelo, Indonesia, depth 84.3 km\n\n📍 Nearby: Tobelo, ID (114 km); Ternate, ID (126 km); Sofifi, ID (139 km)\n\nhttps://earthquake.usgs.gov/earthquakes/eventpage/us6000rlev/executive\n\n#UPDATE #USGS #earthquake #Indonesia",
+          "author": "comoglu.bsky.social",
+          "timestamp": "2025-11-04T17:13:02+00:00",
+          "tweet_id": "e48c313929",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: Java, Indonesia\n📏 Magnitude (M): 3.1\n🔽 Depth: 31.78 km\n⏰ Time: 2025-11-04 16:50:33 UTC\n🔗 Source: BMKG\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T16:54:20.969Z",
+          "tweet_id": "052d328e08",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "On Wednesday night a significant M5.2 earthquake struck in the Maluku Sea 126km from Ternate (Indonesia).  #Earthquake #Indonesia #GempaBumi #Ternate #Manado ",
+          "author": "earthquakelist.bsky.social",
+          "timestamp": "2025-11-04T16:46:03+00:00",
+          "tweet_id": "4fcf46249b",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: Sumbawa Region, Indonesia\n📏 Magnitude (M): 3.0\n🔽 Depth: 19.69 km\n⏰ Time: 2025-11-04 16:25:17 UTC\n🔗 Source: BMKG\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T16:27:41.406Z",
+          "tweet_id": "f8d19c6c40",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🟠 INITIAL ALERT: Magnitude 5.2 mb earthquake detected at 04 Nov 2025 15:58:28 UTC, depth 84.3 km.\n\nLocation: 113 km W of Tobelo, Indonesia\n\nFull information to follow. https://earthquake.usgs.gov/earthquakes/eventpage/us6000rlev/executive\n\n#USGS #earthquake #Indonesia",
+          "author": "comoglu.bsky.social",
+          "timestamp": "2025-11-04T16:23:03+00:00",
+          "tweet_id": "01e381bee8",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Recent #Earthquake: M 5.2 - 113 km W of Tobelo, Indonesia reported at 15:58:28 UTC (22 minutes ago). #EarthquakeAlert. \nSee more details at https://earthquake.usgs.gov/earthquakes/eventpage/us6000rlev/executive. \n How do you prepare? Share tips and stay safe! #earthquakePrep. Data provided by #usgs",
+          "author": "earthquakebot.bsky.social",
+          "timestamp": "2025-11-04T16:20:37.739104+00:00",
+          "tweet_id": "4b1c62e27b",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "On 2025-11-04, at 15:58:28 (UTC), there was an earthquake around 113 km W of Tobelo, Indonesia. The depth of the hypocenter is about 84.3km, and the magnitude of the earthquake is estimated to be about 5.2.\nnagix.github.io/world-eq-loc...",
+          "author": "worldeqlocator.bsky.social",
+          "timestamp": "2025-11-04T16:20:37.360238+00:00",
+          "tweet_id": "84a24a0360",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "#Earthquake - #زلزله Mag: 5.2 Depth : 84.3 Km  Place :  113 km W of Tobelo  Indonesia Date/Time : 04/11/2025 15:58:28 Updated : 04/11/2025 16:17:57 Status : reviewed Code : 6000rlev Link to interactive map :  \nhttps://earthquake.usgs.gov/earthquakes/eventpage/us6000rlev",
+          "author": "jahanb.bsky.social",
+          "timestamp": "2025-11-04T16:20:17.934Z",
+          "tweet_id": "2b7838440c",
+          "engagement": {
+            "likes": 1,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "An #earthquake with 5.20 magnitude has occurred near Tobelo, Indonesia @ 16:58:28 UTC #asia #light",
+          "author": "seismos.app",
+          "timestamp": "2025-11-04T16:20:06Z",
+          "tweet_id": "ab8c0acb62",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "New earthquake reported: M 5.2 - 113 km W of Tobelo, Indonesia - 2025-11-04T16:17:57.040Z",
+          "author": "earthquake.skybot.party",
+          "timestamp": "2025-11-04T16:20:02.000Z",
+          "tweet_id": "97b15cb01b",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Earthquake Location: HALMAHERA, INDONESIA Magnitude: 5.500000\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-04T16:19:43Z",
+          "tweet_id": "e8da61e34f",
+>>>>>>> 86e2905d07d2330bbeb9471ed7929bf00def46c0:backend/incidents_validation.json
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+<<<<<<< HEAD:backend/incidents.json
+          "text": "A 5.4 magnitude earthquake occurred 200 km SE of Sarangani, Philippines!\n🗺️ Coordinates: 4.038100, 126.655600\n",
+          "author": "quake-bot.com",
+          "timestamp": "2025-11-15T05:48:43.149Z",
+          "tweet_id": "429ac4906c",
+=======
+          "text": "Earthquake Location: HALMAHERA, INDONESIA Magnitude: 5.500000\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-04T16:15:34Z",
+          "tweet_id": "1c28606e2f",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Earthquake Magnitude: 5.500000 Location: HALMAHERA, INDONESIA\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-04T16:14:15Z",
+          "tweet_id": "25fbdd5043",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Earthquake Report\n\nEarthquake M5.0 has been observed 78.41 km W of Galela, Maluku Utara, Indonesia on 2025-11-04 15:58:27. The depth is 71 km, the epicenter was in the underwater.\n\n #crisisinfo, #earthquake, #emsc\n\n https://map.crisisinfo.eu/?pageid=earthquake_index&id=1495827",
+          "author": "crisisinfo.eu",
+          "timestamp": "2025-11-04T16:10:05.613Z",
+          "tweet_id": "e417674f7b",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Earthquake Location: HALMAHERA, INDONESIA Magnitude: 5\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-04T16:09:50Z",
+          "tweet_id": "efb5e8f7c0",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Earthquake Magnitude: 5.100000 Location: HALMAHERA, INDONESIA\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-04T16:08:55Z",
+          "tweet_id": "114c714ea5",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Earthquake Magnitude: 5.100000 Location: HALMAHERA, INDONESIA\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-04T16:08:06Z",
+          "tweet_id": "4dc042ef81",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "#Earthquake M5.1 | Halmahera, Indonesia | 5m ago | Nov 4, 2025 03:58 pm (Universal Time)\nDid you feel it? Submit a report!\n#strong #quake #M2+ #M3+ #M4+ #M5+ #Indonesia #North_Maluku\nQuake feed for Indonesia: @indonesia.earthquakes.live",
+          "author": "earthquakes.live",
+          "timestamp": "2025-11-04T16:03:30+00:00",
+          "tweet_id": "cfac3c56b2",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: Halmahera, Indonesia\n📏 Magnitude (M): 5.1\n🔽 Depth: 20.33 km\n⏰ Time: 2025-11-04 15:58:26 UTC\n🔗 Source: BMKG\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T16:01:09.788Z",
+          "tweet_id": "304037eb09",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9808459877967834,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false,
+      "cluster_member_coords": [
+        {
+          "id": "4c4384fb5ad5",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "c2b6025c80da",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "9dae11590e0a",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "9874ce08f6e9",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "3354904d47cf",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "4b025b183e0b",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "6450de3a9d59",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "223329d0c690",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "48b36dff845f",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "df3f884f5576",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "d4e82ba6dbfa",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "d99961861990",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "ba490c3e9e87",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "2b135afc1cb1",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "73e35755e3cf",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "eeeb8b214285",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "1494eb0bfd56",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "4bf549851b4f",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "d447736a9c5e",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "efaef526b683",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "738eadbff25f",
+          "lat": -0.7893,
+          "lng": 113.9213
+        },
+        {
+          "id": "8841a2ea204b",
+          "lat": -0.7893,
+          "lng": 113.9213
+        }
+      ],
+      "cluster_member_ids": [
+        "4c4384fb5ad5",
+        "c2b6025c80da",
+        "9dae11590e0a",
+        "9874ce08f6e9",
+        "3354904d47cf",
+        "4b025b183e0b",
+        "6450de3a9d59",
+        "223329d0c690",
+        "48b36dff845f",
+        "df3f884f5576",
+        "d4e82ba6dbfa",
+        "d99961861990",
+        "ba490c3e9e87",
+        "2b135afc1cb1",
+        "73e35755e3cf",
+        "eeeb8b214285",
+        "1494eb0bfd56",
+        "4bf549851b4f",
+        "d447736a9c5e",
+        "efaef526b683",
+        "738eadbff25f",
+        "8841a2ea204b"
+      ]
+    },
+    {
+      "id": "da3313db5977",
+      "title": "Multiple Earthquake reports in NEVADA",
+      "description": "3 reports of earthquake activity",
+      "location": "NEVADA",
+      "original_lat": 39.8,
+      "original_lng": -117.0,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 39.8,
+      "lng": -117.0,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T19:24:59.729Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: NEVADA\n📏 Magnitude (ml): 2.2\n🔽 Depth: 6.30 km\n⏰ Time: 2025-11-04 19:21:33 UTC\n🔗 Source: EMSC\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T19:24:59.729Z",
+          "tweet_id": "6d1b710dc0",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "New earthquake reported: M 2.9 - 80 km ENE of Tonopah, Nevada - 2025-11-04T15:54:49.902Z",
+          "author": "earthquake.skybot.party",
+          "timestamp": "2025-11-04T15:56:03.000Z",
+          "tweet_id": "516d4de244",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: 80 km ENE of Tonopah, Nevada\n📏 Magnitude (ml): 2.9\n🔽 Depth: 9.61 km\n⏰ Time: 2025-11-04 15:51:41 UTC\n🔗 Source: USGS\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T15:55:12.642Z",
+          "tweet_id": "d1d34bb73a",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9814479947090149,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false,
+      "cluster_member_coords": [
+        {
+          "id": "da3313db5977",
+          "lat": 39.8,
+          "lng": -117.0
+        },
+        {
+          "id": "787c6967c8d5",
+          "lat": 39.8,
+          "lng": -117.0
+        },
+        {
+          "id": "ea7c7e74493e",
+          "lat": 39.8,
+          "lng": -117.0
+        }
+      ],
+      "cluster_member_ids": [
+        "da3313db5977",
+        "787c6967c8d5",
+        "ea7c7e74493e"
+      ]
+    },
+    {
+      "id": "aea6e56d2d5d",
+      "title": "Multiple Earthquake reports in 8 km E of Willow Creek, CA",
+      "description": "2 reports of earthquake activity",
+      "location": "8 km E of Willow Creek, CA",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:348256715",
+      "resolved_place_name": "722 Avenue E, Municipal District of Willow Creek No. 26, Alberta, Canada",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 50.3972463,
+      "lng": -113.8767844,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T19:23:03.000Z",
+      "source_tweets": [
+        {
+          "text": "New earthquake reported: M 2.9 - 8 km E of Willow Creek, CA - 2025-11-04T19:22:16.760Z",
+          "author": "earthquake.skybot.party",
+          "timestamp": "2025-11-04T19:23:03.000Z",
+          "tweet_id": "1e990d07b9",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "New earthquake reported: M 2.9 - 8 km E of Willow Creek, CA - 2025-11-04T19:18:27.121Z",
+          "author": "earthquake.skybot.party",
+          "timestamp": "2025-11-04T19:19:02.000Z",
+          "tweet_id": "179610ab4d",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9708752632141113,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false,
+      "cluster_member_coords": [
+        {
+          "id": "aea6e56d2d5d",
+          "lat": 50.3972463,
+          "lng": -113.8767844
+        },
+        {
+          "id": "8b544856c193",
+          "lat": 50.3972463,
+          "lng": -113.8767844
+        }
+      ],
+      "cluster_member_ids": [
+        "aea6e56d2d5d",
+        "8b544856c193"
+      ]
+    },
+    {
+      "id": "8c6b8d8b7b39",
+      "title": "A 2.4 magnitude earthquake occurred in Southern Italy on 2025-11-04 at 18:48:22 ",
+      "description": "A 2.4 magnitude earthquake occurred in Southern Italy on 2025-11-04 at 18:48:22 UTC.",
+      "location": "Southern Italy",
+      "original_lat": 41.8719,
+      "original_lng": 12.5674,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 41.8719,
+      "lng": 12.5674,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T19:05:40.730Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: SOUTHERN ITALY\n📏 Magnitude (md): 2.4\n🔽 Depth: 2.10 km\n⏰ Time: 2025-11-04 18:48:22 UTC\n🔗 Source: EMSC\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T19:05:40.730Z",
+          "tweet_id": "9ff70d5fa0",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9812251925468445,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "763a7b16dbca",
+      "title": "Multiple Earthquake reports in Pinnacles, CA",
+      "description": "3 reports of earthquake activity",
+      "location": "Pinnacles, CA",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:299187405",
+      "resolved_place_name": "Pinnacles, San Benito County, California, United States of America",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 36.5307965,
+      "lng": -121.1451978,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T19:03:03.000Z",
+      "source_tweets": [
+        {
+          "text": "New earthquake reported: M 2.6 - 3 km WNW of Pinnacles, CA - 2025-11-04T19:01:07.218Z",
+          "author": "earthquake.skybot.party",
+          "timestamp": "2025-11-04T19:03:03.000Z",
+          "tweet_id": "60b888a701",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "New earthquake reported: M 2.6 - 3 km WNW of Pinnacles, CA - 2025-11-04T18:37:17.458Z",
+          "author": "earthquake.skybot.party",
+          "timestamp": "2025-11-04T18:38:02.000Z",
+          "tweet_id": "933e9e1ea6",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "New earthquake reported: M 2.6 - 3 km WNW of Pinnacles, CA - 2025-11-04T18:34:52.140Z",
+          "author": "earthquake.skybot.party",
+          "timestamp": "2025-11-04T18:35:02.000Z",
+          "tweet_id": "27de99e64f",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9734306931495667,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false,
+      "cluster_member_coords": [
+        {
+          "id": "763a7b16dbca",
+          "lat": 36.5307965,
+          "lng": -121.1451978
+        },
+        {
+          "id": "93374182f692",
+          "lat": 36.5307965,
+          "lng": -121.1451978
+        },
+        {
+          "id": "f9366ee476d2",
+          "lat": 36.5307965,
+          "lng": -121.1451978
+        }
+      ],
+      "cluster_member_ids": [
+        "763a7b16dbca",
+        "93374182f692",
+        "f9366ee476d2"
+      ]
+    },
+    {
+      "id": "782eeb0192d0",
+      "title": "A magnitude 3.7 earthquake occurred on the Alaska Peninsula on November 4, 2025,",
+      "description": "A magnitude 3.7 earthquake occurred on the Alaska Peninsula on November 4, 2025, at 18:45:56.",
+      "location": "Alaska Peninsula",
+      "original_lat": 54.51,
+      "original_lng": -160.13,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 54.51,
+      "lng": -160.13,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T18:48:05.629670Z",
+      "source_tweets": [
+        {
+          "text": "3 minutes 1 second ago -  Alaska Peninsula  MLv 3.7  54.51N 160.13W  11km 2025/11/04  18:45:56 - For updates, see http://www.seisme.nc/index.php?option=com_alertes&view=alertes&Itemid=184&ids=ird2025vszglx&lang=en #séisme #earthquake #sismo #지진 #地震",
+          "author": "ncseismicobserv.bsky.social",
+          "timestamp": "2025-11-04T18:48:05.629670Z",
+          "tweet_id": "dcd5534f7b",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.965796947479248,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "249b1fa7b553",
+      "title": "Multiple Earthquake reports in Timor Region",
+      "description": "2 reports of earthquake activity",
+      "location": "Timor Region",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:1564903",
+      "resolved_place_name": "Timor, Renacimiento Italiano, Las Condes, Provincia de Santiago, Región Metropolitana de Santiago, 7560460, Chile",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": -33.4048668,
+      "lng": -70.5496793,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T18:41:19.153Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: Timor Region\n📏 Magnitude (M): 3.4\n🔽 Depth: 21.57 km\n⏰ Time: 2025-11-04 18:36:03 UTC\n🔗 Source: BMKG\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T18:41:19.153Z",
+          "tweet_id": "2fdcc1a92c",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: Timor Region\n📏 Magnitude (M): 3.2\n🔽 Depth: 10.00 km\n⏰ Time: 2025-11-04 16:34:18 UTC\n🔗 Source: BMKG\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T16:41:08.669Z",
+          "tweet_id": "6eec83e81c",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9812398552894592,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false,
+      "cluster_member_coords": [
+        {
+          "id": "249b1fa7b553",
+          "lat": -33.4048668,
+          "lng": -70.5496793
+        },
+        {
+          "id": "658a5f6c16ad",
+          "lat": -33.4048668,
+          "lng": -70.5496793
+        }
+      ],
+      "cluster_member_ids": [
+        "249b1fa7b553",
+        "658a5f6c16ad"
+      ]
+    },
+    {
+      "id": "35f4ebe8c48e",
+      "title": "4.5-magnitude earthquake struck near Greater Tunb Island, Iran at a depth of 10 ",
+      "description": "4.5-magnitude earthquake struck near Greater Tunb Island, Iran at a depth of 10 km",
+      "location": "Greater Tunb Island, Iran",
+      "original_lat": 32.4279,
+      "original_lng": 53.688,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 32.4279,
+      "lng": 53.688,
+      "severity": "medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T18:38:39.866Z",
+      "source_tweets": [
+        {
+          "text": "📸 A 4.5-magnitude earthquake struck near 🇮🇷 Iran’s Greater Tunb Island a depth of 10 km, with its epicenter about 95 km from the island. Alâhed English....",
+          "author": "suat79.bsky.social",
+          "timestamp": "2025-11-04T18:38:39.866Z",
+          "tweet_id": "4955f69c43",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9881908893585205,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "577165653cf2",
+      "title": "Multiple Earthquake reports in 32 km al SO de Mejillones, Chile",
+      "description": "2 reports of earthquake activity",
+      "location": "32 km al SO de Mejillones, Chile",
+      "original_lat": -35.6751,
+      "original_lng": -71.543,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": -35.6751,
+      "lng": -71.543,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T18:35:08.104001+00:00",
+      "source_tweets": [
+        {
+          "text": "⚠️ Nuevo #Sismo Registrado ⚠️\nFecha: 04-11-2025\nHora: 15:19:43\nUbicación: 32 km al SO de Mejillones\nProfundidad: 27 km\nMagnitud: 3.0\nLatitud: -23.36\nLongitud: -70.60\nVer Mapa\n#Terremoto #Sismología #Chile #EarthQuake #Alerta",
+          "author": "tatemblando.bsky.social",
+          "timestamp": "2025-11-04T18:35:08.104001+00:00",
+          "tweet_id": "257a86c04b",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: OFFSHORE ANTOFAGASTA, CHILE\n📏 Magnitude (ml): 3.0\n🔽 Depth: 27.40 km\n⏰ Time: 2025-11-04 18:19:43 UTC\n🔗 Source: EMSC\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T18:34:34.824Z",
+          "tweet_id": "8c04868ada",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9855285286903381,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false,
+      "cluster_member_coords": [
+        {
+          "id": "577165653cf2",
+          "lat": -35.6751,
+          "lng": -71.543
+        },
+        {
+          "id": "78aff2f04bb3",
+          "lat": -35.6751,
+          "lng": -71.543
+        }
+      ],
+      "cluster_member_ids": [
+        "577165653cf2",
+        "78aff2f04bb3"
+      ]
+    },
+    {
+      "id": "a4a5e5b5f319",
+      "title": "A 6.3 magnitude earthquake struck Mazar-e-Sharif, killing at least 20 people and",
+      "description": "A 6.3 magnitude earthquake struck Mazar-e-Sharif, killing at least 20 people and injuring over 600, dating back to the 15th century Blue Mosque was affected",
+      "location": "Mazar-e-Sharif",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:197488428",
+      "resolved_place_name": "مزار شريف, ولایت بلخ, 1701, افغانستان",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 36.7090366,
+      "lng": 67.1114085,
+      "severity": "high",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "high",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T18:06:23.353Z",
+      "source_tweets": [
+        {
+          "text": "Article:\nThe Blue Mosque of Mazar-e-Sharif which dates back to the 15th century was affected by the earthquake. At least 20 people were killed and more than 600 were injured…The powerful 6.3 magnitude earthquake struck just before dawn on Monday.",
+          "author": "weather.observer",
+          "timestamp": "2025-11-04T18:06:23.353Z",
+          "tweet_id": "28f0945493",
+          "engagement": {
+            "likes": 0,
+            "retweets": 2,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9980227947235107,
+      "casualties_mentioned": true,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "f9a2e374092b",
+      "title": "An earthquake occurred on November 4, 2025, at 13:31:28 UTC, with a magnitude of",
+      "description": "An earthquake occurred on November 4, 2025, at 13:31:28 UTC, with a magnitude of 4.7 and a depth of 10.0 km around the western Indian-Antarctic Ridge.",
+      "location": "western Indian-Antarctic Ridge",
+      "original_lat": 20.5937,
+      "original_lng": 78.9629,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 20.5937,
+      "lng": 78.9629,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T17:22:18.746637+00:00",
+      "source_tweets": [
+        {
+          "text": "On 2025-11-04, at 13:31:28 (UTC), there was an earthquake around western Indian-Antarctic Ridge. The depth of the hypocenter is about 10.0km, and the magnitude of the earthquake is estimated to be about 4.7.\nnagix.github.io/world-eq-loc...",
+          "author": "worldeqlocator.bsky.social",
+          "timestamp": "2025-11-04T17:22:18.746637+00:00",
+          "tweet_id": "2abb718765",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9908851981163025,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "26fee7c72989",
+      "title": "M 1.5 earthquake occurred in Lincoln County, Oklahoma at 14:59:07 (Oklahoma loca",
+      "description": "M 1.5 earthquake occurred in Lincoln County, Oklahoma at 14:59:07 (Oklahoma local time)",
+      "location": "Lincoln County, Oklahoma",
+      "original_lat": 35.4676,
+      "original_lng": -97.5164,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 35.4676,
+      "lng": -97.5164,
+      "severity": "low (M 1.5)",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low (M 1.5)",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T17:14:44.879471+00:00",
+      "source_tweets": [
+        {
+          "text": "Reviewed M 1.5 earthquake in Lincoln County, Oklahoma at 14:59:07 11/03 Oklahoma local time (UTC: 20:59:07 11/03)",
+          "author": "okearthquakes.bsky.social",
+          "timestamp": "2025-11-04T17:14:44.879471+00:00",
+          "tweet_id": "f81e71205a",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9538217782974243,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "4caf718c866a",
+      "title": "A magnitude 3.5 earthquake occurred in Mindanao, Philippines on 2025-11-04 at 16",
+      "description": "A magnitude 3.5 earthquake occurred in Mindanao, Philippines on 2025-11-04 at 16:46:26 UTC, with a depth of 58.00 km.",
+      "location": "MINDANAO, PHILIPPINES",
+      "original_lat": 12.8797,
+      "original_lng": 121.774,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 12.8797,
+      "lng": 121.774,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T17:00:49.615Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: MINDANAO, PHILIPPINES\n📏 Magnitude (m): 3.5\n🔽 Depth: 58.00 km\n⏰ Time: 2025-11-04 16:46:26 UTC\n🔗 Source: EMSC\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T17:00:49.615Z",
+          "tweet_id": "90d227f7b4",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9812398552894592,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "539c46914ad5",
+      "title": "Earthquake with magnitude MLv 2.9 occurred in Tonga Islands on 2025/11/04 at 16:",
+      "description": "Earthquake with magnitude MLv 2.9 occurred in Tonga Islands on 2025/11/04 at 16:50:52",
+      "location": "Tonga Islands",
+      "original_lat": -18.95,
+      "original_lng": -173.8,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": -18.95,
+      "lng": -173.8,
+      "severity": "medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T16:52:32.766129Z",
+      "source_tweets": [
+        {
+          "text": "2 minutes 29 seconds ago -  Tonga Islands  MLv 2.9  18.95S 173.80W  0km 2025/11/04  16:50:52 - For updates, see http://www.seisme.nc/index.php?option=com_alertes&view=alertes&Itemid=184&ids=ird2025vsvlhm&lang=en #séisme #earthquake #sismo #지진 #地震",
+          "author": "ncseismicobserv.bsky.social",
+          "timestamp": "2025-11-04T16:52:32.766129Z",
+          "tweet_id": "2a2ef375f8",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9633225798606873,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "5266b2a8ef5d",
+      "title": "A 3.7 magnitude earthquake occurred in Western Mongolia on 2025-11-04 at 16:35:4",
+      "description": "A 3.7 magnitude earthquake occurred in Western Mongolia on 2025-11-04 at 16:35:47 UTC, with a depth of 10.00 km.",
+      "location": "Western Mongolia",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:202374496",
+      "resolved_place_name": "Best Western Premier Tuushin Hotel, 15, Ерөнхий сайд Амарын гудамж, Бага Тойрог ᠪᠠᠭ᠎ᠠ ᠲᠣᠭᠣᠷᠢᠭ, Сүхбаатар ᠰᠦᠬᠡ ᠪᠠᠭᠠᠲᠤᠷ, Улан-Батор, 14200, Монгол улс ᠮᠤᠩᠭᠤᠯ ᠤᠯᠤᠰ",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 47.9202851,
+      "lng": 106.9205249,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T16:52:23.916Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: WESTERN MONGOLIA\n📏 Magnitude (m): 3.7\n🔽 Depth: 10.00 km\n⏰ Time: 2025-11-04 16:35:47 UTC\n🔗 Source: EMSC\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T16:52:23.916Z",
+          "tweet_id": "145e933a75",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9794371724128723,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "68f929bdd775",
+      "title": "Kipnuk Airport reopens after storm destruction in Alaska",
+      "description": "Kipnuk Airport reopens after storm destruction in Alaska",
+      "location": "Alaska",
+      "original_lat": 64.2008,
+      "original_lng": -149.4937,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 64.2008,
+      "lng": -149.4937,
+      "severity": "medium",
+      "incident_type": "Storm",
+      "tags": [
+        "Storm",
+        "medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T16:32:22.854Z",
+      "source_tweets": [
+        {
+          "text": "Today’s essential updates:\n👉🏿 Dick Cheney, a central figure in U.S. national security, has died at 84\n👉🏿Kipnuk Airport reopens, restoring a vital link after storm destruction. \n👉🏿 Read more: alaskaheadlineliving.com/morning-shoc... #Alaska #DickCheney #HurricaneMelissa #Kipnuk #earthquake #news",
+          "author": "alaskaheadlines.bsky.social",
+          "timestamp": "2025-11-04T16:32:22.854Z",
+          "tweet_id": "9783546374",
+          "engagement": {
+            "likes": 0,
+            "retweets": 1,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9042990207672119,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "760ea7e6e0df",
+      "title": "Magnitude 5.2 earthquake occurred in the MOLUCCA SEA",
+      "description": "Magnitude 5.2 earthquake occurred in the MOLUCCA SEA",
+      "location": "MOLUCCA SEA",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:241850701",
+      "resolved_place_name": "Molucca Sea",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 0.0,
+      "lng": 125.0,
+      "severity": "medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T16:20:51Z",
+      "source_tweets": [
+        {
+          "text": "Earthquake Location: MOLUCCA SEA Magnitude: 5.200000\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-04T16:20:51Z",
+          "tweet_id": "936734f0d9",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9930001497268677,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "d9744c83e3ff",
+      "title": "Multiple Earthquake reports in Tobelo, Indonesia",
+      "description": "2 reports of earthquake activity",
+      "location": "Tobelo, Indonesia",
+      "original_lat": 1.8499,
+      "original_lng": 126.9943,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 1.80495,
+      "lng": 126.96715,
+      "severity": "high",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "medium (5.2 magnitude)",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T16:18:43.125Z",
+      "source_tweets": [
+        {
+          "text": "A 5.2 magnitude earthquake occurred 113 km W of Tobelo, Indonesia!\n🗺️ Coordinates: 1.849900, 126.994300\n",
+          "author": "quake-bot.com",
+          "timestamp": "2025-11-04T16:18:43.125Z",
+          "tweet_id": "6e52985966",
+          "engagement": {
+            "likes": 1,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "5 minutes 33 seconds ago -  Northern Molucca Sea  mB 5.5  1.76N 126.94E  10km 2025/11/04  15:58:25 - For updates, see http://www.seisme.nc/index.php?option=com_alertes&view=alertes&Itemid=184&ids=ird2025vstsck&lang=en #séisme #earthquake #sismo #지진 #地震",
+          "author": "ncseismicobserv.bsky.social",
+          "timestamp": "2025-11-04T16:03:37.829610Z",
+          "tweet_id": "a8613dfed1",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9930001497268677,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false,
+      "cluster_member_coords": [
+        {
+          "id": "d9744c83e3ff",
+          "lat": 1.8499,
+          "lng": 126.9943
+        },
+        {
+          "id": "1361b9edb92a",
+          "lat": 1.76,
+          "lng": 126.94
+        }
+      ],
+      "cluster_member_ids": [
+        "d9744c83e3ff",
+        "1361b9edb92a"
+      ]
+    },
+    {
+      "id": "81894e7ce472",
+      "title": "Magnitude 2.9 earthquake occurred on the Alaska Peninsula at 16:05:59 on Novembe",
+      "description": "Magnitude 2.9 earthquake occurred on the Alaska Peninsula at 16:05:59 on November 4, 2025.",
+      "location": "Alaska Peninsula",
+      "original_lat": 56.11,
+      "original_lng": -159.44,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 56.11,
+      "lng": -159.44,
+      "severity": "low/medium (magnitude 2.9)",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low/medium (magnitude 2.9)",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T16:13:30.811008Z",
+      "source_tweets": [
+        {
+          "text": "8 minutes 27 seconds ago -  Alaska Peninsula  MLv 2.9  56.11N 159.44W  1km 2025/11/04  16:05:59 - For updates, see http://www.seisme.nc/index.php?option=com_alertes&view=alertes&Itemid=184&ids=ird2025vstwzp&lang=en #séisme #earthquake #sismo #지진 #地震",
+          "author": "ncseismicobserv.bsky.social",
+          "timestamp": "2025-11-04T16:13:30.811008Z",
+          "tweet_id": "1527859b2e",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9633225798606873,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "1da6b6841f98",
+      "title": "A magnitude 3.2 earthquake occurred in EL SALVADOR on 2025-11-04 at 16:04:42 UTC",
+      "description": "A magnitude 3.2 earthquake occurred in EL SALVADOR on 2025-11-04 at 16:04:42 UTC.",
+      "location": "EL SALVADOR",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:289263009",
+      "resolved_place_name": "El Salvador",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 13.8000382,
+      "lng": -88.9140683,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T16:08:56.582Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: EL SALVADOR\n📏 Magnitude (m): 3.2\n🔽 Depth: 3.90 km\n⏰ Time: 2025-11-04 16:04:42 UTC\n🔗 Source: EMSC\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T16:08:56.582Z",
+          "tweet_id": "1c994ea0e7",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9810085296630859,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "c35d45389ba2",
+      "title": "Earthquake with magnitude 2.0 occurred 54 km NNW of Petersville, Alaska at 16:05",
+      "description": "Earthquake with magnitude 2.0 occurred 54 km NNW of Petersville, Alaska at 16:05:19 UTC on November 4, 2025.",
+      "location": "54 km NNW of Petersville, Alaska",
+      "original_lat": 64.2008,
+      "original_lng": -149.4937,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 64.2008,
+      "lng": -149.4937,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T16:08:15.064Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: 54 km NNW of Petersville, Alaska\n📏 Magnitude (ml): 2.0\n🔽 Depth: 111.70 km\n⏰ Time: 2025-11-04 16:05:19 UTC\n🔗 Source: USGS\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-04T16:08:15.064Z",
+          "tweet_id": "e28487ddab",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9796807765960693,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "beaa3649ab3c",
+      "title": "Earthquake occurred in the Loyalty Islands at 15:54:23 on 2025/11/04.",
+      "description": "Earthquake occurred in the Loyalty Islands at 15:54:23 on 2025/11/04.",
+      "location": "Loyalty Islands",
+      "original_lat": -21.07,
+      "original_lng": 167.84,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": -21.07,
+      "lng": 167.84,
+      "severity": "null",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "null",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T15:56:24.210440Z",
+      "source_tweets": [
+        {
+          "text": "2 minutes 19 seconds ago -  Loyalty Islands  MLv 2.0  21.07S 167.84E  0km 2025/11/04  15:54:23 - For updates, see http://www.seisme.nc/index.php?option=com_alertes&view=alertes&Itemid=184&ids=ird2025vstopw&lang=en #séisme #earthquake #sismo #지진 #地震",
+          "author": "ncseismicobserv.bsky.social",
+          "timestamp": "2025-11-04T15:56:24.210440Z",
+          "tweet_id": "bf8a5f359c",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.965796947479248,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "968b6ea7bcbc",
+      "title": "People are trapped in a vehicle due to ongoing flood disruption in Cumbria, as r",
+      "description": "People are trapped in a vehicle due to ongoing flood disruption in Cumbria, as reported by BBC News.",
+      "location": "Cumbria",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:255488245",
+      "resolved_place_name": "Cumbria, England, United Kingdom",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 54.6143136,
+      "lng": -2.9420899,
+      "severity": "medium (no specific severity mentioned)",
+      "incident_type": "Flood",
+      "tags": [
+        "Flood",
+        "medium (no specific severity mentioned)",
+        "flood"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T18:44:41.498Z",
+      "source_tweets": [
+        {
+          "text": "People trapped in vehicle as Cumbria flood disruption continues - BBC News share.google/AILqC2QevKRu...",
+          "author": "jacquep.bsky.social",
+          "timestamp": "2025-11-04T18:44:41.498Z",
+          "tweet_id": "490702ad8c",
+          "engagement": {
+            "likes": 7,
+            "retweets": 2,
+            "replies": 2
+          }
+        }
+      ],
+      "confidence": 0.8069174885749817,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "2f49adb49638",
+      "title": "Elevated risk of wildfire spread in southeast PA. Avoid outdoor burning, cigaret",
+      "description": "Elevated risk of wildfire spread in southeast PA. Avoid outdoor burning, cigarette butts, and matches.",
+      "location": "southeast PA",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:220356401",
+      "resolved_place_name": "อาคเนย์, ถนนเชียงใหม่-ลำพูน, เทศบาลนครเชียงใหม่, ฟ้าฮ่าม, Mueang Chiang Mai, จังหวัดเชียงใหม่, 55520, ประเทศไทย",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 18.7846821,
+      "lng": 99.0052385,
+      "severity": "medium (elevated risk)",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "medium (elevated risk)",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T16:52:08.693781+00:00",
+      "source_tweets": [
+        {
+          "text": "There is an elevated risk of wildfire spread today, especially in southeast PA. \nAvoid any outdoor burning\nDo not casually discard cigarette butts & matches\nBe careful with equipment that may cause sparks\n#WildfireSafetyPA #PAwx",
+          "author": "nwsstatecollege.bsky.social",
+          "timestamp": "2025-11-04T16:52:08.693781+00:00",
+          "tweet_id": "2d1fc509a1",
+>>>>>>> 86e2905d07d2330bbeb9471ed7929bf00def46c0:backend/incidents_validation.json
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.8589347004890442,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+<<<<<<< HEAD:backend/incidents.json
+      "id": "76c56473d679",
+      "title": "5.4 magnitude earthquake occurred in Sarangani, Philippines, with a depth of 35.",
+      "description": "5.4 magnitude earthquake occurred in Sarangani, Philippines, with a depth of 35.6 km and perceived severity as Light.",
+      "location": "Sarangani, Philippines",
+      "lat": 12.8797,
+      "lng": 121.774,
+      "severity": "Light",
+      "incident_type": "Earthquake",
+=======
+      "id": "cd1b9a84c613",
+      "title": "California is conducting prescribed burns during wildfire relief efforts.",
+      "description": "California is conducting prescribed burns during wildfire relief efforts.",
+      "location": "California, Los Angeles, San Francisco, Pacific Palisades",
+      "original_lat": 36.7783,
+      "original_lng": -119.4179,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "low (prescribed burns are a controlled measure)",
+      "incident_type": "Wildfire",
+>>>>>>> 86e2905d07d2330bbeb9471ed7929bf00def46c0:backend/incidents_validation.json
+      "tags": [
+        "Earthquake",
+        "Light",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T05:49:01.377Z",
+      "source_tweets": [
+        {
+          "text": "🌏 Earthquake Event\nMagnitude: 5.4\nLocation: Sarangani, Philippines\nDepth: 35.6 km\nPerceived Severity: 🟨Light\nTime: 16 minutes ago\n#earthquake #quake\n\nMore Info",
+          "author": "planetshift.bsky.social",
+          "timestamp": "2025-11-15T05:49:01.377Z",
+          "tweet_id": "6574d4adf5",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9923368096351624,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+<<<<<<< HEAD:backend/incidents.json
+      "id": "fe3f1c626117",
+      "title": "Multiple Earthquake reports in KEPULAUAN TALAUD, INDONESIA",
+      "description": "5 reports of earthquake activity in KEPULAUAN TALAUD, INDONESIA",
+      "location": "KEPULAUAN TALAUD, INDONESIA",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "high",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "high",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T05:48:32Z",
+      "source_tweets": [
+        {
+          "text": "Earthquake Location: KEPULAUAN TALAUD, INDONESIA Magnitude: 5.400000\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-15T05:48:32Z",
+          "tweet_id": "ce4b27cb5c",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Earthquake Location: KEPULAUAN TALAUD, INDONESIA Magnitude: 5.700000\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-15T05:46:21Z",
+          "tweet_id": "2bbc7b06d8",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Earthquake Magnitude: 5.700000 Location: KEPULAUAN TALAUD, INDONESIA\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-15T05:46:14Z",
+          "tweet_id": "76d9c14635",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Earthquake Location: KEPULAUAN TALAUD, INDONESIA Magnitude: 5.400000\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-15T05:40:56Z",
+          "tweet_id": "ad27eea898",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Earthquake Location: KEPULAUAN TALAUD, INDONESIA Magnitude: 5.500000\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-15T05:40:18Z",
+          "tweet_id": "6a30c48d2c",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9929137229919434,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "507e43bdb8bb",
+      "title": "An earthquake of magnitude 5.4 occurred 169.16 km south of Miangas, North Sulawe",
+      "description": "An earthquake of magnitude 5.4 occurred 169.16 km south of Miangas, North Sulawesi, Indonesia, at a depth of 70.2 km on November 15, 2025, at 05:33:33.",
+      "location": "169.16 km S of Miangas, North Sulawesi, Indonesia",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "not specified",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "not specified",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T05:45:02.200Z",
+      "source_tweets": [
+        {
+          "text": "Earthquake Report\n\nEarthquake M5.4 has been observed 169.16 km S of Miangas, North Sulawesi, Indonesia on 2025-11-15 05:33:33. The depth is 70.2 km, the epicenter was in the underground.\n\n #crisisinfo, #earthquake, #emsc\n\n https://map.crisisinfo.eu/?pageid=earthquake_index&id=1504787",
+          "author": "crisisinfo.eu",
+          "timestamp": "2025-11-15T05:45:02.200Z",
+          "tweet_id": "7507f31fc3",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9908368587493896,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "00909e455518",
+      "title": "An earthquake with a magnitude of 4.8 occurred on November 13, 2025, around 25 k",
+      "description": "An earthquake with a magnitude of 4.8 occurred on November 13, 2025, around 25 km east of Camiña, Chile, at a depth of 10.0km.",
+      "location": "around 25 km E of Camiña, Chile",
+      "lat": -35.6751,
+      "lng": -71.543,
+      "severity": "low to medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low to medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T05:44:58.572406+00:00",
+      "source_tweets": [
+        {
+          "text": "On 2025-11-13, at 04:59:38 (UTC), there was an earthquake around 25 km E of Camiña, Chile. The depth of the hypocenter is about 10.0km, and the magnitude of the earthquake is estimated to be about 4.8.\nnagix.github.io/world-eq-loc...",
+          "author": "worldeqlocator.bsky.social",
+          "timestamp": "2025-11-15T05:44:58.572406+00:00",
+          "tweet_id": "5d2d68cb8e",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9924073815345764,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "87c39966e514",
+      "title": "Multiple Earthquake reports in Talaud Islands, Indonesia",
+      "description": "2 reports of earthquake activity in Talaud Islands, Indonesia",
+      "location": "Talaud Islands, Indonesia",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T05:40:36.351Z",
+      "source_tweets": [
+        {
+          "text": "Magnitude : 5.4\nRegion: *Talaud Islands, Indonesia*\nTime: 2025-11-15 05:33:33 UTC\nEpicenter : 126.80°E 4.07°N\nDepth: 74 km\n*First posted at: 05:40 UTC*\n\nhttps://geofon.gfz-potsdam.de/eqexplorer/events/gfz2025wjkz/general\n\n#GEOFON #GFZ #earthquake #magnitude",
+          "author": "geofon.bsky.social",
+          "timestamp": "2025-11-15T05:40:36.351Z",
+          "tweet_id": "f56a340b6b",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: Talaud Islands, Indonesia\n📏 Magnitude (M): 5.5\n🔽 Depth: 10.00 km\n⏰ Time: 2025-11-15 05:33:29 UTC\n🔗 Source: BMKG\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-15T05:36:49.677Z",
+          "tweet_id": "d038e4e13d",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9627379179000854,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "2f7a0b68ca18",
+      "title": "A magnitude 5.5 earthquake occurred in Kepulauan Talaud, Indonesia, and users ar",
+      "description": "A magnitude 5.5 earthquake occurred in Kepulauan Talaud, Indonesia, and users are encouraged to submit a report if they felt it.",
+      "location": "Kepulauan Talaud, Indonesia",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "M5.5",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "M5.5",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T05:40:28+00:00",
+      "source_tweets": [
+        {
+          "text": "#Earthquake M5.5 | Kepulauan Talaud, Indonesia | 7m ago | Nov 15, 2025 05:33 am (Universal Time)\nDid you feel it? Submit a report!\n#strong #quake #M2+ #M3+ #M4+ #M5+ #Indonesia #Sulawesi_Utara\nQuake feed for Indonesia: @indonesia.earthquakes.live",
+          "author": "earthquakes.live",
+          "timestamp": "2025-11-15T05:40:28+00:00",
+          "tweet_id": "587d61894c",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9855093359947205,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": true
+    },
+    {
+      "id": "e82082df6fa7",
+      "title": "A magnitude 2.4 earthquake occurred in Java, Indonesia at a depth of 99.98 km at",
+      "description": "A magnitude 2.4 earthquake occurred in Java, Indonesia at a depth of 99.98 km at 04:41:45 UTC on 15 November 2025.",
+      "location": "Java, Indonesia",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T04:45:25.161Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: Java, Indonesia\n📏 Magnitude (M): 2.4\n🔽 Depth: 99.98 km\n⏰ Time: 2025-11-15 04:41:45 UTC\n🔗 Source: BMKG\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-15T04:45:25.161Z",
+          "tweet_id": "257375a945",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9812398552894592,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "05900f0e0199",
+      "title": "A magnitude 2.2 earthquake occurred in Kumamoto Prefecture, Japan, with no tsuna",
+      "description": "A magnitude 2.2 earthquake occurred in Kumamoto Prefecture, Japan, with no tsunami expected.",
+      "location": "Kumamoto Prefecture, Japan",
+      "lat": 36.2048,
+      "lng": 138.2529,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T04:17:48.914Z",
+      "source_tweets": [
+        {
+          "text": "🔔気象庁より【地震速報】です。\n\n13時14分頃、熊本県で最大震度2の地震を観測しました。\n震源:熊本県熊本地方, 深さ:10km, 規模:M2.2\nこの地震による津波の心配はありません。\n(2025-11-15 13:17:46) #地震\nhttps://earthquake.tenki.jp/bousai/earthquake/detail/2025/11/15/2025-11-15-13-14-57.html?xlarge_image=1",
+          "author": "sokuho.news",
+          "timestamp": "2025-11-15T04:17:48.914Z",
+          "tweet_id": "1066c6b0ee",
+          "engagement": {
+            "likes": 1,
+            "retweets": 0,
+            "replies": 1
+          }
+        }
+      ],
+      "confidence": 0.9908128380775452,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "267bb10c053e",
+      "title": "Earthquake with maximum seismic intensity 2 occurred in Kumamoto, Japan on 2025/",
+      "description": "Earthquake with maximum seismic intensity 2 occurred in Kumamoto, Japan on 2025/11/15 at 13:14:00.",
+      "location": "Kumamoto, Japan",
+      "lat": 36.2048,
+      "lng": 138.2529,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T04:17:48.660Z",
+      "source_tweets": [
+        {
+          "text": "2025/11/15 13:14:00 Earthquake Information\nMaximum Seismic Intensity 2\n\n[Seismic Intensity 2] Kumamoto\n#japan #quake",
+          "author": "japan-quake-alert.com",
+          "timestamp": "2025-11-15T04:17:48.660Z",
+          "tweet_id": "965cd00c73",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9875431060791016,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "311585533d49",
+      "title": "Multiple Earthquake reports in 23 km E of Dilley, Texas",
+      "description": "3 reports of earthquake activity in 23 km E of Dilley, Texas",
+      "location": "23 km E of Dilley, Texas",
+      "lat": 31.9686,
+      "lng": -99.9018,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T04:10:02.000Z",
+      "source_tweets": [
+        {
+          "text": "New earthquake reported: M 3.4 - 23 km E of Dilley, Texas - 2025-11-15T04:08:58.853Z",
+          "author": "earthquake.skybot.party",
+          "timestamp": "2025-11-15T04:10:02.000Z",
+          "tweet_id": "9387768268",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "USGS reports Magnitude 3.3 earthquake 23 km E of Dilley, Texas http://earthquake.usgs.gov/earthquakes/map/",
+          "author": "safdalert.bsky.social",
+          "timestamp": "2025-11-15T03:16:14.256852Z",
+          "tweet_id": "90eebffc23",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "New earthquake reported: M 3.3 - 23 km E of Dilley, Texas - 2025-11-15T03:14:23.040Z",
+          "author": "earthquake.skybot.party",
+          "timestamp": "2025-11-15T03:16:02.000Z",
+          "tweet_id": "e4ff255bf8",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9871737957000732,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "b758ee6640b6",
+      "title": "A magnitude 2.5 earthquake occurred in the Sumbawa Region of Indonesia on Novemb",
+      "description": "A magnitude 2.5 earthquake occurred in the Sumbawa Region of Indonesia on November 15, 2025, at 03:18:14 UTC.",
+      "location": "Sumbawa Region, Indonesia",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T03:20:12.116Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: Sumbawa Region, Indonesia\n📏 Magnitude (M): 2.5\n🔽 Depth: 21.58 km\n⏰ Time: 2025-11-15 03:18:14 UTC\n🔗 Source: BMKG\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-15T03:20:12.116Z",
+          "tweet_id": "7dad24e776",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9814479947090149,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "9720be3296ec",
+      "title": "A magnitude 3.3 earthquake occurred at 10.00 km depth in Southern Texas at 2025-",
+      "description": "A magnitude 3.3 earthquake occurred at 10.00 km depth in Southern Texas at 2025-11-15 03:08:34 UTC.",
+      "location": "Southern Texas",
+      "lat": 31.9686,
+      "lng": -99.9018,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T03:14:59.944Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: SOUTHERN TEXAS\n📏 Magnitude (ml): 3.3\n🔽 Depth: 10.00 km\n⏰ Time: 2025-11-15 03:08:34 UTC\n🔗 Source: EMSC\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-15T03:14:59.944Z",
+          "tweet_id": "bf75da7249",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9794371724128723,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "46f70cfcde4c",
+      "title": "A magnitude 3.7 earthquake occurred 11 km northeast of Parque Fray Jorge, Chile,",
+      "description": "A magnitude 3.7 earthquake occurred 11 km northeast of Parque Fray Jorge, Chile, on 15-11-2025 at 00:09:17.",
+      "location": "11 km al NE de Parque Fray Jorge, Chile",
+      "lat": -35.6751,
+      "lng": -71.543,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T03:13:06.455244+00:00",
+      "source_tweets": [
+        {
+          "text": "⚠️ Nuevo #Sismo Registrado ⚠️\nFecha: 15-11-2025\nHora: 00:09:17\nUbicación: 11 km al NE de Parque Fray Jorge\nProfundidad: 33 km\nMagnitud: 3.7\nLatitud: -30.62\nLongitud: -71.58\nVer Mapa\n#Terremoto #Sismología #Chile #EarthQuake #Alerta",
+          "author": "tatemblando.bsky.social",
+          "timestamp": "2025-11-15T03:13:06.455244+00:00",
+          "tweet_id": "a2659ac416",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9569474458694458,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "91c9982ab88c",
+      "title": "A 3.7 magnitude earthquake occurred at 33.00 km depth in Coquimbo, Chile on Nove",
+      "description": "A 3.7 magnitude earthquake occurred at 33.00 km depth in Coquimbo, Chile on November 15, 2025, at 03:09:17 UTC.",
+      "location": "COQUIMBO, CHILE",
+      "lat": -35.6751,
+      "lng": -71.543,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T03:12:31.478Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: COQUIMBO, CHILE\n📏 Magnitude (ml): 3.7\n🔽 Depth: 33.00 km\n⏰ Time: 2025-11-15 03:09:17 UTC\n🔗 Source: EMSC\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-15T03:12:31.478Z",
+          "tweet_id": "db4b2e80cc",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9814479947090149,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "337bba9a889b",
+      "title": "A magnitude 4.0 earthquake occurred near the coast of central Chile on November ",
+      "description": "A magnitude 4.0 earthquake occurred near the coast of central Chile on November 15, 2025, at 03:09:15.",
+      "location": "Near Coast of Central Chile",
+      "lat": -35.6751,
+      "lng": -71.543,
+      "severity": "low to medium (MLv 4.0)",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low to medium (MLv 4.0)",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T03:11:12.577423Z",
+      "source_tweets": [
+        {
+          "text": "2 minutes 11 seconds ago -  Near Coast of Central Chile  MLv 4.0  30.63S 71.60W  12km 2025/11/15  03:09:15 - For updates, see http://www.seisme.nc/index.php?option=com_alertes&view=alertes&Itemid=184&ids=ird2025wlzeyt&lang=en #séisme #earthquake #sismo #지진 #地震",
+          "author": "ncseismicobserv.bsky.social",
+          "timestamp": "2025-11-15T03:11:12.577423Z",
+          "tweet_id": "1e3f6335f3",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.8878337144851685,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "82993640278b",
+      "title": "An earthquake with a magnitude of 4.5 occurred 343.27 km NNE of Hicks Bay, Gisbo",
+      "description": "An earthquake with a magnitude of 4.5 occurred 343.27 km NNE of Hicks Bay, Gisborne, New Zealand, at a depth of 255 km.",
+      "location": "343.27 km NNE of Hicks Bay, Gisborne, New Zealand",
+      "lat": -40.9006,
+      "lng": 174.886,
+      "severity": "M4.5 (moderate)",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "M4.5 (moderate)",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T03:10:04.955Z",
+      "source_tweets": [
+        {
+          "text": "Earthquake Report\n\nEarthquake M4.5 has been observed 343.27 km NNE of Hicks Bay, Gisborne, New Zealand on 2025-11-15 02:58:06. The depth is 255 km, the epicenter was in the underwater.\n\n #crisisinfo, #earthquake, #emsc\n\n https://map.crisisinfo.eu/?pageid=earthquake_index&id=1504706",
+          "author": "crisisinfo.eu",
+          "timestamp": "2025-11-15T03:10:04.955Z",
+          "tweet_id": "f7616bfd38",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9905361533164978,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "6247bc873abb",
+      "title": "A magnitude 3.5 earthquake occurred 44 km north of Mina La Escondida, Chile on 1",
+      "description": "A magnitude 3.5 earthquake occurred 44 km north of Mina La Escondida, Chile on 14-11-2025 at 23:32:43.",
+      "location": "44 km al N de Mina La Escondida, Chile",
+      "lat": -35.6751,
+      "lng": -71.543,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T02:50:10.559835+00:00",
+      "source_tweets": [
+        {
+          "text": "⚠️ Nuevo #Sismo Registrado ⚠️\nFecha: 14-11-2025\nHora: 23:32:43\nUbicación: 44 km al N de Mina La Escondida\nProfundidad: 85 km\nMagnitud: 3.5\nLatitud: -23.88\nLongitud: -69.12\nVer Mapa\n#Terremoto #Sismología #Chile #EarthQuake #Alerta",
+          "author": "tatemblando.bsky.social",
+          "timestamp": "2025-11-15T02:50:10.559835+00:00",
+          "tweet_id": "022b6b499b",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9847041368484497,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "2e0ade160cd0",
+      "title": "Earthquake of magnitude 4.5 occurred around 272 km SSE of Shimoda, Japan on 2025",
+      "description": "Earthquake of magnitude 4.5 occurred around 272 km SSE of Shimoda, Japan on 2025-10-25 at 23:05:43 (UTC)",
+      "location": "around 272 km SSE of Shimoda, Japan",
+      "lat": 36.2048,
+      "lng": 138.2529,
+      "severity": "medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T02:09:33.719741+00:00",
+      "source_tweets": [
+        {
+          "text": "On 2025-10-25, at 23:05:43 (UTC), there was an earthquake around 272 km SSE of Shimoda, Japan. The depth of the hypocenter is about 104.5km, and the magnitude of the earthquake is estimated to be about 4.5.\nnagix.github.io/world-eq-loc...",
+          "author": "worldeqlocator.bsky.social",
+          "timestamp": "2025-11-15T02:09:33.719741+00:00",
+          "tweet_id": "e01c9f55f0",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9926235675811768,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "7e35d5eae795",
+      "title": "A magnitude 3.5 earthquake occurred in Northern Chile on November 15, 2025, at 0",
+      "description": "A magnitude 3.5 earthquake occurred in Northern Chile on November 15, 2025, at 01:39:49.",
+      "location": "Northern Chile",
+      "lat": -35.6751,
+      "lng": -71.543,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T01:41:32.990123Z",
+      "source_tweets": [
+        {
+          "text": "2 minutes 20 seconds ago -  Northern Chile  MLv 3.5  19.31S 69.12W  0km 2025/11/15  01:39:49 - For updates, see http://www.seisme.nc/index.php?option=com_alertes&view=alertes&Itemid=184&ids=ird2025wlwfxu&lang=en #séisme #earthquake #sismo #지진 #地震",
+          "author": "ncseismicobserv.bsky.social",
+          "timestamp": "2025-11-15T01:41:32.990123Z",
+          "tweet_id": "860c1b6a0e",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.965796947479248,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "656f75efc726",
+      "title": "A magnitude 4.7 earthquake occurred on 2025-11-15 at 00:14:25 UTC, approximately",
+      "description": "A magnitude 4.7 earthquake occurred on 2025-11-15 at 00:14:25 UTC, approximately 10 km deep, near Tual, Indonesia.",
+      "location": "104 km SSW of Tual, Indonesia",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T01:11:34.452383+00:00",
+      "source_tweets": [
+        {
+          "text": "On 2025-11-15, at 00:14:25 (UTC), there was an earthquake around 104 km SSW of Tual, Indonesia. The depth of the hypocenter is about 10.0km, and the magnitude of the earthquake is estimated to be about 4.7.\nnagix.github.io/world-eq-loc...",
+          "author": "worldeqlocator.bsky.social",
+          "timestamp": "2025-11-15T01:11:34.452383+00:00",
+          "tweet_id": "b0ce520904",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9924073815345764,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "6ab120efedf9",
+      "title": "M4.7 earthquake observed 105.20 km SSW of Tual, Maluku, Indonesia on 2025-11-15 ",
+      "description": "M4.7 earthquake observed 105.20 km SSW of Tual, Maluku, Indonesia on 2025-11-15 00:14:25 with a depth of 10 km.",
+      "location": "Maluku, Indonesia",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T01:10:04.258Z",
+      "source_tweets": [
+        {
+          "text": "Earthquake Report\n\nEarthquake M4.7 has been observed 105.20 km SSW of Tual, Maluku, Indonesia on 2025-11-15 00:14:25. The depth is 10 km, the epicenter was in the underwater.\n\n #crisisinfo, #earthquake, #emsc\n\n https://map.crisisinfo.eu/?pageid=earthquake_index&id=1504623",
+          "author": "crisisinfo.eu",
+          "timestamp": "2025-11-15T01:10:04.258Z",
+          "tweet_id": "bb42dc4c58",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9905562996864319,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "68341c1bd450",
+      "title": "An earthquake with magnitude 4.70 occurred near Tual, Indonesia at 01:14:25 UTC.",
+      "description": "An earthquake with magnitude 4.70 occurred near Tual, Indonesia at 01:14:25 UTC.",
+      "location": "near Tual, Indonesia",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "low/medium (magnitude 4.70)",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low/medium (magnitude 4.70)",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T01:10:04Z",
+      "source_tweets": [
+        {
+          "text": "An #earthquake with 4.70 magnitude has occurred near Tual, Indonesia @ 01:14:25 UTC #asia #light",
+          "author": "seismos.app",
+          "timestamp": "2025-11-15T01:10:04Z",
+          "tweet_id": "95068ac6c4",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9930001497268677,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "ddcb88842297",
+      "title": "M4.7 earthquake observed 105.20 km SSW of Tual, Maluku, Indonesia on 2025-11-15 ",
+      "description": "M4.7 earthquake observed 105.20 km SSW of Tual, Maluku, Indonesia on 2025-11-15 00:14:25 with a depth of 10 km.",
+      "location": "Tual, Maluku, Indonesia",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T01:10:02.347Z",
+      "source_tweets": [
+        {
+          "text": "Earthquake Report\n\nEarthquake M4.7 has been observed 105.20 km SSW of Tual, Maluku, Indonesia on 2025-11-15 00:14:25. The depth is 10 km, the epicenter was in the underwater.\n\n #crisisinfo, #earthquake, #usgs\n\n https://map.crisisinfo.eu/?pageid=earthquake_index&id=1504620",
+          "author": "crisisinfo.eu",
+          "timestamp": "2025-11-15T01:10:02.347Z",
+          "tweet_id": "709105d54e",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9905562996864319,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "04557b4abf64",
+      "title": "A 4.7 magnitude earthquake occurred 104 km SSW of Tual, Indonesia with coordinat",
+      "description": "A 4.7 magnitude earthquake occurred 104 km SSW of Tual, Indonesia with coordinates -6.509800, 132.405600.",
+      "location": "Tual, Indonesia",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T01:07:43.151Z",
+      "source_tweets": [
+        {
+          "text": "A 4.7 magnitude earthquake occurred 104 km SSW of Tual, Indonesia!\n🗺️ Coordinates: -6.509800, 132.405600\n",
+          "author": "quake-bot.com",
+          "timestamp": "2025-11-15T01:07:43.151Z",
+          "tweet_id": "bc305d03ff",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9930001497268677,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "fbf9130a0eea",
+      "title": "Earthquake with magnitude 2.5 at 10 km depth in Southern Sumatra, Indonesia at 2",
+      "description": "Earthquake with magnitude 2.5 at 10 km depth in Southern Sumatra, Indonesia at 2025-11-15 00:58:49 UTC.",
+      "location": "SOUTHERN SUMATRA, INDONESIA",
+      "lat": -0.7893,
+      "lng": 113.9213,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T01:07:35.624Z",
+      "source_tweets": [
+        {
+          "text": "🌍 Earthquake Alert 🌍\n📍 Location: SOUTHERN SUMATRA, INDONESIA\n📏 Magnitude (m): 2.5\n🔽 Depth: 10.00 km\n⏰ Time: 2025-11-15 00:58:49 UTC\n🔗 Source: EMSC\nStay safe!",
+          "author": "ews.volcanoyt.com",
+          "timestamp": "2025-11-15T01:07:35.624Z",
+          "tweet_id": "809e144a06",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.978642463684082,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "7a37bd928299",
+      "title": "Earthquake with magnitude 3.2 occurred in Crete, Greece",
+      "description": "Earthquake with magnitude 3.2 occurred in Crete, Greece",
+      "location": "CRETE, GREECE",
+      "lat": 39.0742,
+      "lng": 21.8243,
+      "severity": "low (magnitude 3.2)",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low (magnitude 3.2)",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T01:02:33Z",
+      "source_tweets": [
+        {
+          "text": "Earthquake Magnitude: 3.200000 Location: CRETE, GREECE\n\nInterest | Match | Feed",
+          "author": "bluesky.awakari.com",
+          "timestamp": "2025-11-15T01:02:33Z",
+          "tweet_id": "ac41775b92",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9930001497268677,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "63d048728139",
+      "title": "A magnitude 7.8 earthquake struck Kaikōura, New Zealand in 2016, resulting in tw",
+      "description": "A magnitude 7.8 earthquake struck Kaikōura, New Zealand in 2016, resulting in two deaths.",
+      "location": "Kaikōura, New Zealand",
+      "lat": -40.9006,
+      "lng": 174.886,
+      "severity": "high",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "high",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T01:00:07.924441+00:00",
+      "source_tweets": [
+        {
+          "text": "2016 - A magnitude 7.8 earthquake strikes Kaikōura, New Zealand, at a depth of 15&#160;km (9 miles), resulting in the deaths of two people.\n\n1967 - Nina Gordon, American singer-songwriter, born \n\n2010 - Wes Santee, American runner (born 1932), died\n\nData from zenquotes.io  #history\n",
+          "author": "onthisdaybot.bsky.social",
+          "timestamp": "2025-11-15T01:00:07.924441+00:00",
+          "tweet_id": "15144359b2",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9750349521636963,
+      "casualties_mentioned": true,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "9fb011d507c4",
+      "title": "Multiple Earthquake reports in 38 km ENE of Yilan, Taiwan",
+      "description": "4 reports of earthquake activity in 38 km ENE of Yilan, Taiwan",
+      "location": "38 km ENE of Yilan, Taiwan",
+      "lat": 23.6978,
+      "lng": 120.9605,
+      "severity": "medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T00:55:36.346134+00:00",
+      "source_tweets": [
+        {
+          "text": "On 2025-11-14, at 23:56:26 (UTC), there was an earthquake around 38 km ENE of Yilan, Taiwan. The depth of the hypocenter is about 9.9km, and the magnitude of the earthquake is estimated to be about 4.7.\nnagix.github.io/world-eq-loc...",
+          "author": "worldeqlocator.bsky.social",
+          "timestamp": "2025-11-15T00:55:36.346134+00:00",
+          "tweet_id": "290783cf07",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Recent #Earthquake: M 4.7 - 38 km ENE of Yilan, Taiwan reported at 23:56:26 UTC (59 minutes ago). #EarthquakeAlert. \nSee more details at https://earthquake.usgs.gov/earthquakes/eventpage/us6000rndw/executive. \n In an #earthquake, use stairs, not elevators! 🚶‍♂️🚶‍♀ #safetyfirst. Data provided by #usgs",
+          "author": "earthquakebot.bsky.social",
+          "timestamp": "2025-11-15T00:55:33.968227+00:00",
+          "tweet_id": "540479529e",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "🌍 Earthquake!\n📅 Date: 14.11.2025 23:56:26 (UTC)\n📍 Loc: 38 km ENE of Yilan, Taiwan\n🌟 Mag: 4.7, 📐 Depth: 9.93 km\n🗺️ Map: https://www.google.com/maps?q=24.83,122.13&z=9\n📋 Details: https://earthquake.usgs.gov/earthquakes/eventpage/us6000rndw&lng=en\n📡 Source: USGS 📡",
+          "author": "earthquakerpa.bsky.social",
+          "timestamp": "2025-11-15T00:55:04Z",
+          "tweet_id": "0438ce9ed9",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "A 4.7 magnitude earthquake occurred 38 km ENE of Yilan, Taiwan!\n🗺️ Coordinates: 24.827300, 122.127600\n",
+          "author": "quake-bot.com",
+          "timestamp": "2025-11-15T00:51:43.249Z",
+          "tweet_id": "c93d70638d",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9925854802131653,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "a92bff3f28e9",
+      "title": "A 4.70 magnitude earthquake occurred near Yilan, Taiwan at 00:56:26 UTC.",
+      "description": "A 4.70 magnitude earthquake occurred near Yilan, Taiwan at 00:56:26 UTC.",
+      "location": "near Yilan, Taiwan",
+      "lat": 23.6978,
+      "lng": 120.9605,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T00:55:05Z",
+      "source_tweets": [
+        {
+          "text": "An #earthquake with 4.70 magnitude has occurred near Yilan, Taiwan @ 00:56:26 UTC #asia #light",
+          "author": "seismos.app",
+          "timestamp": "2025-11-15T00:55:05Z",
+          "tweet_id": "739699ddd2",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9930001497268677,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "1e6bec3095ba",
+      "title": "A M4.7 earthquake occurred 38.61 km ENE of Yilan, Taiwan on November 14, 2025, a",
+      "description": "A M4.7 earthquake occurred 38.61 km ENE of Yilan, Taiwan on November 14, 2025, at 23:56:26 with a depth of 9.932 km, and the epicenter was underwater.",
+      "location": "38.61 km ENE of Yilan, Taiwan",
+      "lat": 23.6978,
+      "lng": 120.9605,
+      "severity": "medium",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "medium",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T00:55:03.448Z",
+      "source_tweets": [
+        {
+          "text": "Earthquake Report\n\nEarthquake M4.7 has been observed 38.61 km ENE of Yilan, Taiwan, Taiwan on 2025-11-14 23:56:26. The depth is 9.932 km, the epicenter was in the underwater.\n\n #crisisinfo, #earthquake, #usgs\n\n https://map.crisisinfo.eu/?pageid=earthquake_index&id=1504610",
+          "author": "crisisinfo.eu",
+          "timestamp": "2025-11-15T00:55:03.448Z",
+          "tweet_id": "2e955aab8e",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9906997084617615,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "52fbed5c4823",
+      "title": "A magnitude 3.0 earthquake occurred in the Vanuatu Islands at 00:50:29 on Novemb",
+      "description": "A magnitude 3.0 earthquake occurred in the Vanuatu Islands at 00:50:29 on November 15, 2025.",
+      "location": "Vanuatu Islands",
+      "lat": -15.3767,
+      "lng": 166.9592,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T00:52:44.160575Z",
+      "source_tweets": [
+        {
+          "text": "2 minutes 41 seconds ago -  Vanuatu Islands  MLv 3.0  16.32S 167.60E  0km 2025/11/15  00:50:29 - For updates, see http://www.seisme.nc/index.php?option=com_alertes&view=alertes&Itemid=184&ids=ird2025wlupjx&lang=en #séisme #earthquake #sismo #지진 #地震",
+          "author": "ncseismicobserv.bsky.social",
+          "timestamp": "2025-11-15T00:52:44.160575Z",
+          "tweet_id": "eadd78503c",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9627118706703186,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "c50b6b700192",
+      "title": "An earthquake of magnitude 4.7 occurred on 2025-10-24 at 02:55:14 (UTC) around 1",
+      "description": "An earthquake of magnitude 4.7 occurred on 2025-10-24 at 02:55:14 (UTC) around 114 km ESE of Pondaguitan, Philippines, at a depth of 89.8km.",
+      "location": "around 114 km ESE of Pondaguitan, Philippines",
+      "lat": 12.8797,
+      "lng": 121.774,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T00:46:30.742595+00:00",
+      "source_tweets": [
+        {
+          "text": "On 2025-10-24, at 02:55:14 (UTC), there was an earthquake around 114 km ESE of Pondaguitan, Philippines. The depth of the hypocenter is about 89.8km, and the magnitude of the earthquake is estimated to be about 4.7.\nnagix.github.io/world-eq-loc...",
+          "author": "worldeqlocator.bsky.social",
+          "timestamp": "2025-11-15T00:46:30.742595+00:00",
+          "tweet_id": "ef3346bc04",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9926235675811768,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "b36c740bbf8d",
+      "title": "An earthquake of magnitude 4.0 occurred 1.98 km south of Tasajeras, Guerrero, Me",
+      "description": "An earthquake of magnitude 4.0 occurred 1.98 km south of Tasajeras, Guerrero, Mexico on November 15, 2025 at 00:16:55 with a depth of 7.4 km.",
+      "location": "Tasajeras, Guerrero, Mexico",
+      "lat": 23.6345,
+      "lng": -102.5528,
+      "severity": "low",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T00:45:03.303Z",
+      "source_tweets": [
+        {
+          "text": "Earthquake Report\n\nEarthquake M4.0 has been observed 1.98 km S of Tasajeras, Guerrero, Mexico on 2025-11-15 00:16:55. The depth is 7.4 km, the epicenter was in the underground.\n\n #crisisinfo, #earthquake, #emsc\n\n https://map.crisisinfo.eu/?pageid=earthquake_index&id=1504606",
+          "author": "crisisinfo.eu",
+          "timestamp": "2025-11-15T00:45:03.303Z",
+          "tweet_id": "5a96387c9c",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9906997084617615,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "fc804e3cfe60",
+      "title": "M4.0 earthquake occurred in Northern Mie Pref, Japan on Nov 15, 2025 at 09:35 am",
+      "description": "M4.0 earthquake occurred in Northern Mie Pref, Japan on Nov 15, 2025 at 09:35 am (GMT +9)",
+      "location": "Northern Mie Pref, Japan",
+      "lat": 36.2048,
+      "lng": 138.2529,
+      "severity": "moderate",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "moderate",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T00:42:24+00:00",
+      "source_tweets": [
+        {
+          "text": "#Earthquake M4.0 | Japan: Northern Mie Pref | 7m ago | Nov 15, 2025 09:35 am (GMT +9)\nDid you feel it? Submit a report!\n#moderate #quake #M2+ #M3+ #M4+ #Japan #Mie-ken",
+          "author": "earthquakes.live",
+          "timestamp": "2025-11-15T00:42:24+00:00",
+          "tweet_id": "0fbfc36b6d",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9867924451828003,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "cb5b03c28c20",
+      "title": "Magnitude 3.7 earthquake occurred in the Fiji Islands on November 15, 2025, at 0",
+      "description": "Magnitude 3.7 earthquake occurred in the Fiji Islands on November 15, 2025, at 00:40:05.",
+      "location": "Fiji Islands",
+      "lat": -17.7134,
+      "lng": 178.065,
+      "severity": "low/medium (magnitude 3.7)",
+      "incident_type": "Earthquake",
+      "tags": [
+        "Earthquake",
+        "low/medium (magnitude 3.7)",
+        "earthquake"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T00:42:11.189108Z",
+      "source_tweets": [
+        {
+          "text": "2 minutes 7 seconds ago -  Fiji Islands  MLv 3.7  16.82S 178.73E  185km 2025/11/15  00:40:05 - For updates, see http://www.seisme.nc/index.php?option=com_alertes&view=alertes&Itemid=184&ids=ird2025wlugkx&lang=en #séisme #earthquake #sismo #지진 #地震",
+          "author": "ncseismicobserv.bsky.social",
+          "timestamp": "2025-11-15T00:42:11.189108Z",
+          "tweet_id": "da42fbd85c",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9633225798606873,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "28ae7c28adc2",
+      "title": "Multiple Storm reports in Southern California",
+      "description": "2 reports of storm activity in Southern California",
+      "location": "Southern California",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "low",
+      "incident_type": "Storm",
+      "tags": [
+        "Storm",
+        "possible",
+        "flood"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T05:01:11Z",
+      "source_tweets": [
+        {
+          "text": "Atmospheric river moving into Southern California, bringing possible flooding and mudflows\n\nAn atmospheric river sweeping California is bringing some rain to the southern part of the state, with more than 20 million people under flood watch advisories. CBS News reporter Andres Gutierrez has more…",
+          "author": "articleweblog.bsky.social",
+          "timestamp": "2025-11-15T05:01:11Z",
+          "tweet_id": "c813ba4129",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Southern California just went from wildfire smoke to flash floods in days. This isn’t “bad luck”—it’s a  txtbook climate chain reaction. Fires dry the land, rains hit bare slopes, floods follow. We need mitigation and adaptation. Climate doesn't wait for debates. #ClimateCrisis",
+          "author": "farhadali77.bsky.social",
+          "timestamp": "2025-11-15T03:37:28.004Z",
+          "tweet_id": "ff2adfb671",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9636901021003723,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "aec339a3875a",
+      "title": "A storm is causing a flood watch in Southern California, with potential mudslide",
+      "description": "A storm is causing a flood watch in Southern California, with potential mudslides and debris flows in burn scar areas.",
+      "location": "Southern California",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "high",
+      "incident_type": "Flood",
+      "tags": [
+        "Flood",
+        "high",
+        "flood"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T04:00:43+00:00",
+      "source_tweets": [
+        {
+          "text": "Southern California storm: Burn scar areas brace for mudslides, debris flows\n\nhttps://www.newsbeep.com/us-ca/53993/\n\nOver 22 million people in Southern California are under a flood watch as a West Coast storm could…",
+          "author": "us-ca-nb.bsky.social",
+          "timestamp": "2025-11-15T04:00:43+00:00",
+          "tweet_id": "746defa801",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9524720311164856,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "7bc4528625be",
+      "title": "Multiple US states are experiencing wildfires, affecting several major destinati",
+      "description": "Multiple US states are experiencing wildfires, affecting several major destinations.",
+      "location": "Alaska, California, Oregon, Tennessee, Arizona, and Colorado",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "not specified",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "not specified",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T02:09:12Z",
+      "source_tweets": [
+        {
+          "text": "Alaska Joins California, Oregon, Tennessee, Arizona, and Colorado to Get Disrupted as Major US Destinations Under Siege by Rampant Wildfire: What You Need to Know #damnews #dam",
+          "author": "damnewsen.bsky.social",
+          "timestamp": "2025-11-15T02:09:12Z",
+          "tweet_id": "3c17954bbd",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9987711310386658,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "9235b1f15a90",
+      "title": "A wildfire in Mono County, California has burned over 3,000 acres forcing evacua",
+      "description": "A wildfire in Mono County, California has burned over 3,000 acres forcing evacuations.",
+      "location": "Mono County, California",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-15T01:00:25+00:00",
+      "source_tweets": [
+        {
+          "text": "Pack Fire burns over 3,000 acres in Mono County, California, forcing evacuations\n\nhttps://www.newsbeep.com/us-ca/53752/\n\nA destructive wildfire charged by highwinds exploded in the eastern Sierra Nevadas and has since burned over 3,000…",
+          "author": "us-ca-nb.bsky.social",
+          "timestamp": "2025-11-15T01:00:25+00:00",
+          "tweet_id": "d9cd9c9de9",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9992045760154724,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "4f733b81d721",
+      "title": "California wildfire is raging, threatening floods and mudslides in Los Angeles.",
+      "description": "California wildfire is raging, threatening floods and mudslides in Los Angeles.",
+      "location": "California, specifically Los Angeles",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T23:10:23Z",
+      "source_tweets": [
+        {
+          "text": "As California wildfire rages, Los Angeles threatened with floods, mudslides reut.rs/47Su9ct",
+          "author": "reuters.com",
+          "timestamp": "2025-11-14T23:10:23Z",
+          "tweet_id": "db93f0c095",
+          "engagement": {
+            "likes": 39,
+            "retweets": 14,
+            "replies": 4
+          }
+        }
+      ],
+      "confidence": 0.9742825627326965,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "f26002ad198e",
+      "title": "A severe weather system struck southeastern Queensland and California, leaving 1",
+      "description": "A severe weather system struck southeastern Queensland and California, leaving 11,000 homes without power and causing a wildfire that burned 3,400 acres.",
+      "location": "southeastern Queensland and California",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "medium/high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "medium/high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T22:19:36Z",
+      "source_tweets": [
+        {
+          "text": "Storm leaves thousands without power\n\nA severe weather system struck southeastern Queensland and California, leaving about 11,000 homes without power amid flash flooding and fueling a wildfire that burned roughly 3,400 acres.\n\nWith posts by 🎓Roger A. Pielke, 🎓Mark Lubell +2 more scholars.",
+          "author": "lightnews.app",
+          "timestamp": "2025-11-14T22:19:36Z",
+          "tweet_id": "c04344b14c",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9739892482757568,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "94384541b57d",
+      "title": "The tweet is about a workshop for homeowners affected by the Eaton wildfire, pro",
+      "description": "The tweet is about a workshop for homeowners affected by the Eaton wildfire, providing information about mortgage forbearance and other resources.",
+      "location": "Eaton",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "low",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "low",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T20:57:41.922Z",
+      "source_tweets": [
+        {
+          "text": "Was your home affected by the Eaton wildfire? Join us Saturday, November 22nd, from 10 a.m. to noon at the Altadena Community Center.\n\nRepresentatives from L.A. County will provide an informative workshop exploring the State Assembly Bill 238 Mortgage forbearance. \n\n112225.eventbrite.com",
+          "author": "bettzedeklegal.bsky.social",
+          "timestamp": "2025-11-14T20:57:41.922Z",
+          "tweet_id": "88fee5b39b",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.8813479542732239,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "ecd198d444a0",
+      "title": "Multiple Wildfire reports in California",
+      "description": "2 reports of wildfire activity in California",
+      "location": "California",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T20:52:02.968708932Z",
+      "source_tweets": [
+        {
+          "text": "Californians know it better than most: Wildfire smoke is a toxic threat. Tens of thousands of lives are on the line. We need to protect frontline communities and make Big Oil pay for the immense cost of these fossil-fueled disasters. ",
+          "author": "cavsbigoil.bsky.social",
+          "timestamp": "2025-11-14T20:52:02.968708932Z",
+          "tweet_id": "48d3db59b2",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "So california currently has a wildfire AND potentially catastrophic rains. no one is doing it like us.",
+          "author": "samonek.bsky.social",
+          "timestamp": "2025-11-14T18:02:24.316Z",
+          "tweet_id": "8fe7af6985",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.8671873807907104,
+      "casualties_mentioned": true,
+      "damage_mentioned": true,
+      "needs_help": true
+    },
+    {
+      "id": "9a724b98dde4",
+      "title": "A fast-moving wildfire is raging near the Nevada border in California, while suc",
+      "description": "A fast-moving wildfire is raging near the Nevada border in California, while successive storms threaten Los Angeles.",
+      "location": "California, near the Nevada border",
+=======
+      "id": "58efb89431f9",
+      "title": "A massive wildfire broke out on the Walker River Reservation in June last year, ",
+      "description": "A massive wildfire broke out on the Walker River Reservation in June last year, with temperatures above average and 90 degrees in Schurz, Nevada that day.",
+      "location": "Walker River Reservation, Nevada",
+      "original_lat": 39.8,
+      "original_lng": -117.0,
+      "resolved_place_id": null,
+      "resolved_place_name": null,
+      "resolved_source": "tweet_text_coords",
+      "resolved_confidence": 1.0,
+>>>>>>> 86e2905d07d2330bbeb9471ed7929bf00def46c0:backend/incidents_validation.json
+      "lat": 39.8,
+      "lng": -117.0,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T20:36:46.411Z",
+      "source_tweets": [
+        {
+          "text": "“California is currently grappling with a dual environmental crisis, as a fast-moving wildfire rages near the Nevada border while successive storms threaten Los Angeles.” www.independent.co.uk/news/world/a... - @the-independent.com \n\n#CAFire #CAwx #MonoCounty #PackFire",
+          "author": "bcwildfirewkly.bsky.social",
+          "timestamp": "2025-11-14T20:36:46.411Z",
+          "tweet_id": "235cfd77a4",
+          "engagement": {
+            "likes": 3,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.998231828212738,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "37615b06480d",
+      "title": "A wildfire is burning in Southern California, with evacuation orders in place, a",
+      "description": "A wildfire is burning in Southern California, with evacuation orders in place, and the importance of prevention and preparedness is emphasized.",
+      "location": "Southern California",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "medium/high (evacuation orders are in place)",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "medium/high (evacuation orders are in place)",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T20:28:03.000Z",
+      "source_tweets": [
+        {
+          "text": "It’s November, and while California has seen recent rain, #EvacuationOrders are in place as a wildfire burns in Southern California.\n\n#FireSeason is year-round in California and it’s important to never let your guard down. Prevention and preparedness remain essential.\n\n📷 Mammoth Lakes Police",
+          "author": "calfire.bsky.social",
+          "timestamp": "2025-11-14T20:28:03.000Z",
+          "tweet_id": "bcc0e5f1c4",
+          "engagement": {
+            "likes": 21,
+            "retweets": 5,
+            "replies": 1
+          }
+        }
+      ],
+      "confidence": 0.9983640313148499,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "55986d817ed1",
+      "title": "A fast-moving wildfire raged across thousands of acres of California prairie nea",
+      "description": "A fast-moving wildfire raged across thousands of acres of California prairie near the Nevada border, while Los Angeles was in the throes of back-to-back storms that could trigger flooding and mudslides in areas.",
+      "location": "California prairie near the Nevada border",
+      "lat": 39.8,
+      "lng": -117.0,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T19:49:39.900Z",
+      "source_tweets": [
+        {
+          "text": "A fast-moving wildfire raged across thousands of acres of California prairie near the Nevada border on Friday, while Los Angeles was in the throes of back-to-back storms that could trigger flooding and mudslides in areas\n\ngvwire.com/2025/11/14/a...",
+          "author": "gvwire.bsky.social",
+          "timestamp": "2025-11-14T19:49:39.900Z",
+          "tweet_id": "734348a8b0",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9945513606071472,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "f1036e2b4361",
+      "title": "California wildfire threatens Los Angeles with floods and mudslides",
+      "description": "California wildfire threatens Los Angeles with floods and mudslides",
+      "location": "California, Los Angeles",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T18:17:03.336Z",
+      "source_tweets": [
+        {
+          "text": "🔵  AS CALIFORNIA WILDFIRE RAGES, LOS ANGELES THREATENED WITH FLOODS, MUDSLIDES\n\nFull Story → https://m.piqsuite.com/reuters/as-california-wildfire-rages-los-angeles-threatened-with-floods-mudslides-2025-11-14-18-16-52",
+          "author": "sandconsole.bsky.social",
+          "timestamp": "2025-11-14T18:17:03.336Z",
+          "tweet_id": "aa593301c0",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9845582842826843,
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    },
+    {
+      "id": "162198377f10",
+      "title": "The Pack Fire, a wildfire in Central California, sparked on Thursday and grew to",
+      "description": "The Pack Fire, a wildfire in Central California, sparked on Thursday and grew to 3,400 acres by Friday morning.",
+      "location": "Central California",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T17:20:47+00:00",
+      "source_tweets": [
+        {
+          "text": "Storm whips up Central California wildfire, helps bring relief\n\nhttps://www.newsbeep.com/us-ca/53203/\n\nThe Pack Fire sparked around midday Thursday and quickly grew to about 3,400 acres by Friday morning. Photo…",
+          "author": "us-ca-nb.bsky.social",
+          "timestamp": "2025-11-14T17:20:47+00:00",
+          "tweet_id": "8cc018f200",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9961392283439636,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+<<<<<<< HEAD:backend/incidents.json
+      "id": "c0a475be0426",
+      "title": "Ongoing wildfire threat in Sonoma County, California, with increasing frequency ",
+      "description": "Ongoing wildfire threat in Sonoma County, California, with increasing frequency and intensity, causing damage to communities and livelihoods.",
+      "location": "California, specifically Sonoma County",
+      "lat": 36.7783,
+      "lng": -119.4179,
+      "severity": "high",
+      "incident_type": "Wildfire",
+      "tags": [
+        "Wildfire",
+        "high",
+        "wildfire"
+      ],
+      "status": "active",
+      "created_at": "2025-11-14T17:09:08.571Z",
+      "source_tweets": [
+        {
+          "text": "This is a heartbreaking reminder of the ongoing wildfire threat in the region. While the area is known for its natural beauty, the increasing frequency and intensity of wildfires are devastating communities and livelihoods.\n#Wildfire #California #SonomaCounty",
+          "author": "american04lady.bsky.social",
+          "timestamp": "2025-11-14T17:09:08.571Z",
+          "tweet_id": "6b0f6ce5bf",
+          "engagement": {
+            "likes": 1,
+=======
+      "id": "7c1513574d2a",
+      "title": "Multiple Storm reports in Jamaica",
+      "description": "6 reports of storm activity",
+      "location": "Jamaica",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:285403264",
+      "resolved_place_name": "Jamaica",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 18.1850507,
+      "lng": -77.3947693,
+      "severity": "high",
+      "incident_type": "Storm",
+      "tags": [
+        "Storm",
+        "not specified",
+        "hurricane"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T19:31:00.210Z",
+      "source_tweets": [
+        {
+          "text": "Join our Toy & Book Drive for children in Jamaica affected by Hurricane Melissa. \n\nIf you’re in Florida or Chicago, you can drop off donations at the locations listed on flyer. Otherwise, you can purchase from our Amazon registry or donate to our GoFundMe. \n\n#HurricaneMelissa #Jamaica",
+          "author": "salarybyte.bsky.social",
+          "timestamp": "2025-11-04T19:31:00.210Z",
+          "tweet_id": "ae8982feae",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Windows blown in, trees uprooted and croc warnings\n\nhttps://www.newsbeep.com/uk/243765/\n\nAFP via Getty Images Hurricane Melissa is causing havoc in Jamaica as the Caribbean nation faces the strongest…",
+          "author": "uk-nb.bsky.social",
+          "timestamp": "2025-11-04T18:24:03+00:00",
+          "tweet_id": "762f78cfdc",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "#Jamaica s $150 million World Bank cat bond was triggered by last week's hurricane which will send the nation into recession. #Suriname returned to the bond market to buy time before its offshore oil starts to pay out. More  on #Caribbean/CentAm region at: open.substack.com/pub/kleimani...",
+          "author": "kleimanint.bsky.social",
+          "timestamp": "2025-11-04T18:19:26.043Z",
+          "tweet_id": "cc105c51aa",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Article:\n'No inch here was spared': Hurricane Melissa destroys Jamaica town",
+          "author": "weather.observer",
+          "timestamp": "2025-11-04T18:07:37.344Z",
+          "tweet_id": "77a34fb5d4",
+          "engagement": {
+            "likes": 0,
+            "retweets": 2,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Hurricane Melissa brought some of the most extreme weather Jamaica has ever faced.\nOur first responders are working closely with Jamaica’s Ministry of Health and local partners to deliver lifesaving care.\nLearn more: https://internationalmedicalcorps.org.uk/emergency-response/hurricane-melissa/",
+          "author": "intlmedicalcorpsuk.bsky.social",
+          "timestamp": "2025-11-04T18:07:05.403062172Z",
+          "tweet_id": "2c23c36b12",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "www.preventionweb.net/quick/97974\n4 urgent lessons for Jamaica’s hurricane recovery from Puerto Rico’s struggles: how the Jamaican diaspora can help. Jamaica can prioritize speedy emergency response by rebuilding the old system, or invest in a recovery that builds resilience for the future.\n#Melissa",
+          "author": "petchary.bsky.social",
+          "timestamp": "2025-11-04T18:02:01.331Z",
+          "tweet_id": "eb8c731fdf",
+          "engagement": {
+            "likes": 1,
+            "retweets": 1,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.996289849281311,
+      "casualties_mentioned": false,
+      "damage_mentioned": false,
+      "needs_help": true,
+      "cluster_member_coords": [
+        {
+          "id": "7c1513574d2a",
+          "lat": 18.1850507,
+          "lng": -77.3947693
+        },
+        {
+          "id": "f917ea73b9ff",
+          "lat": 18.1850507,
+          "lng": -77.3947693
+        },
+        {
+          "id": "d6cab6348189",
+          "lat": 18.1850507,
+          "lng": -77.3947693
+        },
+        {
+          "id": "ba06c1874a2d",
+          "lat": 18.1850507,
+          "lng": -77.3947693
+        },
+        {
+          "id": "82d96e6ec59e",
+          "lat": 18.1850507,
+          "lng": -77.3947693
+        },
+        {
+          "id": "5866abf6ef5e",
+          "lat": 18.1850507,
+          "lng": -77.3947693
+        }
+      ],
+      "cluster_member_ids": [
+        "7c1513574d2a",
+        "f917ea73b9ff",
+        "d6cab6348189",
+        "ba06c1874a2d",
+        "82d96e6ec59e",
+        "5866abf6ef5e"
+      ]
+    },
+    {
+      "id": "fe03550edd72",
+      "title": "Multiple Storm reports in the Caribbean",
+      "description": "2 reports of storm activity",
+      "location": "the Caribbean",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:410255548",
+      "resolved_place_name": "The Caribbean, 20435, Anza Avenue, Torrance, Los Angeles County, California, 90505, United States of America",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 33.8457791,
+      "lng": -118.3631361,
+      "severity": "high",
+      "incident_type": "Storm",
+      "tags": [
+        "Storm",
+        "catastrophic",
+        "hurricane"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T18:25:04.447Z",
+      "source_tweets": [
+        {
+          "text": "Hurricane Melissa has caused catastrophic flash floods and landslides, and has claimed lives across the Caribbean",
+          "author": "theecologist.org",
+          "timestamp": "2025-11-04T18:25:04.447Z",
+          "tweet_id": "e7f3c17637",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        },
+        {
+          "text": "Nearly 6 million people in the #Caribbean impacted by #Hurricane Melissa\n\n#HurricaneMelissa",
+          "author": "globalissues.org",
+          "timestamp": "2025-11-04T09:34:34-08:00",
+          "tweet_id": "a8f30ea25b",
+          "engagement": {
+            "likes": 0,
+>>>>>>> 86e2905d07d2330bbeb9471ed7929bf00def46c0:backend/incidents_validation.json
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+<<<<<<< HEAD:backend/incidents.json
+      "confidence": 0.9993906021118164,
+=======
+      "confidence": 0.9287381172180176,
+      "casualties_mentioned": true,
+      "damage_mentioned": true,
+      "needs_help": false,
+      "cluster_member_coords": [
+        {
+          "id": "fe03550edd72",
+          "lat": 33.8457791,
+          "lng": -118.3631361
+        },
+        {
+          "id": "9806fb6b5a48",
+          "lat": 33.8457791,
+          "lng": -118.3631361
+        }
+      ],
+      "cluster_member_ids": [
+        "fe03550edd72",
+        "9806fb6b5a48"
+      ]
+    },
+    {
+      "id": "834fd73ac26f",
+      "title": "Hurricane Melissa in Haiti has resulted in 43 deaths, with 13 people still missi",
+      "description": "Hurricane Melissa in Haiti has resulted in 43 deaths, with 13 people still missing.",
+      "location": "Haiti",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:283111555",
+      "resolved_place_name": "Ayiti",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 19.1399952,
+      "lng": -72.3570972,
+      "severity": "high",
+      "incident_type": "Storm",
+      "tags": [
+        "Storm",
+        "high",
+        "hurricane"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T18:00:19Z",
+      "source_tweets": [
+        {
+          "text": "Haiti’s government said Tuesday that the death toll from Hurricane Melissa rose to 43, with 13 others still missing.",
+          "author": "ctvnews.bsky.social",
+          "timestamp": "2025-11-04T18:00:19Z",
+          "tweet_id": "52cda521ad",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9307962656021118,
+      "casualties_mentioned": true,
+      "damage_mentioned": false,
+      "needs_help": false
+    },
+    {
+      "id": "2dd9dd4e1440",
+      "title": "Ongoing recovery efforts in Montego Bay following Hurricane Melissa",
+      "description": "Ongoing recovery efforts in Montego Bay following Hurricane Melissa",
+      "location": "Montego Bay",
+      "original_lat": null,
+      "original_lng": null,
+      "resolved_place_id": "nominatim:284223772",
+      "resolved_place_name": "Montego Bay, Saint James, Cornwall County, Jamaica",
+      "resolved_source": "location_db",
+      "resolved_confidence": 0.8,
+      "lat": 18.4724603,
+      "lng": -77.9217357,
+      "severity": "no specific severity mentioned, but recovery efforts imply significant impact",
+      "incident_type": "Storm",
+      "tags": [
+        "Storm",
+        "no specific severity mentioned, but recovery efforts imply significant impact",
+        "hurricane"
+      ],
+      "status": "active",
+      "created_at": "2025-11-04T17:58:16.654Z",
+      "source_tweets": [
+        {
+          "text": "Recovery efforts continue in Montego Bay following Hurricane Melissa\ntwuai.com/search/vVK4Q...",
+          "author": "twuai.bsky.social",
+          "timestamp": "2025-11-04T17:58:16.654Z",
+          "tweet_id": "51090ffc5b",
+          "engagement": {
+            "likes": 0,
+            "retweets": 0,
+            "replies": 0
+          }
+        }
+      ],
+      "confidence": 0.9902011752128601,
+>>>>>>> 86e2905d07d2330bbeb9471ed7929bf00def46c0:backend/incidents_validation.json
+      "casualties_mentioned": false,
+      "damage_mentioned": true,
+      "needs_help": false
+    }
+<<<<<<< HEAD:backend/incidents.json
+  ]
+=======
+  ],
+  "metadata": {
+    "total_tweets": 214,
+    "filtered_tweets": 96,
+    "incidents_created": 32,
+    "skipped_no_coords": 23,
+    "generated_at": "2025-11-17T01:17:33.480284"
+  }
+>>>>>>> 86e2905d07d2330bbeb9471ed7929bf00def46c0:backend/incidents_validation.json
+}

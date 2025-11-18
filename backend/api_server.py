@@ -65,9 +65,9 @@ class Incident(BaseModel):
     created_at: str
     tags: List[str]
     confidence: float
-    casualties_mentioned: bool
-    damage_mentioned: bool
-    needs_help: bool
+    casualties_mentioned: Optional[bool] = False
+    damage_mentioned: Optional[bool] = False
+    needs_help: Optional[bool] = False
     source_tweets: List[SourceTweet]
 
 

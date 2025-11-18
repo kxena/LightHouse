@@ -1,0 +1,374 @@
+{
+  "country:INDONESIA": {
+    "id": "country:INDONESIA",
+    "canonical_name": "Indonesia",
+    "name_variants": [
+      "Indonesia",
+      "ID",
+      "Republic of Indonesia"
+    ],
+    "centroid": {
+      "lat": -0.7893,
+      "lng": 113.9213
+    },
+    "bbox": null,
+    "admin": {
+      "country": "ID"
+    },
+    "level": "country",
+    "source": "manual",
+    "confidence": 0.9,
+    "first_seen": "2025-11-16T00:00:00Z"
+  },
+  "country:AFGHANISTAN": {
+    "id": "country:AFGHANISTAN",
+    "canonical_name": "Afghanistan",
+    "name_variants": [
+      "Afghanistan",
+      "AF",
+      "Islamic Republic of Afghanistan"
+    ],
+    "centroid": {
+      "lat": 33.9391,
+      "lng": 67.71
+    },
+    "bbox": null,
+    "admin": {
+      "country": "AF"
+    },
+    "level": "country",
+    "source": "manual",
+    "confidence": 0.9,
+    "first_seen": "2025-11-16T00:00:00Z"
+  },
+  "country:GREECE": {
+    "id": "country:GREECE",
+    "canonical_name": "Greece",
+    "name_variants": [
+      "Greece",
+      "GR",
+      "Hellenic Republic"
+    ],
+    "centroid": {
+      "lat": 39.0742,
+      "lng": 21.8243
+    },
+    "bbox": null,
+    "admin": {
+      "country": "GR"
+    },
+    "level": "country",
+    "source": "manual",
+    "confidence": 0.9,
+    "first_seen": "2025-11-16T00:00:00Z"
+  },
+  "nominatim:348256715": {
+    "id": "nominatim:348256715",
+    "canonical_name": "722 Avenue E, Municipal District of Willow Creek No. 26, Alberta, Canada",
+    "name_variants": [
+      "8 km E of Willow Creek, CA"
+    ],
+    "centroid": {
+      "lat": 50.3972463,
+      "lng": -113.8767844
+    },
+    "bbox": null,
+    "admin": {
+      "road": "722 Avenue E",
+      "county": "Municipal District of Willow Creek No. 26",
+      "state": "Alberta",
+      "ISO3166-2-lvl4": "CA-AB",
+      "country": "Canada",
+      "country_code": "ca"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:05.594709"
+  },
+  "nominatim:299187405": {
+    "id": "nominatim:299187405",
+    "canonical_name": "Pinnacles, San Benito County, California, United States of America",
+    "name_variants": [
+      "Pinnacles, CA"
+    ],
+    "centroid": {
+      "lat": 36.5307965,
+      "lng": -121.1451978
+    },
+    "bbox": null,
+    "admin": {
+      "hamlet": "Pinnacles",
+      "county": "San Benito County",
+      "state": "California",
+      "ISO3166-2-lvl4": "US-CA",
+      "country": "United States of America",
+      "country_code": "us"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:07.083249"
+  },
+  "nominatim:1564903": {
+    "id": "nominatim:1564903",
+    "canonical_name": "Timor, Renacimiento Italiano, Las Condes, Provincia de Santiago, Región Metropolitana de Santiago, 7560460, Chile",
+    "name_variants": [
+      "Timor Region"
+    ],
+    "centroid": {
+      "lat": -33.4048668,
+      "lng": -70.5496793
+    },
+    "bbox": null,
+    "admin": {
+      "road": "Timor",
+      "neighbourhood": "Renacimiento Italiano",
+      "suburb": "Las Condes",
+      "county": "Provincia de Santiago",
+      "state": "Región Metropolitana de Santiago",
+      "ISO3166-2-lvl4": "CL-RM",
+      "postcode": "7560460",
+      "country": "Chile",
+      "country_code": "cl"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:10.784055"
+  },
+  "nominatim:197488428": {
+    "id": "nominatim:197488428",
+    "canonical_name": "مزار شريف, ولایت بلخ, 1701, افغانستان",
+    "name_variants": [
+      "Mazar-e-Sharif"
+    ],
+    "centroid": {
+      "lat": 36.7090366,
+      "lng": 67.1114085
+    },
+    "bbox": null,
+    "admin": {
+      "city": "مزار شريف",
+      "state": "ولایت بلخ",
+      "ISO3166-2-lvl4": "AF-BAL",
+      "postcode": "1701",
+      "country": "افغانستان",
+      "country_code": "af"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:14.081333"
+  },
+  "nominatim:202374496": {
+    "id": "nominatim:202374496",
+    "canonical_name": "Best Western Premier Tuushin Hotel, 15, Ерөнхий сайд Амарын гудамж, Бага Тойрог ᠪᠠᠭ᠎ᠠ ᠲᠣᠭᠣᠷᠢᠭ, Сүхбаатар ᠰᠦᠬᠡ ᠪᠠᠭᠠᠲᠤᠷ, Улан-Батор, 14200, Монгол улс ᠮᠤᠩᠭᠤᠯ ᠤᠯᠤᠰ",
+    "name_variants": [
+      "Western Mongolia"
+    ],
+    "centroid": {
+      "lat": 47.9202851,
+      "lng": 106.9205249
+    },
+    "bbox": null,
+    "admin": {
+      "tourism": "Best Western Premier Tuushin Hotel",
+      "house_number": "15",
+      "road": "Ерөнхий сайд Амарын гудамж",
+      "suburb": "Бага Тойрог ᠪᠠᠭ᠎ᠠ ᠲᠣᠭᠣᠷᠢᠭ",
+      "city_district": "Сүхбаатар ᠰᠦᠬᠡ ᠪᠠᠭᠠᠲᠤᠷ",
+      "city": "Улан-Батор",
+      "postcode": "14200",
+      "country": "Монгол улс ᠮᠤᠩᠭᠤᠯ ᠤᠯᠤᠰ",
+      "country_code": "mn"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:18.175254"
+  },
+  "nominatim:241850701": {
+    "id": "nominatim:241850701",
+    "canonical_name": "Molucca Sea",
+    "name_variants": [
+      "MOLUCCA SEA"
+    ],
+    "centroid": {
+      "lat": 0.0,
+      "lng": 125.0
+    },
+    "bbox": null,
+    "admin": {
+      "sea": "Molucca Sea"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:19.452074"
+  },
+  "nominatim:289263009": {
+    "id": "nominatim:289263009",
+    "canonical_name": "El Salvador",
+    "name_variants": [
+      "EL SALVADOR"
+    ],
+    "centroid": {
+      "lat": 13.8000382,
+      "lng": -88.9140683
+    },
+    "bbox": null,
+    "admin": {
+      "country": "El Salvador",
+      "country_code": "sv"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:20.858927"
+  },
+  "nominatim:255488245": {
+    "id": "nominatim:255488245",
+    "canonical_name": "Cumbria, England, United Kingdom",
+    "name_variants": [
+      "Cumbria"
+    ],
+    "centroid": {
+      "lat": 54.6143136,
+      "lng": -2.9420899
+    },
+    "bbox": null,
+    "admin": {
+      "ceremonial": "Cumbria",
+      "ISO3166-2-lvl15": "GB-CMA",
+      "state": "England",
+      "ISO3166-2-lvl4": "GB-ENG",
+      "country": "United Kingdom",
+      "country_code": "gb"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:23.566750"
+  },
+  "nominatim:220356401": {
+    "id": "nominatim:220356401",
+    "canonical_name": "อาคเนย์, ถนนเชียงใหม่-ลำพูน, เทศบาลนครเชียงใหม่, ฟ้าฮ่าม, Mueang Chiang Mai, จังหวัดเชียงใหม่, 55520, ประเทศไทย",
+    "name_variants": [
+      "southeast PA"
+    ],
+    "centroid": {
+      "lat": 18.7846821,
+      "lng": 99.0052385
+    },
+    "bbox": null,
+    "admin": {
+      "office": "อาคเนย์",
+      "road": "ถนนเชียงใหม่-ลำพูน",
+      "city": "เทศบาลนครเชียงใหม่",
+      "municipality": "ฟ้าฮ่าม",
+      "county": "Mueang Chiang Mai",
+      "province": "จังหวัดเชียงใหม่",
+      "ISO3166-2-lvl4": "TH-50",
+      "postcode": "55520",
+      "country": "ประเทศไทย",
+      "country_code": "th"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:25.531181"
+  },
+  "nominatim:285403264": {
+    "id": "nominatim:285403264",
+    "canonical_name": "Jamaica",
+    "name_variants": [
+      "Jamaica"
+    ],
+    "centroid": {
+      "lat": 18.1850507,
+      "lng": -77.3947693
+    },
+    "bbox": null,
+    "admin": {
+      "country": "Jamaica",
+      "country_code": "jm"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:27.494850"
+  },
+  "nominatim:410255548": {
+    "id": "nominatim:410255548",
+    "canonical_name": "The Caribbean, 20435, Anza Avenue, Torrance, Los Angeles County, California, 90505, United States of America",
+    "name_variants": [
+      "the Caribbean"
+    ],
+    "centroid": {
+      "lat": 33.8457791,
+      "lng": -118.3631361
+    },
+    "bbox": null,
+    "admin": {
+      "building": "The Caribbean",
+      "house_number": "20435",
+      "road": "Anza Avenue",
+      "city": "Torrance",
+      "county": "Los Angeles County",
+      "state": "California",
+      "ISO3166-2-lvl4": "US-CA",
+      "postcode": "90505",
+      "country": "United States of America",
+      "country_code": "us"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:33.504169"
+  },
+  "nominatim:283111555": {
+    "id": "nominatim:283111555",
+    "canonical_name": "Ayiti",
+    "name_variants": [
+      "Haiti"
+    ],
+    "centroid": {
+      "lat": 19.1399952,
+      "lng": -72.3570972
+    },
+    "bbox": null,
+    "admin": {
+      "country": "Ayiti",
+      "country_code": "ht"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:40.751214"
+  },
+  "nominatim:284223772": {
+    "id": "nominatim:284223772",
+    "canonical_name": "Montego Bay, Saint James, Cornwall County, Jamaica",
+    "name_variants": [
+      "Montego Bay"
+    ],
+    "centroid": {
+      "lat": 18.4724603,
+      "lng": -77.9217357
+    },
+    "bbox": null,
+    "admin": {
+      "city": "Montego Bay",
+      "county": "Saint James",
+      "ISO3166-2-lvl6": "JM-08",
+      "state_district": "Cornwall County",
+      "country": "Jamaica",
+      "country_code": "jm"
+    },
+    "level": "unknown",
+    "source": "nominatim",
+    "confidence": 0.8,
+    "first_seen": "2025-11-17T07:05:41.710606"
+  }
+}

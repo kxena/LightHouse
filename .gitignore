@@ -21,7 +21,10 @@ pnpm-debug.log*
 
 # OS junk
 .DS_Store
-Thumbs.db.env
+Thumbs.db
+
+# env variables
+.env
 
 # Pipeline results 
 # backend/pipeline_output/

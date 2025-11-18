@@ -7,7 +7,7 @@ import {
   Heart,
   Clock,
 } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { IncidentAPI, type IncidentResponse } from "../services/incidentAPI";
 import MapWidget from "./MapWidget";
@@ -20,6 +20,9 @@ export default function IncidentReport() {
   const [currentIncident, setCurrentIncident] =
     useState<IncidentResponse | null>(null);
   const { id: incidentId } = useParams();
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const historyDate = query.get("date") || undefined;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Add viewMode state for toggle UI
@@ -28,11 +31,11 @@ export default function IncidentReport() {
   // Load incidents on component mount
   useEffect(() => {
     if (incidentId) {
-      loadIncidentById(incidentId);
+      loadIncidentById(incidentId, historyDate);
     } else {
       loadIncidents();
     }
-  }, [incidentId]);
+  }, [incidentId, historyDate]);
 
   const loadIncidents = async () => {
     try {
@@ -52,10 +55,10 @@ export default function IncidentReport() {
     }
   };
 
-  const loadIncidentById = async (incidentId: string) => {
+  const loadIncidentById = async (incidentId: string, date?: string) => {
     try {
       setLoading(true);
-      const incident = await IncidentAPI.getIncident(incidentId);
+      const incident = await IncidentAPI.getIncident(incidentId, date);
       setCurrentIncident(incident);
       setIncidents([]); // Optionally clear list, or fetch all for navigation
     } catch (err) {
@@ -293,7 +296,12 @@ export default function IncidentReport() {
                     lockSingleWorld={true}
                     focusId={currentIncident.id}
                     viewMode={viewMode}
-                    onPointClick={(id: string) => navigate(`/incident/${id}`)}
+                    onPointClick={(id: string) => {
+                      const dateParam = historyDate
+                        ? `?date=${historyDate}`
+                        : "";
+                      navigate(`/incident/${id}${dateParam}`);
+                    }}
                     showRings
                   />
                 </div>
@@ -469,7 +477,12 @@ export default function IncidentReport() {
                         .map((incident) => (
                           <button
                             key={incident.id}
-                            onClick={() => navigate(`/incident/${incident.id}`)}
+                            onClick={() => {
+                              const dateParam = historyDate
+                                ? `?date=${historyDate}`
+                                : "";
+                              navigate(`/incident/${incident.id}${dateParam}`);
+                            }}
                             className="flex-shrink-0 p-3 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-colors min-w-[200px]"
                           >
                             <div className="text-left">
