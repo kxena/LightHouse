@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { IncidentAPI, type IncidentResponse } from "../services/incidentAPI";
+import { IncidentAPI, type IncidentResponse } from "../api/lighthouseApi";
 import MapWidget from "./MapWidget";
 import type { Incident as MapIncident } from "../data/incidents";
 import { DarkModeToggle } from "./DarkModeToggle";
@@ -422,22 +422,22 @@ export default function IncidentReport() {
                               </p>
                               {tweet.engagement && (
                                 <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
-                                  {tweet.engagement.replies && (
+                                  {(tweet.engagement.replies as number | undefined) && (
                                     <div className="flex items-center gap-1">
                                       <MessageCircle className="h-3 w-3" />
-                                      <span>{tweet.engagement.replies}</span>
+                                      <span>{String(tweet.engagement.replies)}</span>
                                     </div>
                                   )}
-                                  {tweet.engagement.retweets && (
+                                  {(tweet.engagement.retweets as number | undefined) && (
                                     <div className="flex items-center gap-1">
                                       <Repeat className="h-3 w-3" />
-                                      <span>{tweet.engagement.retweets}</span>
+                                      <span>{String(tweet.engagement.retweets)}</span>
                                     </div>
                                   )}
-                                  {tweet.engagement.likes && (
+                                  {(tweet.engagement.likes as number | undefined) && (
                                     <div className="flex items-center gap-1">
                                       <Heart className="h-3 w-3" />
-                                      <span>{tweet.engagement.likes}</span>
+                                      <span>{String(tweet.engagement.likes)}</span>
                                     </div>
                                   )}
                                 </div>

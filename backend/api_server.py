@@ -292,6 +292,62 @@ async def get_severity_levels():
         raise HTTPException(status_code=500, detail=f"Error fetching severity: {str(e)}")
 
 
+@app.get("/api/history/dates")
+async def get_history_dates():
+    """Get list of available historical incident dates"""
+    import os
+    from pathlib import Path
+    
+    try:
+        historical_dir = Path(__file__).parent / "historical"
+        if not historical_dir.exists():
+            return {"dates": []}
+        
+        # List all JSON files in historical directory
+        date_files = list(historical_dir.glob("*_incidents.json"))
+        # Extract dates from filenames (format: YYYY-MM-DD_incidents.json)
+        dates = [f.stem.replace("_incidents", "") for f in date_files]
+        dates.sort(reverse=True)  # Most recent first
+        
+        return {"dates": dates}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching history dates: {str(e)}")
+
+
+@app.get("/api/history/incidents/{date}")
+async def get_history_incidents(date: str):
+    """Get historical incidents for a specific date"""
+    import json
+    from pathlib import Path
+    
+    try:
+        # Sanitize date input to prevent path traversal
+        if not date or ".." in date or "/" in date:
+            raise HTTPException(status_code=400, detail="Invalid date format")
+        
+        historical_dir = Path(__file__).parent / "historical"
+        file_path = historical_dir / f"{date}_incidents.json"
+        
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail=f"No historical data for date: {date}")
+        
+        with open(file_path, "r") as f:
+            data = json.load(f)
+        
+        # Return data with metadata
+        return {
+            "metadata": {
+                "date": date,
+                "count": len(data.get("incidents", []))
+            },
+            "incidents": data.get("incidents", [])
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading historical data: {str(e)}")
+
+
 if __name__ == "__main__":
     import uvicorn
     

@@ -13,7 +13,11 @@ import { useUser, useClerk } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import MapWidget from "./MapWidget";
 import type { Incident as MapIncident } from "../data/incidents";
-import { IncidentAPI, type IncidentResponse } from "../services/incidentAPI";
+import { 
+  getIncidents, 
+  IncidentAPI,
+  type Incident as ApiIncident 
+} from "../api/lighthouseApi";
 import { DarkModeToggle } from "./DarkModeToggle";
 
 // Compact, dynamic vertical list for trending topics (adjacent to Live Feed)
@@ -89,7 +93,7 @@ export default function Dashboard() {
   const [viewMode, setViewMode] = useState<"points" | "heat">("points");
   const [activeStates] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [incidentsApi, setIncidentsApi] = useState<IncidentResponse[]>([]);
+  const [incidentsApi, setIncidentsApi] = useState<ApiIncident[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [historyDates, setHistoryDates] = useState<string[]>([]);
@@ -155,12 +159,12 @@ export default function Dashboard() {
       .slice(0, 12);
   }, [incidentsApi]);
 
-  // Stub data/handlers — replace with real data wiring
+  // Refresh handler
   const handleRefresh = async () => {
     await loadIncidents();
   };
 
-  // History loading
+  // Historical data loading functions
   const loadHistoryDates = async () => {
     try {
       const res = await IncidentAPI.getHistoryDates();
@@ -178,51 +182,50 @@ export default function Dashboard() {
       setLoading(true);
       setError(null);
       const res = await IncidentAPI.getHistoryIncidents(date);
-      // res expected to be { metadata: {...}, incidents: [...] }
-
+      
       const incidentsRaw = res.incidents || [];
 
-      // Map historical incident shape to IncidentResponse used by the UI
-      const mapped: IncidentResponse[] = incidentsRaw.map(
-        (it: Record<string, unknown>) => {
-          const rawTweets =
-            (it.source_tweets as unknown) || (it.tweets as unknown) || [];
-          const source_tweets = Array.isArray(rawTweets)
-            ? rawTweets.map((t) => {
-                if (typeof t === "string")
-                  return { text: t, author: "", timestamp: "", tweet_id: t };
-                const tr = t as Record<string, unknown>;
-                return {
-                  text: (tr.text as string) || "",
-                  author: (tr.author as string) || "",
-                  timestamp: (tr.timestamp as string) || "",
-                  tweet_id: (tr.tweet_id as string) || (tr.id as string) || "",
-                };
-              })
-            : [];
-
+      // Map historical incident shape to ApiIncident used by the UI
+      const mapped: ApiIncident[] = incidentsRaw.map((it) => {
+        const rawTweets = it.source_tweets || [];
+        const source_tweets = rawTweets.map((t) => {
+          if (typeof t === "string") {
+            return { 
+              text: t, 
+              author: "", 
+              timestamp: "", 
+              tweet_id: t,
+              engagement: {}
+            };
+          }
           return {
-            id: (it.id as string) || Math.random().toString(36).slice(2, 9),
-            title: (it.incident_type as string)
-              ? `${it.incident_type} — ${it.location || ""}`
-              : (it.description as string) || (it.id as string) || "",
-            description: (it.description as string) || "",
-            location: (it.location as string) || "",
-            severity: (it.severity as string) || "unknown",
-            incident_type: (it.incident_type as string) || "",
-            tags: (it.tags as string[]) || [],
-            estimated_restoration:
-              (it.estimated_restoration as string) || undefined,
-            affected_area: (it.affected_area as string) || undefined,
-            created_at:
-              res.metadata && (res.metadata.date as string)
-                ? `${res.metadata.date as string}T00:00:00Z`
-                : new Date().toISOString(),
-            status: (it.status as string) || "",
-            source_tweets,
-          } as IncidentResponse;
-        }
-      );
+            text: (t.text as string) || "",
+            author: (t.author as string) || "",
+            timestamp: (t.timestamp as string) || "",
+            tweet_id: (t.tweet_id as string) || (t.id as string) || "",
+            engagement: (t.engagement as Record<string, unknown>) || {}
+          };
+        });
+
+        return {
+          id: it.id || Math.random().toString(36).slice(2, 9),
+          title: it.title || (it.incident_type ? `${it.incident_type} — ${it.location || ""}` : it.description || it.id || ""),
+          description: it.description || "",
+          location: it.location || "",
+          lat: it.lat || 0,
+          lng: it.lng || 0,
+          severity: it.severity || "unknown",
+          incident_type: it.incident_type || "",
+          status: it.status || "",
+          created_at: res.metadata?.date ? `${res.metadata.date}T00:00:00Z` : new Date().toISOString(),
+          tags: it.tags || [],
+          confidence: 0.5,
+          casualties_mentioned: false,
+          damage_mentioned: false,
+          needs_help: false,
+          source_tweets
+        } as ApiIncident;
+      });
 
       setIncidentsApi(mapped);
     } catch (err) {
@@ -279,9 +282,17 @@ export default function Dashboard() {
   };
 
   const parseLatLng = (
-    location?: string
+    incident: ApiIncident
   ): { lat: number; lng: number } | null => {
+    // First try the direct lat/lng fields from the API
+    if (typeof incident.lat === "number" && typeof incident.lng === "number") {
+      return { lat: incident.lat, lng: incident.lng };
+    }
+    
+    // Fallback to parsing location string
+    const location = incident.location;
     if (!location) return null;
+    
     // Try to find "(lat,lng)" or "lat,lng" patterns
     const parenMatch = location.match(
       /\((-?\d{1,2}\.\d+),\s*(-?\d{1,3}\.\d+)\)/
@@ -304,7 +315,7 @@ export default function Dashboard() {
 
   // Helper function to check if incident matches selected tag
   const incidentMatchesTag = (
-    incident: IncidentResponse,
+    incident: ApiIncident,
     tag: string
   ): boolean => {
     const tagLower = tag.toLowerCase();
@@ -349,11 +360,8 @@ export default function Dashboard() {
 
   // MapWidget expects a different Incident shape (with lat/lng, severity as 1-3)
   const incidents: MapIncident[] = filteredIncidentsApi
-    .map((i: IncidentResponse) => {
-      const coords =
-        typeof i.lat === "number" && typeof i.lng === "number"
-          ? { lat: i.lat, lng: i.lng }
-          : parseLatLng(i.location);
+    .map((i: ApiIncident) => {
+      const coords = parseLatLng(i);
       if (!coords) return null;
       return {
         id: i.id,
@@ -387,8 +395,7 @@ export default function Dashboard() {
   };
 
   const goToIncident = (id: string) => {
-    const dateParam =
-      selectedHistory === "live" ? "" : `?date=${selectedHistory}`;
+    const dateParam = selectedHistory === "live" ? "" : `?date=${selectedHistory}`;
     navigate(`/incident/${id}${dateParam}`);
   };
 
@@ -396,7 +403,7 @@ export default function Dashboard() {
     try {
       setLoading(true);
       setError(null);
-      const data = await IncidentAPI.getAllIncidents();
+      const data = await getIncidents({ active_only: true });
       setIncidentsApi(data);
     } catch (err) {
       console.error("Failed to load incidents:", err);
@@ -407,43 +414,20 @@ export default function Dashboard() {
     }
   };
 
-  const loadHistoryDates = async () => {
-    try {
-      // Fetch available history dates from API
-      const response = await fetch("http://localhost:3001/api/incidents/history/dates");
-      if (response.ok) {
-        const dates = await response.json();
-        setHistoryDates(dates);
-      }
-    } catch (err) {
-      console.error("Failed to load history dates:", err);
-      setHistoryDates([]);
-    }
-  };
-
-  const loadHistoryForDate = async (date: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetch(`http://localhost:3001/api/incidents/history/${date}`);
-      if (response.ok) {
-        const data = await response.json();
-        setIncidentsApi(data);
-      } else {
-        throw new Error(`Failed to fetch data for ${date}`);
-      }
-    } catch (err) {
-      console.error("Failed to load historical data:", err);
-      setError(err instanceof Error ? err.message : "Failed to load historical data");
-      setIncidentsApi([]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     loadIncidents();
+    loadHistoryDates();
   }, []);
+
+  // When selectedHistory changes, load either live or historical incidents
+  useEffect(() => {
+    if (selectedHistory === "live") {
+      loadIncidents();
+    } else {
+      loadHistoryForDate(selectedHistory);
+    }
+  }, [selectedHistory]);
 
   // Load user location from localStorage and listen for updates
   useEffect(() => {
@@ -512,7 +496,7 @@ export default function Dashboard() {
       let coords: { lat: number; lng: number } | null = null;
       
       // Check direct coordinate parsing first
-      coords = parseLatLng(incident.location);
+      coords = parseLatLng(incident);
       
       // If no coordinates found, try geocoding common locations
       if (!coords) {

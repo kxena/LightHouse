@@ -1,9 +1,10 @@
 /**
- * Incident type definition for the map widget.
+ * Legacy Incident type definition for the map widget.
  * This type is used by MapWidget to display incidents on the map.
  *
- * Note: The actual incident data now comes from the backend API at /incidents
- * This file only contains the TypeScript type definition.
+ * Note: The actual incident data now comes from the backend API at /api/incidents
+ * This file only contains the legacy TypeScript type definition for the MapWidget.
+ * The main API types are defined in src/api/lighthouseApi.ts
  */
 export type Incident = {
   id: string;
@@ -30,5 +31,5 @@ export type Incident = {
 };
 
 // No longer exporting dummy data - all incidents now come from backend API
-// See: backend/main.py /incidents endpoint
-// See: frontend/src/services/incidentAPI.ts for API integration
+// See: backend/main.py /api/incidents endpoint
+// See: frontend/src/api/lighthouseApi.ts for API integration
