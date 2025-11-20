@@ -33,7 +33,7 @@ app.add_middleware(
 async def startup_event():
     """Run when server starts"""
     print("\n" + "="*70)
-    print("🚀 FastAPI Server Starting")
+    print("FastAPI Server Starting")
     print("="*70 + "\n")
     await init_db()
 
