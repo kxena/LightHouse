@@ -9,9 +9,10 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { IncidentAPI, type IncidentResponse } from "../services/incidentAPI";
+import { IncidentAPI, type IncidentResponse } from "../api/lighthouseApi";
 import MapWidget from "./MapWidget";
 import type { Incident as MapIncident } from "../data/incidents";
+import { DarkModeToggle } from "./DarkModeToggle";
 
 export default function IncidentReport() {
   const navigate = useNavigate();
@@ -132,50 +133,59 @@ export default function IncidentReport() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 p-6 lg:p-10">
+    <div className="min-h-screen bg-gradient-to-br from-purple-200 via-pink-100 to-blue-200 dark:from-slate-800 dark:via-purple-900 dark:to-blue-900 p-6 lg:p-10">
       <div className="mx-auto max-w-6xl">
+        {/* Dark Mode Toggle */}
+        <DarkModeToggle />
+        
         {/* Header */}
-        <div className="relative mb-6 lg:mb-10 flex items-center">
+        <div className="relative mb-6 lg:mb-10 flex items-center pr-16">
           <button
-            className="absolute left-0 p-2 rounded-full hover:bg-white/40 transition"
+            className="absolute left-0 p-2 rounded-full hover:bg-white/40 dark:hover:bg-gray-800/40 transition"
             onClick={() => navigate("/dashboard")}
             aria-label="Back to Dashboard"
           >
-            <ArrowLeft className="h-6 w-6 text-gray-700" />
+            <ArrowLeft className="h-6 w-6 text-gray-700 dark:text-gray-300" />
           </button>
 
           <div className="w-full flex justify-between items-center">
-            <h1 className="mx-auto text-3xl font-extrabold tracking-wide">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-pink-600">
+            <div></div> {/* Spacer for back button */}
+            <h1 className="text-3xl font-extrabold tracking-wide">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-700 to-pink-600 dark:from-purple-300 dark:to-pink-300">
                 LightHouse
               </span>
             </h1>
+            <div></div> {/* Spacer for dark mode toggle */}
+          </div>
+        </div>
 
-            {/* Toggle */}
-            <div className="flex items-center bg-white/70 rounded-xl shadow overflow-hidden">
-              <button
-                className={`px-3 py-1 text-sm ${
-                  viewMode === "points"
-                    ? "bg-white font-semibold"
-                    : "opacity-70"
-                }`}
-                onClick={() => setViewMode("points")}
-              >
-                Points
-              </button>
-              <button
-                className={`px-3 py-1 text-sm ${
-                  viewMode === "heat" ? "bg-white font-semibold" : "opacity-70"
-                }`}
-                onClick={() => setViewMode("heat")}
-              >
-                Heat
-              </button>
-            </div>
+        {/* Controls Row */}
+        <div className="flex justify-between items-center mb-6">
+          {/* View Mode Toggle */}
+          <div className="flex items-center bg-white/70 dark:bg-gray-800/70 rounded-xl shadow overflow-hidden">
+            <button
+              className={`px-3 py-1 text-sm ${
+                viewMode === "points"
+                  ? "bg-white dark:bg-slate-600 font-semibold text-gray-900 dark:text-gray-100"
+                  : "opacity-70 text-gray-700 dark:text-gray-300"
+              }`}
+              onClick={() => setViewMode("points")}
+            >
+              Points
+            </button>
+            <button
+              className={`px-3 py-1 text-sm ${
+                viewMode === "heat" ? "bg-white dark:bg-slate-600 font-semibold text-gray-900 dark:text-gray-100" : "opacity-70 text-gray-700 dark:text-gray-300"
+              }`}
+              onClick={() => setViewMode("heat")}
+            >
+              Heat
+            </button>
           </div>
 
-          <div className="absolute right-0 px-3 py-1 bg-blue-100 rounded-full">
-            <span className="text-sm font-medium text-blue-800">
+          {/* Tweet Analysis Badge */}
+          <div className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
               Tweet Analysis
             </span>
           </div>
@@ -187,7 +197,7 @@ export default function IncidentReport() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Map Card (top-left) */}
               <div className="lg:col-span-6">
-                <div className="rounded-3xl bg-white/55 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 p-4">
+                <div className="rounded-3xl bg-white/55 dark:bg-slate-700/55 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 dark:ring-white/10 p-4">
                   <MapWidget
                     incidents={
                       (currentIncident ? [currentIncident] : [])
@@ -299,8 +309,8 @@ export default function IncidentReport() {
 
               {/* Incident Summary (top-right) */}
               <div className="lg:col-span-6">
-                <div className="rounded-3xl bg-white/65 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 p-6">
-                  <div className="rounded-2xl bg-white p-6">
+                <div className="rounded-3xl bg-white/65 dark:bg-slate-700/65 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 dark:ring-white/10 p-6">
+                  <div className="rounded-2xl bg-white dark:bg-white p-6">
                     <h2 className="text-3xl font-extrabold tracking-wide text-center mb-3">
                       <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-rose-600">
                         {currentIncident.incident_type}
@@ -348,16 +358,16 @@ export default function IncidentReport() {
 
               {/* Severity + Tags (bottom-left) */}
               <div className="lg:col-span-6">
-                <div className="rounded-3xl bg-white/65 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 p-6">
-                  <div className="rounded-2xl bg-white p-6">
+                <div className="rounded-3xl bg-white/65 dark:bg-slate-700/65 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 dark:ring-white/10 p-6">
+                  <div className="rounded-2xl bg-white dark:bg-white p-6">
                     <div className="flex items-center gap-3 mb-4">
-                      <h3 className="text-2xl font-bold">Severity:</h3>
+                      <h3 className="text-2xl font-bold text-gray-900">Severity:</h3>
                       <span
                         className={`inline-flex h-3.5 w-3.5 rounded-full ${getSeverityColor(
                           currentIncident.severity
                         )} shadow-[0_0_0_6px_rgba(239,68,68,0.18)]`}
                       />
-                      <span className="font-semibold capitalize">
+                      <span className="font-semibold capitalize text-gray-900">
                         {currentIncident.severity}
                       </span>
                     </div>
@@ -378,10 +388,10 @@ export default function IncidentReport() {
 
               {/* Associated Tweets (bottom-right) */}
               <div className="lg:col-span-6">
-                <div className="rounded-3xl bg-white/65 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 p-4">
-                  <div className="rounded-2xl bg-white p-4 lg:p-5">
+                <div className="rounded-3xl bg-white/65 dark:bg-slate-700/65 backdrop-blur-sm shadow-[0_10px_30px_rgba(0,0,0,0.08)] ring-1 ring-black/5 dark:ring-white/10 p-4">
+                  <div className="rounded-2xl bg-white dark:bg-white p-4 lg:p-5">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-bold">Associated Tweets</h3>
+                      <h3 className="text-xl font-bold text-gray-900">Associated Tweets</h3>
                       <span className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
                         {currentIncident.source_tweets.length} tweets
                       </span>
@@ -412,22 +422,22 @@ export default function IncidentReport() {
                               </p>
                               {tweet.engagement && (
                                 <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
-                                  {tweet.engagement.replies && (
+                                  {(tweet.engagement.replies as number | undefined) && (
                                     <div className="flex items-center gap-1">
                                       <MessageCircle className="h-3 w-3" />
-                                      <span>{tweet.engagement.replies}</span>
+                                      <span>{String(tweet.engagement.replies)}</span>
                                     </div>
                                   )}
-                                  {tweet.engagement.retweets && (
+                                  {(tweet.engagement.retweets as number | undefined) && (
                                     <div className="flex items-center gap-1">
                                       <Repeat className="h-3 w-3" />
-                                      <span>{tweet.engagement.retweets}</span>
+                                      <span>{String(tweet.engagement.retweets)}</span>
                                     </div>
                                   )}
-                                  {tweet.engagement.likes && (
+                                  {(tweet.engagement.likes as number | undefined) && (
                                     <div className="flex items-center gap-1">
                                       <Heart className="h-3 w-3" />
-                                      <span>{tweet.engagement.likes}</span>
+                                      <span>{String(tweet.engagement.likes)}</span>
                                     </div>
                                   )}
                                 </div>
@@ -504,16 +514,16 @@ export default function IncidentReport() {
           </>
         ) : (
           <div className="text-center py-12">
-            <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-600 mb-2">
+            <AlertCircle className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-600 dark:text-gray-400 mb-2">
               No Incidents Generated Yet
             </h2>
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
               Incidents will automatically appear here when tweets are analyzed
               and disaster-related content is detected.
             </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
-              <p className="text-sm text-blue-800">
+            <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 max-w-md mx-auto">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
                 <strong>Note:</strong> Incidents are automatically generated
                 from tweet analysis by the LightHouse AI system.
               </p>

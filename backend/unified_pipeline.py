@@ -1,11 +1,16 @@
 """
-Unified Disaster Tweet Pipeline
-================================
+Unified Disaster Tweet Pipeline - Multi-Token Edition
+======================================================
 Complete pipeline that:
 1. Fetches tweets from Bluesky
 2. Cleans and formats them
 3. Classifies them with XGBoost
-4. Extracts detailed info with LLM
+4. Extracts detailed info with LLM (using token rotation)
+
+NEW FEATURES:
+- Supports multiple HuggingFace tokens (HF_TOKEN1, HF_TOKEN2, etc.)
+- Automatically rotates tokens when credit limit is hit
+- Calculates optimal number of tokens needed
 """
 
 import os
@@ -34,12 +39,11 @@ except ImportError:
 
 load_dotenv()
 
-
 # config
 class PipelineConfig:
     """Configuration for the entire pipeline"""
     
-    # Bluesky settings 
+    # Bluesky settings
     BLUESKY_HANDLE = os.getenv('BLUESKY_USER', '')
     BLUESKY_PASSWORD = os.getenv('BLUESKY_PWD', '')
     
@@ -47,9 +51,8 @@ class PipelineConfig:
     DISASTER_QUERIES = [
         "earthquake",
         "flood",
-        "wildfire", 
+        "wildfire",
         "hurricane"
-        # "tornado" # no more tornado
     ]
     
     # maximum total posts to fetch
@@ -60,11 +63,15 @@ class PipelineConfig:
     VECTORIZER_PATH = "./xgboost_classifier/xgboost_vectorizer.joblib"
     CONFIG_PATH = "./xgboost_classifier/xgboost_config.json"
     LABEL_ENCODER_PATH = "./xgboost_classifier/label_encoder.joblib"
-
-    # LLM settings
-    HF_TOKEN = os.getenv('HF_TOKEN', '')
+    
+    # LLM settings - MULTI-TOKEN SUPPORT
+    HF_TOKENS = []  # Will be populated from environment
     LLM_MODEL = "meta-llama/Llama-3.1-8B-Instruct:novita"
     RATE_LIMIT_DELAY = 1.0  # seconds between LLM calls
+    
+    # Control flags
+    SKIP_LLM = os.getenv('SKIP_LLM', 'false').lower() == 'true'
+    MAX_LLM_CALLS = int(os.getenv('MAX_LLM_CALLS', '0'))  # 0 = unlimited
     
     # output paths
     OUTPUT_DIR = Path("pipeline_output")
@@ -72,6 +79,33 @@ class PipelineConfig:
     CLEANED_TWEETS_FILE = OUTPUT_DIR / "02_cleaned_tweets.jsonl"
     CLASSIFIED_TWEETS_FILE = OUTPUT_DIR / "03_classified_tweets.jsonl"
     FINAL_OUTPUT_FILE = OUTPUT_DIR / "04_final_results.jsonl"
+    
+    def __init__(self):
+        """Initialize and load all HF tokens from environment"""
+        self._load_hf_tokens()
+    
+    def _load_hf_tokens(self):
+        """Load all HF_TOKEN1, HF_TOKEN2, ... from environment"""
+        i = 1
+        while True:
+            token_key = f'HF_TOKEN{i}'
+            token = os.getenv(token_key, '')
+            if token:
+                self.HF_TOKENS.append(token)
+                i += 1
+            else:
+                break
+        
+        # Fallback to old HF_TOKEN if no numbered tokens found
+        if not self.HF_TOKENS:
+            old_token = os.getenv('HF_TOKEN', '')
+            if old_token:
+                self.HF_TOKENS.append(old_token)
+        
+        if self.HF_TOKENS:
+            print(f"✓ Loaded {len(self.HF_TOKENS)} HuggingFace token(s)")
+        else:
+            print("⚠️  No HuggingFace tokens found in environment")
 
 
 # step 1: fetch tweets from bluesky
@@ -81,7 +115,7 @@ class BlueskyFetcher:
     def __init__(self, config: PipelineConfig):
         self.config = config
         self.client = None
-        
+    
     def connect(self):
         """Connect to Bluesky"""
         if not BLUESKY_AVAILABLE:
@@ -124,7 +158,7 @@ class BlueskyFetcher:
                         break
                     
                     if hasattr(post.record, 'text') and post.record.text:
-                        # convert post to dict 
+                        # convert post to dict
                         post_dict = {
                             'text': post.record.text,
                             'uri': post.uri,
@@ -139,17 +173,17 @@ class BlueskyFetcher:
                             'repost_count': post.repost_count if hasattr(post, 'repost_count') else 0,
                             'keyword': keyword
                         }
-                        
                         all_tweets.append(post_dict)
                         total_posts += 1
                 
                 print(f"  Found {len(results.posts)} posts for '{keyword}'")
-                
+            
             except Exception as e:
                 print(f"  Error fetching {keyword}: {e}")
         
         print(f"\n✓ Total posts collected: {total_posts}\n")
         return all_tweets
+
 
 # step 2: clean and format tweets
 class TweetCleaner:
@@ -162,12 +196,10 @@ class TweetCleaner:
         """Extract disaster keyword from text"""
         if not text:
             return None
-        
         text_lower = text.lower()
         for keyword in TweetCleaner.DISASTER_KEYWORDS:
             if re.search(r'\b' + re.escape(keyword) + r'\b', text_lower):
                 return keyword
-        
         return None
     
     @staticmethod
@@ -182,7 +214,7 @@ class TweetCleaner:
         text = raw_tweet.get('text', '')
         author = raw_tweet.get('author', {})
         
-        # extract important fields (matching clean_tweets.py)
+        # extract important fields
         cleaned = {
             'id': TweetCleaner.generate_id(
                 author.get('handle', 'unknown'),
@@ -228,6 +260,7 @@ class TweetCleaner:
         print()
         
         return cleaned
+
 
 # step 3: classify tweets with classifier
 class DisasterClassifier:
@@ -302,20 +335,23 @@ class DisasterClassifier:
                     'disaster_type': predicted_type if is_disaster else None,
                     'confidence': float(max_confidence),
                     'all_probabilities': {
-                        str(cls): float(prob) 
+                        str(cls): float(prob)
                         for cls, prob in zip(self.label_encoder.classes_, probs)
                     }
                 }
             }
             classified_tweets.append(classified_tweet)
         
-        disaster_count = sum(1 for t in classified_tweets if t['ml_classification']['is_disaster'])
-        print(f"✓ Classification complete: {disaster_count} disasters, {len(tweets) - disaster_count} non-disasters\n")
+        disaster_count = sum(1 for t in classified_tweets 
+                           if t['ml_classification']['is_disaster'])
+        
+        print(f"✓ Classification complete: {disaster_count} disasters, "
+              f"{len(tweets) - disaster_count} non-disasters\n")
         
         return classified_tweets
 
 
-# step 4: extract details with LLM
+# step 4: extract details with LLM (MULTI-TOKEN SUPPORT)
 class DisasterState(TypedDict):
     """State for LangGraph workflow"""
     tweet_id: str
@@ -325,20 +361,133 @@ class DisasterState(TypedDict):
     error: Optional[str]
 
 
+class TokenRotationManager:
+    """Manages rotation between multiple HF tokens"""
+    
+    def __init__(self, tokens: List[str]):
+        self.tokens = tokens
+        self.current_token_idx = 0
+        self.token_stats = {i: {'calls': 0, 'exhausted': False} 
+                           for i in range(len(tokens))}
+        self.total_rotations = 0
+    
+    def get_current_token(self) -> Optional[str]:
+        """Get the current active token"""
+        if not self.tokens:
+            return None
+        
+        # Find next available token
+        attempts = 0
+        while attempts < len(self.tokens):
+            if not self.token_stats[self.current_token_idx]['exhausted']:
+                return self.tokens[self.current_token_idx]
+            
+            # This token is exhausted, try next
+            self.current_token_idx = (self.current_token_idx + 1) % len(self.tokens)
+            attempts += 1
+        
+        # All tokens exhausted
+        return None
+    
+    def mark_token_exhausted(self):
+        """Mark current token as exhausted and rotate to next"""
+        self.token_stats[self.current_token_idx]['exhausted'] = True
+        old_idx = self.current_token_idx
+        self.current_token_idx = (self.current_token_idx + 1) % len(self.tokens)
+        self.total_rotations += 1
+        
+        print(f"\n🔄 Token {old_idx + 1} exhausted, rotating to Token {self.current_token_idx + 1}")
+        print(f"   Total rotations so far: {self.total_rotations}\n")
+    
+    def record_successful_call(self):
+        """Record a successful API call for current token"""
+        self.token_stats[self.current_token_idx]['calls'] += 1
+    
+    def all_tokens_exhausted(self) -> bool:
+        """Check if all tokens are exhausted"""
+        return all(stats['exhausted'] for stats in self.token_stats.values())
+    
+    def get_stats(self) -> Dict:
+        """Get statistics about token usage"""
+        total_calls = sum(stats['calls'] for stats in self.token_stats.values())
+        exhausted_count = sum(1 for stats in self.token_stats.values() if stats['exhausted'])
+        
+        return {
+            'total_tokens': len(self.tokens),
+            'exhausted_tokens': exhausted_count,
+            'total_calls': total_calls,
+            'rotations': self.total_rotations,
+            'per_token': self.token_stats
+        }
+
+
 class LLMExtractor:
-    """Extract detailed information using LLM"""
+    """Extract detailed information using LLM with token rotation"""
     
     def __init__(self, config: PipelineConfig):
         self.config = config
-        self.llm = ChatOpenAI(
-            model=config.LLM_MODEL,
-            openai_api_key=config.HF_TOKEN,
-            openai_api_base="https://router.huggingface.co/v1",
-            temperature=0.5,
-        )
-        self.graph = self._build_graph()
+        self.llm = None
+        self.graph = None
         self.llm_calls_made = 0
         self.llm_calls_skipped = 0
+        
+        # Token rotation manager
+        self.token_manager = TokenRotationManager(config.HF_TOKENS)
+        
+        # Only initialize LLM if not skipping and tokens available
+        if not config.SKIP_LLM and config.HF_TOKENS:
+            self._initialize_llm()
+            if self.llm:
+                self.graph = self._build_graph()
+        else:
+            if not config.HF_TOKENS:
+                print("⚠️  No HuggingFace tokens available")
+            self.config.SKIP_LLM = True
+    
+    def _initialize_llm(self):
+        """Initialize LLM with current token"""
+        current_token = self.token_manager.get_current_token()
+        if not current_token:
+            print("⚠️  No available tokens to initialize LLM")
+            return
+        
+        try:
+            self.llm = ChatOpenAI(
+                model=self.config.LLM_MODEL,
+                openai_api_key=current_token,
+                openai_api_base="https://router.huggingface.co/v1",
+                temperature=0.5,
+            )
+            print(f"✓ LLM initialized with Token {self.token_manager.current_token_idx + 1}")
+        except Exception as e:
+            print(f"⚠️  Warning: Could not initialize LLM: {e}")
+            self.config.SKIP_LLM = True
+    
+    def _rotate_to_next_token(self) -> bool:
+        """Rotate to next available token and reinitialize LLM"""
+        self.token_manager.mark_token_exhausted()
+        
+        if self.token_manager.all_tokens_exhausted():
+            print("❌ All tokens exhausted! Cannot continue LLM extraction.\n")
+            return False
+        
+        # Reinitialize LLM with new token
+        current_token = self.token_manager.get_current_token()
+        if not current_token:
+            return False
+        
+        try:
+            self.llm = ChatOpenAI(
+                model=self.config.LLM_MODEL,
+                openai_api_key=current_token,
+                openai_api_base="https://router.huggingface.co/v1",
+                temperature=0.5,
+            )
+            print(f"✓ Successfully switched to Token {self.token_manager.current_token_idx + 1}\n")
+            return True
+        except Exception as e:
+            print(f"⚠️  Failed to initialize new token: {e}")
+            return False
     
     def _build_graph(self) -> StateGraph:
         """Build LangGraph workflow"""
@@ -352,7 +501,8 @@ class LLMExtractor:
             return "extract" if state["ml_classification"]["is_disaster"] else "skip"
         
         workflow.set_entry_point("check_disaster")
-        workflow.add_conditional_edges("check_disaster", route, {"extract": "extract", "skip": "skip"})
+        workflow.add_conditional_edges("check_disaster", route,
+                                      {"extract": "extract", "skip": "skip"})
         workflow.add_edge("extract", END)
         workflow.add_edge("skip", END)
         
@@ -363,85 +513,97 @@ class LLMExtractor:
         return state
     
     def _extract_with_llm(self, state: DisasterState) -> DisasterState:
-        """Extract details using LLM"""
+        """Extract details using LLM with token rotation"""
+        # Check if all tokens exhausted
+        if self.token_manager.all_tokens_exhausted():
+            state["error"] = "All HuggingFace tokens exhausted"
+            state["extracted_data"] = None
+            self.llm_calls_skipped += 1
+            return state
+        
+        # Check if we've hit the max calls limit
+        if self.config.MAX_LLM_CALLS > 0 and self.llm_calls_made >= self.config.MAX_LLM_CALLS:
+            state["error"] = f"Reached maximum LLM calls limit ({self.config.MAX_LLM_CALLS})"
+            state["extracted_data"] = None
+            self.llm_calls_skipped += 1
+            return state
+        
         time.sleep(self.config.RATE_LIMIT_DELAY)
-        self.llm_calls_made += 1
         
         ml_cls = state["ml_classification"]
         disaster_type = ml_cls.get("disaster_type", "unknown")
         confidence = ml_cls.get("confidence", 0)
         
-        # prompt = f"""Extract key information from this disaster tweet. Return ONLY valid JSON.
-
-        # Tweet: "{state['tweet_text']}"
-
-        # ML Classifier predicted: {disaster_type} (confidence: {confidence:.2f})
-        # Based on the tweet content, perform another round of classification to confirm if this is a valid disaster-related tweet.
-
-        # Extract these fields (use null if not found):
-        # - llm_classification: boolean (true if disaster-related, false otherwise)
-        # - disaster_type: string
-        # - location: string (city, region, country)
-        # - time: string (when it happened/will happen)
-        # - severity: string (low, medium, high, critical)
-        # - casualties_mentioned: boolean
-        # - damage_mentioned: boolean
-        # - needs_help: boolean
-        # - key_details: string (brief summary)
-        
-        # Return ONLY this JSON:
-        # {{
-        #     "llm_classification": false,
-        #     "disaster_type": "...",
-        #     "location": "...",
-        #     "time": "...",
-        #     "severity": "...",
-        #     "casualties_mentioned": false,
-        #     "damage_mentioned": false,
-        #     "needs_help": false,
-        #     "key_details": "..."
-        # }}"""
         prompt = f"""Analyze this tweet to verify if it's genuinely about a natural disaster and extract key information. Return ONLY valid JSON.
 
-        Tweet: "{state['tweet_text']}"
+Tweet: "{state['tweet_text']}"
 
-        ML Model predicted this as: {disaster_type} (confidence: {confidence:.2f})
+ML Model predicted this as: {disaster_type} (confidence: {confidence:.2f})
 
-        First, carefully evaluate if this tweet is actually about a CURRENT or RECENT natural disaster:
-        - KEY IDEA: Would an emergency responder find this information useful?
-        - It should describe a real disaster event (not metaphorical use, jokes, or general discussion)
-        - It should be about a current/recent event (not historical or hypothetical)
-        - It should be about natural disasters (not man-made disasters or other emergencies)
+First, carefully evaluate if this tweet is actually about a CURRENT or RECENT natural disaster:
+- KEY IDEA: Would an emergency responder find this information useful?
+- It should describe a real disaster event (not metaphorical use, jokes, or general discussion)
+- It should be about a current/recent event (not historical or hypothetical)
+- It should be about natural disasters (not man-made disasters or other emergencies)
 
-        Then extract detailed information if it's valid.
+Then extract detailed information if it's valid. Return in this JSON format:
 
-        Return in this JSON format:
-        {{
-            "llm_classification": boolean,  // true ONLY if it's a valid current/recent natural disaster tweet
-            "validation_notes": string,     // brief explanation of why it is/isn't valid
-            "disaster_type": string,        // earthquake/flood/hurricane/wildfire/null
-            "location": string,             // where is this happening
-            "time": string,                 // when did it happen/is happening
-            "severity": string,             // low/medium/high/critical
-            "casualties_mentioned": boolean, // does it mention deaths/injuries
-            "damage_mentioned": boolean,    // does it mention property damage
-            "needs_help": boolean,          // does it request assistance/aid
-            "key_details": string          // brief summary of main points
-        }}
+{{
+  "llm_classification": boolean,  // true ONLY if it's a valid current/recent natural disaster tweet
+  "validation_notes": string,     // brief explanation of why it is/isn't valid
+  "disaster_type": string,        // earthquake/flood/hurricane/wildfire/null
+  "location": string,             // where is this happening
+  "time": string,                 // when did it happen/is happening
+  "severity": string,             // low/medium/high/critical
+  "casualties_mentioned": boolean, // does it mention deaths/injuries
+  "damage_mentioned": boolean,    // does it mention property damage
+  "needs_help": boolean,          // does it request assistance/aid
+  "key_details": string          // brief summary of main points
+}}
 
-        Example of correct classification:
-        - "Massive earthquake just hit San Francisco" = llm_classification: true
-        - "This hurricane season might be bad" = llm_classification: false
-        - "My life is a disaster rn" = llm_classification: false
-        """
+Example of correct classification:
+- "Massive earthquake just hit San Francisco" = llm_classification: true
+- "This hurricane season might be bad" = llm_classification: false
+- "My life is a disaster rn" = llm_classification: false
+"""
         
-        try:
-            result = self.llm.invoke(prompt)
-            state["extracted_data"] = self._parse_json(result.content)
-        except Exception as e:
-            state["error"] = f"LLM extraction failed: {str(e)}"
-            state["extracted_data"] = None
+        # Try to make the API call with retry on token exhaustion
+        max_retries = len(self.config.HF_TOKENS)
+        for attempt in range(max_retries):
+            try:git checkout --theirs backend/pipeline_output/01_raw_tweets.jsonl
+
+                result = self.llm.invoke(prompt)
+                state["extracted_data"] = self._parse_json(result.content)
+                self.llm_calls_made += 1
+                self.token_manager.record_successful_call()
+                return state
+                
+            except Exception as e:
+                error_msg = str(e)
+                
+                # Check if it's a credit limit error
+                if "402" in error_msg or "exceeded" in error_msg.lower() or "credits" in error_msg.lower():
+                    print(f"⚠️  Token {self.token_manager.current_token_idx + 1} hit credit limit")
+                    
+                    # Try to rotate to next token
+                    if self._rotate_to_next_token():
+                        # Retry with new token
+                        continue
+                    else:
+                        # All tokens exhausted
+                        state["error"] = "All HuggingFace tokens exhausted"
+                        state["extracted_data"] = None
+                        self.llm_calls_skipped += 1
+                        return state
+                else:
+                    # Other error, don't retry
+                    state["error"] = f"LLM extraction failed: {error_msg}"
+                    state["extracted_data"] = None
+                    return state
         
+        # If we get here, all retries failed
+        state["error"] = "LLM extraction failed after all token retries"
+        state["extracted_data"] = None
         return state
     
     def _skip_extraction(self, state: DisasterState) -> DisasterState:
@@ -486,58 +648,55 @@ class LLMExtractor:
             'llm_error': final_state['error']
         }
     
-    def process_tweets(self, tweets: List[Dict], limit: Optional[int] = None) -> List[Dict]:
-        """Process all disaster tweets"""
-        disaster_tweets = [t for t in tweets if t['ml_classification']['is_disaster']]
-        non_disaster_count = len([t for t in tweets if not t['ml_classification']['is_disaster']])
-
-        if limit:
-            print(f"Limiting LLM extraction to first {limit} disaster tweets for testing.")
-            disaster_tweets = disaster_tweets[:limit]
-        
-        print(f"Extracting details for {len(disaster_tweets)} disaster tweets with LLM...")
-        print(f"(Filtering out {non_disaster_count} non-disaster tweets from final output)\n")
-        
-        processed = []
-        for i, tweet in enumerate(disaster_tweets, 1):
-            result = self.process_tweet(tweet)
-            processed.append(result)
-            
-            if i % 10 == 0:
-                print(f"  Processed {i}/{len(disaster_tweets)} tweets...")
-        
-        # ✅ REMOVED: Don't add non-disaster tweets to output
-        
-        print(f"\n✓ LLM extraction complete")
-        print(f"  API calls made: {self.llm_calls_made}")
-        print(f"  Tweets in final output: {len(processed)} (disasters only)\n")
-        
-        return processed
-    
     def process_all_tweets_in_batches(self, tweets: List[Dict]) -> List[Dict]:
+        """Process all disaster tweets in batches"""
+        # Check if LLM is disabled
+        if self.config.SKIP_LLM:
+            print("⏭  LLM extraction is disabled (SKIP_LLM=true)")
+            print("   Returning ML-classified tweets without LLM extraction.\n")
+            disaster_tweets = [t for t in tweets if t['ml_classification']['is_disaster']]
+            for tweet in disaster_tweets:
+                tweet['llm_extraction'] = None
+                tweet['llm_error'] = "LLM extraction skipped (SKIP_LLM=true)"
+            return disaster_tweets
+        
         # Process all disaster tweets in batches of 20
         disaster_tweets = [t for t in tweets if t['ml_classification']['is_disaster']]
         non_disaster_count = len([t for t in tweets if not t['ml_classification']['is_disaster']])
-        
         total_disasters = len(disaster_tweets)
+        
         BATCH_SIZE = 20
         
         print(f"Processing {total_disasters} disaster tweets in batches of {BATCH_SIZE}...")
-        print(f"(Filtering out {non_disaster_count} non-disaster tweets)\n")
+        print(f"(Filtering out {non_disaster_count} non-disaster tweets)")
+        print(f"Using {len(self.config.HF_TOKENS)} HuggingFace token(s)\n")
+        
+        if self.config.MAX_LLM_CALLS > 0:
+            print(f"⚠️  LLM call limit set to: {self.config.MAX_LLM_CALLS}\n")
         
         all_processed = []
         
         # Process in batches
         for batch_start in range(0, total_disasters, BATCH_SIZE):
+            # Stop if all tokens exhausted
+            if self.token_manager.all_tokens_exhausted():
+                print(f"\n❌ All tokens exhausted!")
+                print(f"   Processed {len(all_processed)}/{total_disasters} tweets.\n")
+                # Add remaining tweets with error message
+                for tweet in disaster_tweets[batch_start:]:
+                    tweet['llm_extraction'] = None
+                    tweet['llm_error'] = "All HuggingFace tokens exhausted"
+                    all_processed.append(tweet)
+                break
+            
             batch_end = min(batch_start + BATCH_SIZE, total_disasters)
             batch = disaster_tweets[batch_start:batch_end]
+            
             batch_num = (batch_start // BATCH_SIZE) + 1
             total_batches = (total_disasters + BATCH_SIZE - 1) // BATCH_SIZE
             
-            print(f"📦 Processing batch {batch_num}/{total_batches} (tweets {batch_start+1}-{batch_end})...")
-            
-            # Reset API call counter for this batch
-            self.llm_calls_made = 0
+            print(f"📦 Batch {batch_num}/{total_batches} (tweets {batch_start+1}-{batch_end})...")
+            print(f"   Current token: Token {self.token_manager.current_token_idx + 1}")
             
             # Process this batch
             for i, tweet in enumerate(batch, 1):
@@ -545,18 +704,36 @@ class LLMExtractor:
                 all_processed.append(result)
                 
                 if i % 5 == 0:
-                    print(f"  Batch progress: {i}/{len(batch)} tweets...")
+                    print(f"   Progress: {i}/{len(batch)} tweets...")
+                
+                # Stop if all tokens exhausted
+                if self.token_manager.all_tokens_exhausted():
+                    break
             
-            print(f"  ✓ Batch {batch_num} complete ({len(batch)} tweets)\n")
-            
-            # Brief pause between batches (optional, for rate limiting safety)
-            if batch_end < total_disasters:
-                time.sleep(2)
+            if not self.token_manager.all_tokens_exhausted():
+                print(f"   ✓ Batch complete\n")
+                
+                # Brief pause between batches
+                if batch_end < total_disasters:
+                    time.sleep(2)
         
-        print(f"✓ All {total_disasters} disaster tweets processed!")
-        print(f"  Total API calls: {total_disasters}\n")
+        # Print final statistics
+        stats = self.token_manager.get_stats()
+        print(f"\n{'='*70}")
+        print("TOKEN USAGE STATISTICS")
+        print(f"{'='*70}")
+        print(f"Total tokens available: {stats['total_tokens']}")
+        print(f"Tokens exhausted: {stats['exhausted_tokens']}")
+        print(f"Total LLM calls made: {stats['total_calls']}")
+        print(f"Token rotations: {stats['rotations']}")
+        print(f"\nPer-token breakdown:")
+        for idx, token_stats in stats['per_token'].items():
+            status = "❌ EXHAUSTED" if token_stats['exhausted'] else "✓ Available"
+            print(f"  Token {idx + 1}: {token_stats['calls']} calls - {status}")
+        print(f"{'='*70}\n")
         
         return all_processed
+
 
 # main pipeline
 class UnifiedPipeline:
@@ -575,14 +752,20 @@ class UnifiedPipeline:
     def run(self, skip_fetch: bool = False, use_existing: Optional[str] = None):
         """Run the complete pipeline"""
         print("\n" + "=" * 70)
-        print("UNIFIED DISASTER TWEET PIPELINE")
+        print("UNIFIED DISASTER TWEET PIPELINE - MULTI-TOKEN EDITION")
         print("=" * 70 + "\n")
+        
+        # Show configuration
+        if self.config.SKIP_LLM:
+            print("⚠️  LLM extraction is DISABLED\n")
+        elif self.config.MAX_LLM_CALLS > 0:
+            print(f"⚠️  LLM calls limited to: {self.config.MAX_LLM_CALLS}\n")
         
         start_time = time.time()
         
         # step 1: fetch tweets
         if skip_fetch or use_existing:
-            print("⏭Skipping tweet fetch (using existing data)\n")
+            print("⏭  Skipping tweet fetch (using existing data)\n")
             if use_existing:
                 with open(use_existing, 'r') as f:
                     raw_tweets = [json.loads(line) for line in f if line.strip()]
@@ -615,26 +798,18 @@ class UnifiedPipeline:
         self.save_jsonl(classified_tweets, self.config.CLASSIFIED_TWEETS_FILE)
         print(f"Saved to: {self.config.CLASSIFIED_TWEETS_FILE}\n")
         
-        # # step 4: extract with LLM
-        # print("STEP 4: EXTRACT DETAILS WITH LLM")
-        # print("-" * 70)
-        # extractor = LLMExtractor(self.config)
-        # final_results = extractor.process_tweets(classified_tweets, limit=20)
-        # self.save_jsonl(final_results, self.config.FINAL_OUTPUT_FILE)
-        # print(f"Saved to: {self.config.FINAL_OUTPUT_FILE}\n")
-        
         # step 4: extract with LLM
         print("STEP 4: EXTRACT DETAILS WITH LLM")
         print("-" * 70)
         extractor = LLMExtractor(self.config)
-
-        # Process in batches of 20 until all are done
+        
+        # Process in batches with token rotation
         final_results = extractor.process_all_tweets_in_batches(classified_tweets)
         
         # save the results
         self.save_jsonl(final_results, self.config.FINAL_OUTPUT_FILE)
         print(f"Saved to: {self.config.FINAL_OUTPUT_FILE}\n")
-
+        
         # summary
         elapsed = time.time() - start_time
         timestamp_file = self.config.OUTPUT_DIR / 'last_update.json'
@@ -655,13 +830,15 @@ class UnifiedPipeline:
         print("=" * 70)
         
         total = len(results)
-        disasters = sum(1 for r in results if r['ml_classification']['is_disaster'])
+        disasters = sum(1 for r in results 
+                       if r['ml_classification']['is_disaster'])
         extracted = sum(1 for r in results if r.get('llm_extraction'))
+        errors = sum(1 for r in results if r.get('llm_error'))
         
         # count by disaster type
         disaster_types = Counter(
-            r['ml_classification']['disaster_type'] 
-            for r in results 
+            r['ml_classification']['disaster_type']
+            for r in results
             if r['ml_classification']['is_disaster']
         )
         
@@ -670,6 +847,7 @@ class UnifiedPipeline:
         print(f"  Disasters detected: {disasters}")
         print(f"  Non-disasters: {total - disasters}")
         print(f"  LLM extractions: {extracted}")
+        print(f"  LLM errors: {errors}")
         print(f"  Total time: {elapsed:.1f}s ({elapsed/total:.2f}s per tweet)")
         
         print(f"\nDisaster breakdown:")
@@ -684,15 +862,93 @@ class UnifiedPipeline:
         
         print("\n" + "=" * 70 + "\n")
 
+
+def calculate_optimal_tokens(tweets_per_run: int, runs_per_day: int, 
+                            disaster_percentage: float = 0.25,
+                            calls_per_token: int = 500):
+    """
+    Calculate optimal number of HF tokens needed
+    
+    Args:
+        tweets_per_run: Number of tweets fetched per run (e.g., 400)
+        runs_per_day: How many times pipeline runs per day (e.g., 2)
+        disaster_percentage: Expected % of tweets classified as disasters (default 25%)
+        calls_per_token: Free tier limit per token per month (default ~500)
+    
+    Returns:
+        Dictionary with recommendations
+    """
+    # Calculate daily and monthly needs
+    disaster_tweets_per_run = int(tweets_per_run * disaster_percentage)
+    daily_llm_calls = disaster_tweets_per_run * runs_per_day
+    monthly_llm_calls = daily_llm_calls * 30  # 30 days
+    
+    # Calculate tokens needed
+    tokens_needed = int(np.ceil(monthly_llm_calls / calls_per_token))
+    
+    # Calculate with safety margin
+    tokens_with_margin = int(np.ceil(tokens_needed * 1.2))  # 20% safety margin
+    
+    return {
+        'tweets_per_run': tweets_per_run,
+        'runs_per_day': runs_per_day,
+        'disaster_tweets_per_run': disaster_tweets_per_run,
+        'daily_llm_calls': daily_llm_calls,
+        'monthly_llm_calls': monthly_llm_calls,
+        'tokens_needed_minimum': tokens_needed,
+        'tokens_recommended': tokens_with_margin,
+        'calls_per_token_assumed': calls_per_token
+    }
+
+
 def main():
     import argparse
     
-    parser = argparse.ArgumentParser(description='Unified disaster tweet pipeline')
-    parser.add_argument('--skip-fetch', action='store_true', help='Skip fetching tweets (use existing files)')
-    parser.add_argument('--use-existing', type=str, help='Path to existing raw tweets JSONL file')
-    parser.add_argument('--config', type=str, help='Path to custom config file (not implemented)')
+    parser = argparse.ArgumentParser(description='Unified disaster tweet pipeline with multi-token support')
+    parser.add_argument('--skip-fetch', action='store_true',
+                       help='Skip fetching tweets (use existing files)')
+    parser.add_argument('--use-existing', type=str,
+                       help='Path to existing raw tweets JSONL file')
+    parser.add_argument('--skip-llm', action='store_true',
+                       help='Skip LLM extraction (faster, ML only)')
+    parser.add_argument('--max-llm-calls', type=int, default=0,
+                       help='Maximum number of LLM API calls (0=unlimited)')
+    parser.add_argument('--calculate-tokens', action='store_true',
+                       help='Calculate optimal number of tokens needed')
     
     args = parser.parse_args()
+    
+    # Calculate optimal tokens if requested
+    if args.calculate_tokens:
+        print("\n" + "=" * 70)
+        print("TOKEN REQUIREMENT CALCULATOR")
+        print("=" * 70 + "\n")
+        
+        # Default scenario: 400 tweets, 2 runs per day
+        result = calculate_optimal_tokens(
+            tweets_per_run=400,
+            runs_per_day=2,
+            disaster_percentage=0.25,  # Assume 25% are disasters after ML filtering
+            calls_per_token=500  # Conservative estimate for HF free tier
+        )
+        
+        print(f"Scenario: {result['tweets_per_run']} tweets per run, {result['runs_per_day']} runs per day")
+        print(f"\nEstimates (assuming {result['disaster_tweets_per_run']} disaster tweets per run):")
+        print(f"  Daily LLM calls needed: {result['daily_llm_calls']}")
+        print(f"  Monthly LLM calls needed: {result['monthly_llm_calls']}")
+        print(f"  Calls per token (free tier): ~{result['calls_per_token_assumed']}")
+        print(f"\n✓ MINIMUM tokens needed: {result['tokens_needed_minimum']}")
+        print(f"✓ RECOMMENDED tokens (with 20% margin): {result['tokens_recommended']}")
+        print(f"\n💡 TIP: Create {result['tokens_recommended']} HuggingFace accounts")
+        print(f"   and add them to .env as HF_TOKEN1, HF_TOKEN2, ... HF_TOKEN{result['tokens_recommended']}")
+        print("\n" + "=" * 70 + "\n")
+        return
+    
+    # Override config with command-line args
+    if args.skip_llm:
+        os.environ['SKIP_LLM'] = 'true'
+    if args.max_llm_calls > 0:
+        os.environ['MAX_LLM_CALLS'] = str(args.max_llm_calls)
     
     # run pipeline
     config = PipelineConfig()

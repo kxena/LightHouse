@@ -23,5 +23,8 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db.env
 
+# Pipeline results 
+# backend/pipeline_output/
+
 # env variables
 .env
