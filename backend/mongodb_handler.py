@@ -18,6 +18,40 @@ import time
 
 load_dotenv()
 
+from bson import ObjectId, Decimal128
+from datetime import datetime
+
+def clean_mongo_doc(doc):
+    """Recursively convert MongoDB-specific types to JSON-serializable ones"""
+    if isinstance(doc, dict):
+        doc.pop('_id', None)
+        return {k: clean_mongo_doc(v) for k, v in doc.items()}
+    
+    elif isinstance(doc, list):
+        return [clean_mongo_doc(item) for item in doc]
+    
+    elif isinstance(doc, ObjectId):
+        return str(doc)
+    
+    elif isinstance(doc, Decimal128):
+        return float(doc.to_decimal())
+    
+    # Handle MongoDB Extended JSON wrappers like {"$numberDouble": "12.8797"}
+    elif isinstance(doc, dict) and len(doc) == 1:
+        key = list(doc.keys())[0]
+        if key.startswith("$number"):
+            try:
+                return float(doc[key])
+            except:
+                return doc
+        if key == "$oid":
+            return doc[key]  # String value
+    
+    elif isinstance(doc, datetime):
+        return doc.isoformat()
+    
+    return doc
+
 
 class MongoDBHandler:
     """Handle MongoDB Atlas operations with robust error handling for automation"""
@@ -177,15 +211,10 @@ class MongoDBHandler:
             cursor = self.collection.find({})
             if limit:
                 cursor = cursor.limit(limit)
-            
-            incidents = list(cursor)
-            
-            # Remove MongoDB _id field
-            for incident in incidents:
-                incident.pop('_id', None)
-            
+
+            incidents = [clean_mongo_doc(doc) for doc in cursor]
             return incidents
-            
+                
         except Exception:
             return []
     
@@ -201,20 +230,19 @@ class MongoDBHandler:
         try:
             total = self.collection.count_documents({})
             active = self.collection.count_documents({'status': 'active'})
-            
-            # Count by incident type
+
             pipeline = [
                 {'$group': {'_id': '$incident_type', 'count': {'$sum': 1}}}
             ]
             by_type_cursor = self.collection.aggregate(pipeline)
-            by_type = {item['_id']: item['count'] for item in by_type_cursor}
-            
-            return {
+            by_type = clean_mongo_doc({item['_id']: item['count'] for item in by_type_cursor})
+
+            return clean_mongo_doc({
                 'total_incidents': total,
                 'active_incidents': active,
                 'by_type': by_type
-            }
-            
+            })
+
         except Exception:
             return {
                 'total_incidents': 0,
