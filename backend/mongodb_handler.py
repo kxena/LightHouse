@@ -25,7 +25,14 @@ def clean_mongo_doc(doc):
     """Recursively convert MongoDB-specific types to JSON-serializable ones"""
     if isinstance(doc, dict):
         doc.pop('_id', None)
-        return {k: clean_mongo_doc(v) for k, v in doc.items()}
+        cleaned = {k: clean_mongo_doc(v) for k, v in doc.items()}
+
+        # 🔹 Force boolean fields to real booleans
+        for key in ["damage_mentioned", "needs_help", "casualties_mentioned"]:
+            if key in cleaned:
+                cleaned[key] = bool(cleaned[key]) if isinstance(cleaned[key], (bool, int)) else False
+
+        return cleaned
     
     elif isinstance(doc, list):
         return [clean_mongo_doc(item) for item in doc]
@@ -36,6 +43,9 @@ def clean_mongo_doc(doc):
     elif isinstance(doc, Decimal128):
         return float(doc.to_decimal())
     
+    elif isinstance(doc, datetime):
+        return doc.isoformat()
+    
     # Handle MongoDB Extended JSON wrappers like {"$numberDouble": "12.8797"}
     elif isinstance(doc, dict) and len(doc) == 1:
         key = list(doc.keys())[0]
@@ -45,12 +55,10 @@ def clean_mongo_doc(doc):
             except:
                 return doc
         if key == "$oid":
-            return doc[key]  # String value
-    
-    elif isinstance(doc, datetime):
-        return doc.isoformat()
+            return doc[key]
     
     return doc
+
 
 
 class MongoDBHandler:
@@ -202,20 +210,123 @@ class MongoDBHandler:
             stats['errors'].append(f"Bulk error: {str(e)[:100]}")
             return stats
     
-    def get_all_incidents(self, limit: Optional[int] = None) -> List[Dict]:
-        """Get all incidents from database"""
+    def get_all_incidents(self, limit: Optional[int] = None, active_only: bool = False) -> List[Dict]:
+        """Get incidents from database, with optional filtering for only active ones"""
         if not self.connected:
             return []
         
         try:
-            cursor = self.collection.find({})
+            # Dynamically adjust query based on active_only flag
+            query = {"status": "active"} if active_only else {}
+
+            cursor = self.collection.find(query)
+
             if limit:
                 cursor = cursor.limit(limit)
 
             incidents = [clean_mongo_doc(doc) for doc in cursor]
             return incidents
+                    
+        except Exception as e:
+            print(f"Error fetching incidents: {str(e)}")
+            return []
+
+
+    def get_incident_by_id(self, incident_id: str) -> Optional[Dict]:
+        """Get a specific incident by its ID"""
+        if not self.connected:
+            return None
+        
+        try:
+            incident = self.collection.find_one({'id': incident_id})
+            if incident:
+                return clean_mongo_doc(incident)
+            return None
+        except Exception as e:
+            print(f"Error fetching incident by ID: {str(e)}")
+            return None
+
+
+    def get_incidents_by_type(self, incident_type: str) -> List[Dict]:
+        """Get all active incidents of a specific type (case-insensitive)"""
+        if not self.connected:
+            return []
+        
+        try:
+            # Use case-insensitive regex to match incident type
+            query = {
+                'incident_type': {'$regex': f'^{incident_type}$', '$options': 'i'},
+                'status': 'active'
+            }
+            incidents = self.collection.find(query)
+            return [clean_mongo_doc(doc) for doc in incidents]
+        except Exception as e:
+            print(f"Error fetching incidents by type: {str(e)}")
+            return []
+
+
+    def get_incidents_in_radius(self, lat: float, lng: float, radius_km: float) -> List[Dict]:
+        """
+        Get all active incidents within a specified radius of a location
+        Uses simple distance calculation (Haversine formula approximation)
+        
+        Args:
+            lat: Latitude of center point
+            lng: Longitude of center point
+            radius_km: Search radius in kilometers
+        
+        Returns:
+            List of incidents within the radius
+        """
+        if not self.connected:
+            return []
+        
+        try:
+            from math import radians, cos, sin, asin, sqrt
+            
+            def haversine(lon1, lat1, lon2, lat2):
+                """Calculate the great circle distance between two points on Earth"""
+                # Convert decimal degrees to radians
+                lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
                 
-        except Exception:
+                # Haversine formula
+                dlon = lon2 - lon1
+                dlat = lat2 - lat1
+                a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+                c = 2 * asin(sqrt(a))
+                
+                # Radius of earth in kilometers
+                r = 6371
+                return c * r
+            
+            # Get all active incidents
+            all_incidents = self.collection.find({'status': 'active'})
+            
+            # Filter by distance
+            nearby_incidents = []
+            for incident in all_incidents:
+                try:
+                    incident_lat = incident.get('lat')
+                    incident_lng = incident.get('lng')
+                    
+                    if incident_lat is not None and incident_lng is not None:
+                        distance = haversine(lng, lat, incident_lng, incident_lat)
+                        
+                        if distance <= radius_km:
+                            cleaned_incident = clean_mongo_doc(incident)
+                            cleaned_incident['distance_km'] = round(distance, 2)
+                            nearby_incidents.append(cleaned_incident)
+                except Exception as e:
+                    # Skip incidents with invalid coordinates
+                    continue
+            
+            # Sort by distance (closest first)
+            nearby_incidents.sort(key=lambda x: x.get('distance_km', float('inf')))
+            
+            return nearby_incidents
+            
+        except Exception as e:
+            print(f"Error fetching nearby incidents: {str(e)}")
             return []
     
     def get_statistics(self) -> Dict:
