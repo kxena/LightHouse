@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Zap, Map, MapPin, Filter, AlertTriangle, Clock, Globe2, Users, CheckCircle } from "lucide-react";
+import logoImg from "../assets/logo.png";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ export default function LandingPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
               <img
-                src="src/assets/logo.png"
+                src={logoImg}
                 alt="LightHouse Logo"
                 className="h-10 w-10 object-contain"
               />
@@ -54,7 +55,7 @@ export default function LandingPage() {
         <div className="text-center">
           <div className="flex justify-center mb-8">
             <img
-              src="src/assets/logo.png"
+              src={logoImg}
               alt="LightHouse Logo"
               className="h-32 w-32 object-contain animate-fadeIn"
             />
@@ -407,7 +408,7 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-3 mb-4 md:mb-0">
               <img
-                src="src/assets/logo.png"
+                src={logoImg}
                 alt="LightHouse Logo"
                 className="h-8 w-8 object-contain"
               />

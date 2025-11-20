@@ -570,7 +570,8 @@ Example of correct classification:
         # Try to make the API call with retry on token exhaustion
         max_retries = len(self.config.HF_TOKENS)
         for attempt in range(max_retries):
-            try:
+            try:git checkout --theirs backend/pipeline_output/01_raw_tweets.jsonl
+
                 result = self.llm.invoke(prompt)
                 state["extracted_data"] = self._parse_json(result.content)
                 self.llm_calls_made += 1

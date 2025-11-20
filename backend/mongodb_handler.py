@@ -79,7 +79,7 @@ class MongoDBHandler:
             True if connected, False otherwise (graceful failure)
         """
         if not self.uri:
-            print("⚠️  MONGODB_URI not found in environment variables")
+            print("⚠️  MDB_URI not found in environment variables")
             print("   Skipping MongoDB upload (incidents.json still created)")
             return False
         
@@ -217,6 +217,21 @@ class MongoDBHandler:
                 
         except Exception:
             return []
+    
+    def get_incident_by_id(self, incident_id: str) -> Optional[Dict]:
+        """Get a specific incident by ID"""
+        if not self.connected:
+            return None
+            
+        try:
+            incident = self.collection.find_one(
+                {"id": incident_id},
+                {"_id": 0}  # Exclude MongoDB _id field
+            )
+            return incident
+            
+        except Exception:
+            return None
     
     def get_statistics(self) -> Dict:
         """Get database statistics"""

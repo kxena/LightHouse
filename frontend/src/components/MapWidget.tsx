@@ -79,7 +79,7 @@ export default function MapWidget({
           <>
             <Circle
               center={[selected.lat, selected.lng]}
-              radius={selected.radiusKm * 1000}
+              radius={(selected.radiusKm || 10) * 1000}
               pathOptions={{
                 color: "rgba(239,68,68,0.9)",
                 fillColor: "rgba(239,68,68,0.25)",

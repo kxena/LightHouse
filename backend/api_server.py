@@ -60,9 +60,9 @@ class Incident(BaseModel):
     created_at: str
     tags: List[str]
     confidence: float
-    casualties_mentioned: bool
-    damage_mentioned: bool
-    needs_help: bool
+    casualties_mentioned: Optional[bool] = False
+    damage_mentioned: Optional[bool] = False
+    needs_help: Optional[bool] = False
     source_tweets: List[SourceTweet]
 
 class Statistics(BaseModel):
@@ -127,9 +127,12 @@ async def get_incidents(
     if mongo_handler is None:
         raise HTTPException(status_code=503, detail="MongoDB not connected")
     try:
-        incidents = mongo_handler.get_all_incidents(active_only=active_only)
-        if limit:
-            incidents = incidents[:limit]
+        incidents = mongo_handler.get_all_incidents(limit=limit)
+        
+        # Filter for active only if requested
+        if active_only:
+            incidents = [inc for inc in incidents if inc.get('status') != 'resolved']
+        
         return incidents
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching incidents: {str(e)}")
@@ -141,6 +144,7 @@ async def get_incident(incident_id: str):
         raise HTTPException(status_code=503, detail="MongoDB not connected")
     try:
         result = mongo_handler.get_incident_by_id(incident_id)
+        
         if not result:
             raise HTTPException(status_code=404, detail="Incident not found")
         return result
@@ -216,6 +220,62 @@ async def get_severity_levels():
         return {"severity_levels": {r["_id"]: r["count"] for r in results}}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching severity: {str(e)}")    
+
+
+@app.get("/api/history/dates")
+async def get_history_dates():
+    """Get list of available historical incident dates"""
+    import os
+    from pathlib import Path
+    
+    try:
+        historical_dir = Path(__file__).parent / "historical"
+        if not historical_dir.exists():
+            return {"dates": []}
+        
+        # List all JSON files in historical directory
+        date_files = list(historical_dir.glob("*_incidents.json"))
+        # Extract dates from filenames (format: YYYY-MM-DD_incidents.json)
+        dates = [f.stem.replace("_incidents", "") for f in date_files]
+        dates.sort(reverse=True)  # Most recent first
+        
+        return {"dates": dates}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching history dates: {str(e)}")
+
+
+@app.get("/api/history/incidents/{date}")
+async def get_history_incidents(date: str):
+    """Get historical incidents for a specific date"""
+    import json
+    from pathlib import Path
+    
+    try:
+        # Sanitize date input to prevent path traversal
+        if not date or ".." in date or "/" in date:
+            raise HTTPException(status_code=400, detail="Invalid date format")
+        
+        historical_dir = Path(__file__).parent / "historical"
+        file_path = historical_dir / f"{date}_incidents.json"
+        
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail=f"No historical data for date: {date}")
+        
+        with open(file_path, "r") as f:
+            data = json.load(f)
+        
+        # Return data with metadata
+        return {
+            "metadata": {
+                "date": date,
+                "count": len(data.get("incidents", []))
+            },
+            "incidents": data.get("incidents", [])
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error loading historical data: {str(e)}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,33 @@
+INFO:     Started server process [67796]
+INFO:     Waiting for application startup.
+/opt/anaconda3/lib/python3.13/site-packages/pymongo/uri_parser.py:321: UserWarning: Unknown option (http://lighthouse:lighthouse@cluster0.wxuiypz.mongodb.net/?appname
+  return get_validated_options(opts, warn)
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+Connecting to MongoDB Atlas...
+✓ Connected to MongoDB Atlas (attempt 1)
+✓ Current documents in collection: 223
+✓ API server ready and connected to MongoDB
+INFO:     127.0.0.1:57487 - "GET /api/incidents/225b701e5b53 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57517 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57519 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57519 - "GET /api/incidents/7da115bcde7e HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57517 - "GET /api/incidents/7da115bcde7e HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57517 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57519 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57533 - "GET /api/incidents/76c56473d679 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57533 - "GET /api/incidents/76c56473d679 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57533 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57535 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57755 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57758 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57758 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57755 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57830 - "GET /api/incidents/1dac4a20e08b HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57830 - "GET /api/incidents/1dac4a20e08b HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57830 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57833 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57833 - "GET /api/incidents/4ec3063edbd8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57830 - "GET /api/incidents/4ec3063edbd8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57830 - "GET /api/incidents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57833 - "GET /api/incidents HTTP/1.1" 200 OK
