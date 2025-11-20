@@ -1,6 +1,8 @@
 import { SignIn } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import logoImg from "../assets/logo.png";
+import titleImg from "../assets/title.png";
 
 export default function SignInPage() {
   return (
@@ -21,13 +23,13 @@ export default function SignInPage() {
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full blur-2xl opacity-30"></div>
             <img
-              src="src/assets/logo.png"
+              src={logoImg}
               alt="LightHouse Logo"
               className="relative w-28 h-28 object-contain"
             />
           </div>
           <img
-            src="src/assets/title.png"
+            src={titleImg}
             alt="LightHouse"
             className="object-contain h-12"
           />

@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "http://localhost:8001/api";
 
 export interface Tweet {
   text: string;
@@ -72,7 +72,53 @@ export class IncidentAPI {
     return response.json();
   }
 
-  static async getIncident(incidentId: string): Promise<IncidentResponse> {
+  static async getIncident(
+    incidentId: string,
+    date?: string
+  ): Promise<IncidentResponse> {
+    // If a date is provided, attempt to fetch from historical incidents and find by id
+    if (date) {
+      const res = await IncidentAPI.getHistoryIncidents(date);
+      const incidents = res.incidents || [];
+      const found = incidents.find((it: any) => it.id === incidentId);
+      if (!found) {
+        throw new Error("Incident not found in historical data");
+      }
+
+      // Normalize historical incident into IncidentResponse shape
+      const source_tweets = (found.source_tweets || []).map((t: any) => ({
+        text: t.text || "",
+        author: t.author || "",
+        timestamp: t.timestamp || "",
+        tweet_id: t.tweet_id || t.id || "",
+      }));
+
+      const incident: IncidentResponse = {
+        id: found.id,
+        title: (found.incident_type
+          ? `${found.incident_type} — ${found.location || ""}`
+          : found.description || found.id) as string,
+        description: (found.description as string) || "",
+        location: (found.location as string) || "",
+        severity: (found.severity as string) || "unknown",
+        incident_type: (found.incident_type as string) || "",
+        tags: (found.tags as string[]) || [],
+        estimated_restoration:
+          (found.estimated_restoration as string) || undefined,
+        affected_area: (found.affected_area as string) || undefined,
+        created_at:
+          res.metadata && res.metadata.date
+            ? `${res.metadata.date}T00:00:00Z`
+            : new Date().toISOString(),
+        status: (found.status as string) || "",
+        source_tweets,
+        lat: typeof found.lat === "number" ? found.lat : undefined,
+        lng: typeof found.lng === "number" ? found.lng : undefined,
+      };
+
+      return incident;
+    }
+
     const response = await fetch(`${API_BASE_URL}/incidents/${incidentId}`);
 
     if (!response.ok) {
@@ -87,6 +133,29 @@ export class IncidentAPI {
       throw new Error(message);
     }
 
+    return response.json();
+  }
+
+  static async getHistoryDates(): Promise<{ dates: string[] }> {
+    const response = await fetch(`${API_BASE_URL}/history/dates`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  }
+
+  static async getHistoryIncidents(date: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/history/incidents/${date}`);
+    if (!response.ok) {
+      let message = `HTTP error! status: ${response.status}`;
+      try {
+        const data = await response.json();
+        if (data?.detail) message = data.detail;
+      } catch {
+        // ignore
+      }
+      throw new Error(message);
+    }
     return response.json();
   }
 
