@@ -39,7 +39,7 @@ export default function SignInPage() {
         </div>
 
         {/* Sign In Card */}
-        <div className="bg-white/70 backdrop-blur-md rounded-3xl shadow-2xl w-full p-10 ring-1 ring-black/5 animate-fadeIn">
+        <div className="bg-white/70 backdrop-blur-md rounded-3xl shadow-2xl w-full p-10 ring-1 ring-black/5 animate-fadeIn flex flex-col items-center">
           <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
             Welcome Back
           </h2>
@@ -49,35 +49,38 @@ export default function SignInPage() {
               variables: {
                 colorPrimary: "#9333ea",
                 colorBackground: "#ffffff",
-                colorInputBackground: "#fafafa",
+                colorInputBackground: "#f3f4f6",
                 colorInputText: "#1f2937",
-                borderRadius: "1rem",
+                borderRadius: "0.875rem",
                 fontFamily: "inherit",
               },
               elements: {
-                rootBox: "w-full",
-                card: "bg-transparent shadow-none p-0",
+                rootBox: "w-full flex justify-center",
+                card: "bg-transparent shadow-none p-0 gap-6",
                 headerTitle: "hidden",
                 headerSubtitle: "hidden",
+                header: "hidden",
                 socialButtonsBlockButton:
-                  "bg-white border-2 border-gray-300 hover:border-purple-400 hover:bg-purple-50 rounded-xl font-semibold text-gray-800 shadow-sm transition-all duration-200 py-3",
-                socialButtonsBlockButtonText: "font-semibold text-base",
-                socialButtonsIconButton: "border-gray-300 hover:border-purple-400",
+                  "bg-white border-2 border-gray-200 hover:border-purple-400 hover:bg-purple-50 rounded-xl font-semibold text-gray-800 shadow-sm transition-all duration-200 py-3 text-base",
+                socialButtonsBlockButtonText: "font-semibold",
+                socialButtonsIconButton: "hidden",
                 formButtonPrimary:
-                  "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base font-bold py-3.5 transform hover:scale-[1.02]",
+                  "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base font-bold py-3.5 w-full",
                 formFieldInput:
-                  "border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 text-gray-900 bg-white px-4 py-3 transition-all duration-200 placeholder:text-transparent",
-                formFieldLabel: "hidden",
-                formFieldLabelRow: "hidden",
-                formFieldInputShowPasswordButton: "text-gray-500 hover:text-purple-600 transition-colors",
-                footerActionLink: "text-purple-600 hover:text-purple-700 font-semibold hover:underline",
-                dividerLine: "bg-gray-300",
-                dividerText: "text-gray-600 text-sm font-medium",
+                  "border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-0 text-gray-900 bg-gray-50 px-4 py-2.5 transition-all duration-200 placeholder:text-gray-500",
+                formFieldLabel: "text-sm font-semibold text-gray-700 mb-1.5",
+                formFieldLabelRow: "flex flex-col mb-3",
+                formFieldInputShowPasswordButton: "text-gray-400 hover:text-purple-600",
+                footerActionLink: "text-purple-600 hover:text-purple-700 font-semibold",
+                dividerLine: "bg-gray-200",
+                dividerText: "text-gray-500 text-sm font-medium",
                 footer: "hidden",
-                identityPreviewEditButton: "text-purple-600 hover:text-purple-700 font-medium",
-                formResendCodeLink: "text-purple-600 hover:text-purple-700 font-medium",
-                otpCodeFieldInput: "border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200",
-                formFieldAction: "text-purple-600 hover:text-purple-700 font-medium",
+                identityPreviewEditButton: "text-purple-600 hover:text-purple-700",
+                formResendCodeLink: "text-purple-600 hover:text-purple-700",
+                otpCodeFieldInput: "border-2 border-gray-200 rounded-xl focus:border-purple-500",
+                formFieldAction: "text-purple-600 hover:text-purple-700 font-medium text-sm",
+                formFieldInputBase: "border-gray-200",
+                alertBox: "bg-purple-50 border-2 border-purple-200 rounded-xl text-purple-900",
               },
             }}
             routing="path"
