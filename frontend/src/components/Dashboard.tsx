@@ -15,6 +15,7 @@ import type { Incident as MapIncident } from "../data/incidents";
 import { 
   getIncidents, 
   IncidentAPI,
+  usePollingIncidents,
   type Incident as ApiIncident 
 } from "../api/lighthouseApi";
 import { DarkModeToggle } from "./DarkModeToggle";
@@ -419,6 +420,12 @@ export default function Dashboard() {
     }
   };
 
+  // Auto-poll for new incidents every 30 seconds when viewing live data
+  usePollingIncidents(
+    selectedHistory === "live",
+    30000,
+    (incidents) => setIncidentsApi(incidents)
+  );
 
   useEffect(() => {
     loadIncidents();
