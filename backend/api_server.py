@@ -194,9 +194,9 @@ async def get_incident_types():
             {"$group": {"_id": "$incident_type"}},
             {"$sort": {"_id": 1}}
         ]
-        results = list(mongo_handler.incidents_collection.aggregate(pipeline))
-        results = [mongo_handler.clean_mongo_doc(r) for r in results]
-        return {"incident_types": [r["_id"] for r in results]}
+        results = list(mongo_handler.collection.aggregate(pipeline))
+        incident_types = [r["_id"] for r in results if r.get("_id")]
+        return {"incident_types": incident_types}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching types: {str(e)}")
 
@@ -211,11 +211,11 @@ async def get_severity_levels():
             {"$group": {"_id": "$severity", "count": {"$sum": 1}}},
             {"$sort": {"_id": 1}}
         ]
-        results = list(mongo_handler.incidents_collection.aggregate(pipeline))
-        results = [mongo_handler.clean_mongo_doc(r) for r in results]
-        return {"severity_levels": {r["_id"]: r["count"] for r in results}}
+        results = list(mongo_handler.collection.aggregate(pipeline))
+        severity_levels = {r["_id"]: r["count"] for r in results if r.get("_id")}
+        return {"severity_levels": severity_levels}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching severity: {str(e)}")    
+        raise HTTPException(status_code=500, detail=f"Error fetching severity: {str(e)}")
 
 
 if __name__ == "__main__":

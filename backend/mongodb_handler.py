@@ -328,37 +328,50 @@ class MongoDBHandler:
         except Exception as e:
             print(f"Error fetching nearby incidents: {str(e)}")
             return []
-    
+
+
     def get_statistics(self) -> Dict:
-        """Get database statistics"""
+        """Get database statistics including severity breakdown"""
         if not self.connected:
             return {
                 'total_incidents': 0,
                 'active_incidents': 0,
-                'by_type': {}
+                'by_type': {},
+                'by_severity': {}
             }
         
         try:
             total = self.collection.count_documents({})
             active = self.collection.count_documents({'status': 'active'})
 
-            pipeline = [
+            # Get incidents grouped by type
+            pipeline_type = [
                 {'$group': {'_id': '$incident_type', 'count': {'$sum': 1}}}
             ]
-            by_type_cursor = self.collection.aggregate(pipeline)
+            by_type_cursor = self.collection.aggregate(pipeline_type)
             by_type = clean_mongo_doc({item['_id']: item['count'] for item in by_type_cursor})
+
+            # Get incidents grouped by severity
+            pipeline_severity = [
+                {'$group': {'_id': '$severity', 'count': {'$sum': 1}}}
+            ]
+            by_severity_cursor = self.collection.aggregate(pipeline_severity)
+            by_severity = clean_mongo_doc({item['_id']: item['count'] for item in by_severity_cursor})
 
             return clean_mongo_doc({
                 'total_incidents': total,
                 'active_incidents': active,
-                'by_type': by_type
+                'by_type': by_type,
+                'by_severity': by_severity
             })
 
-        except Exception:
+        except Exception as e:
+            print(f"Error getting statistics: {str(e)}")
             return {
                 'total_incidents': 0,
                 'active_incidents': 0,
-                'by_type': {}
+                'by_type': {},
+                'by_severity': {}
             }
     
     def close(self):
