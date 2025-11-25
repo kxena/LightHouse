@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Activity,
   TrendingUp,
-  Globe,
   LogOut,
   User,
   RefreshCw,
@@ -91,7 +90,6 @@ export default function Dashboard() {
   });
 
   const [viewMode, setViewMode] = useState<"points" | "heat">("points");
-  const [activeStates] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [incidentsApi, setIncidentsApi] = useState<ApiIncident[]>([]);
   const [loading, setLoading] = useState(false);
@@ -833,7 +831,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Active Incidents</span>
@@ -867,15 +865,6 @@ export default function Dashboard() {
                 No incidents with location data
               </div>
             )}
-          </div>
-          <div className="bg-white rounded-2xl p-4 shadow ring-1 ring-black/5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Coverage Area</span>
-              <Globe className="h-4 w-4" />
-            </div>
-            <div className="text-2xl font-bold mt-1">
-              {activeStates} Locations
-            </div>
           </div>
         </div>
 
