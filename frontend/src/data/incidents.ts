@@ -31,5 +31,5 @@ export type Incident = {
 };
 
 // No longer exporting dummy data - all incidents now come from backend API
-// See: backend/main.py /api/incidents endpoint
+// See: backend/api_server.py /api/incidents endpoint
 // See: frontend/src/api/lighthouseApi.ts for API integration
