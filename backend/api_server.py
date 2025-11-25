@@ -246,23 +246,23 @@ async def get_history_incidents(date: str):
     
     try:
         # Validate date format
-        from datetime import datetime as dt
+        from datetime import datetime as dt, timedelta
         try:
-            dt.strptime(date, "%Y-%m-%d")
+            target_date = dt.strptime(date, "%Y-%m-%d")
         except ValueError:
             raise HTTPException(
                 status_code=400,
                 detail="Invalid date format. Use YYYY-MM-DD"
             )
         
-        # Query MongoDB for incidents created on that date
-        date_start = f"{date}T00:00:00"
-        date_end = f"{date}T23:59:59"
+        # Create proper ISO 8601 date range (UTC)
+        date_start = target_date.isoformat() + "Z"  # Start of day: 2025-11-16T00:00:00Z
+        date_end = (target_date + timedelta(days=1)).isoformat() + "Z"  # Start of next day: 2025-11-17T00:00:00Z
         
         incidents = list(mongo_handler.collection.find({
             "created_at": {
                 "$gte": date_start,
-                "$lte": date_end
+                "$lt": date_end  # Use $lt instead of $lte for cleaner range
             }
         }, {"_id": 0}))
         
