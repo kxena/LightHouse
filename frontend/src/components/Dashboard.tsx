@@ -217,7 +217,7 @@ export default function Dashboard() {
           severity: it.severity || "unknown",
           incident_type: it.incident_type || "",
           status: it.status || "",
-          created_at: res.metadata?.date ? `${res.metadata.date}T00:00:00Z` : new Date().toISOString(),
+          created_at: it.created_at || new Date().toISOString(),  // Use actual timestamp from DB
           tags: it.tags || [],
           confidence: 0.5,
           casualties_mentioned: false,
@@ -580,7 +580,7 @@ export default function Dashboard() {
                 <p className="text-gray-600 dark:text-gray-300 text-xl">
                   {selectedHistory === "live"
                     ? currentDate
-                    : new Date(selectedHistory).toLocaleDateString("en-US")}
+                    : selectedHistory.split('-').slice(1).concat(selectedHistory.split('-')[0]).join('/')}
                 </p>
 
                 <div className="flex items-center gap-1 bg-white/60 dark:bg-slate-700/60 rounded-lg">
