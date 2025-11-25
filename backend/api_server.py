@@ -216,6 +216,70 @@ async def get_severity_levels():
         return {"severity_levels": severity_levels}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching severity: {str(e)}")
+    
+@app.get("/api/history/dates")
+async def get_history_dates():
+    """Get list of available historical incident dates"""
+    if mongo_handler is None or not mongo_handler.connected:
+        return {"dates": []}
+    
+    try:
+        # Get distinct dates from MongoDB using aggregation
+        pipeline = [
+            {"$group": {"_id": {"$dateToString": {"format": "%Y-%m-%d", "date": {"$toDate": "$created_at"}}}}},
+            {"$sort": {"_id": -1}}
+        ]
+        results = list(mongo_handler.collection.aggregate(pipeline))
+        dates = [r["_id"] for r in results if r.get("_id")]
+        return {"dates": dates}
+    except Exception as e:
+        # Return empty list on error instead of failing
+        print(f"Error fetching history dates: {e}")
+        return {"dates": []}
+
+
+@app.get("/api/history/incidents/{date}")
+async def get_history_incidents(date: str):
+    """Get incidents for a specific historical date (format: YYYY-MM-DD)"""
+    if mongo_handler is None or not mongo_handler.connected:
+        raise HTTPException(status_code=503, detail="MongoDB not connected")
+    
+    try:
+        # Validate date format
+        from datetime import datetime as dt
+        try:
+            dt.strptime(date, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid date format. Use YYYY-MM-DD"
+            )
+        
+        # Query MongoDB for incidents created on that date
+        date_start = f"{date}T00:00:00"
+        date_end = f"{date}T23:59:59"
+        
+        incidents = list(mongo_handler.collection.find({
+            "created_at": {
+                "$gte": date_start,
+                "$lte": date_end
+            }
+        }, {"_id": 0}))
+        
+        return {
+            "metadata": {
+                "date": date,
+                "count": len(incidents)
+            },
+            "incidents": incidents
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error fetching historical incidents: {str(e)}"
+        )
 
 
 if __name__ == "__main__":
