@@ -369,3 +369,41 @@ export class IncidentAPI {
     return response.json();
   }
 }
+
+// ============================================================================
+// Auto-Polling Hook
+// ============================================================================
+
+import { useEffect } from 'react';
+
+/**
+ * Custom hook for auto-polling live incidents
+ * Fetches new incidents at a specified interval when enabled
+ * 
+ * @param enabled - Whether polling is active (default: true)
+ * @param intervalMs - Polling interval in milliseconds (default: 30000 = 30 seconds)
+ * @param onDataFetch - Callback function to handle fetched incidents
+ */
+export function usePollingIncidents(
+  enabled: boolean = true,
+  intervalMs: number = 30000,
+  onDataFetch?: (incidents: Incident[]) => void
+): void {
+  useEffect(() => {
+    if (!enabled) return;
+
+    // Fetch immediately on mount/enable
+    getIncidents({ active_only: true })
+      .then(incidents => onDataFetch?.(incidents))
+      .catch(err => console.error('Failed to fetch incidents:', err));
+
+    // Then poll at specified interval
+    const interval = setInterval(() => {
+      getIncidents({ active_only: true })
+        .then(incidents => onDataFetch?.(incidents))
+        .catch(err => console.error('Failed to fetch incidents during polling:', err));
+    }, intervalMs);
+
+    return () => clearInterval(interval);
+  }, [enabled, intervalMs, onDataFetch]);
+}
