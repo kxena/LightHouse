@@ -355,6 +355,13 @@ export default function Dashboard() {
       });
     }
     
+    // Sort by created_at in descending order (most recent first)
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return dateB - dateA; // Descending order (most recent first)
+    });
+
     return filtered;
   }, [incidentsApi, selectedTag, selectedDisasterTypes]);
 
