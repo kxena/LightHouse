@@ -423,7 +423,7 @@ export default function Dashboard() {
   // Auto-poll for new incidents every 30 seconds when viewing live data
   usePollingIncidents(
     selectedHistory === "live",
-    30000,
+    3600000,  // 1 hour in milliseconds
     (incidents) => setIncidentsApi(incidents)
   );
 
