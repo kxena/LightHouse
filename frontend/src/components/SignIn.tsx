@@ -1,8 +1,8 @@
 import { SignIn } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import logoImg from "../assets/logo.png";
-import titleImg from "../assets/title.png";
+import logoImg from "/logo.png";
+import titleImg from "/title.png";
 
 export default function SignInPage() {
   return (

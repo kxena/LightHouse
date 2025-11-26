@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
 import { Zap, Map, MapPin, Filter, AlertTriangle, Globe2, Users, CheckCircle } from "lucide-react";
-import logoImg from "../assets/logo.png";
+import logoImg from "/logo.png";
 
 export default function LandingPage() {
   const navigate = useNavigate();

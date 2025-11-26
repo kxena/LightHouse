@@ -12,7 +12,6 @@ export default function App() {
     <ErrorBoundary>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-
         <Route path="/sign-in/*" element={<SignInPage />} />
         <Route path="/sign-up/*" element={<SignUpPage />} />
         <Route path="/incident/:id" element={<IncidentReport />} />

@@ -571,7 +571,7 @@ export default function Dashboard() {
           {/* Top: Centered brand/logo */}
           <div className="flex justify-center items-center h-12 mb-3">
             <img
-              src="src/assets/title.png"
+              src="/title.png"
               alt="LightHouse Logo"
               className="object-contain max-h-12 dark:brightness-200 dark:contrast-125"
             />
