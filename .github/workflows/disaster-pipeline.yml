@@ -50,6 +50,11 @@ jobs:
         HF_TOKEN4: ${{ secrets.HF_TOKEN4 }}
         HF_TOKEN5: ${{ secrets.HF_TOKEN5 }}
         HF_TOKEN6: ${{ secrets.HF_TOKEN6 }}
+        HF_TOKEN7: ${{ secrets.HF_TOKEN7 }}
+        HF_TOKEN8: ${{ secrets.HF_TOKEN8 }}
+        HF_TOKEN9: ${{ secrets.HF_TOKEN9 }}
+        HF_TOKEN10: ${{ secrets.HF_TOKEN10 }}
+        HF_TOKEN11: ${{ secrets.HF_TOKEN11 }}
         MDB_URI: ${{ secrets.MDB_URI }}
       run: |
         cd backend
