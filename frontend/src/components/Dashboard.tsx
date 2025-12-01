@@ -1,24 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useClerk, useUser } from "@clerk/clerk-react";
 import {
   Activity,
-  TrendingUp,
-  LogOut,
-  User,
-  RefreshCw,
-  MapPin,
   Filter,
+  LogOut,
+  MapPin,
+  RefreshCw,
+  TrendingUp,
+  User,
 } from "lucide-react";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import MapWidget from "./MapWidget";
+import {
+  IncidentAPI, type Incident as ApiIncident} from "../api/lighthouseApi";
 import type { Incident as MapIncident } from "../data/incidents";
-import { 
-  getIncidents, 
-  IncidentAPI,
-  usePollingIncidents,
-  type Incident as ApiIncident 
-} from "../api/lighthouseApi";
 import { DarkModeToggle } from "./DarkModeToggle";
+import MapWidget from "./MapWidget";
 
 // Compact, dynamic vertical list for trending topics (adjacent to Live Feed)
 function TrendingList({
@@ -83,12 +79,14 @@ export default function Dashboard() {
 
   const displayName = user?.firstName || user?.username || "User";
 
-  // Format current date as MM/DD/YYYY
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    month: "2-digit",
-    day: "2-digit",
-    year: "numeric",
-  });
+  // Format current date as MM/DD/YYYY in UTC (not local timezone)
+  const currentDate = (() => {
+    const now = new Date();
+    const utcYear = now.getUTCFullYear();
+    const utcMonth = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const utcDay = String(now.getUTCDate()).padStart(2, '0');
+    return `${utcMonth}/${utcDay}/${utcYear}`;
+  })();
 
   const [viewMode, setViewMode] = useState<"points" | "heat">("points");
   const [searchQuery, setSearchQuery] = useState("");
@@ -104,7 +102,7 @@ export default function Dashboard() {
   const [selectedDisasterTypes, setSelectedDisasterTypes] = useState<Set<string>>(new Set());
   const [showDisasterFilter, setShowDisasterFilter] = useState(false);
 
-  // Helper function to get time ago string
+  // Helper function to get time ago string - ALWAYS IN UTC
   const getTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -117,6 +115,21 @@ export default function Dashboard() {
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     return `${diffDays}d ago`;
+  };
+
+  // Add a new helper to format dates in UTC
+  const formatUTCDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', {
+      timeZone: 'UTC',
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }) + ' UTC';
   };
 
   // Computed search results
@@ -409,8 +422,55 @@ export default function Dashboard() {
     try {
       setLoading(true);
       setError(null);
-      const data = await getIncidents({ active_only: true });
-      setIncidentsApi(data);
+      // For live feed, get today's UTC date incidents instead of all incidents
+      const now = new Date();
+      const utcDate = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}`;
+      const res = await IncidentAPI.getHistoryIncidents(utcDate);
+      const incidentsRaw = res.incidents || [];
+
+      // Map historical incident shape to ApiIncident used by the UI
+      const mapped: ApiIncident[] = incidentsRaw.map((it) => {
+        const rawTweets = it.source_tweets || [];
+        const source_tweets = rawTweets.map((t) => {
+          if (typeof t === "string") {
+            return { 
+              text: t, 
+              author: "", 
+              timestamp: "", 
+              tweet_id: t,
+              engagement: {}
+            };
+          }
+          return {
+            text: (t.text as string) || "",
+            author: (t.author as string) || "",
+            timestamp: (t.timestamp as string) || "",
+            tweet_id: (t.tweet_id as string) || (t.id as string) || "",
+            engagement: (t.engagement as Record<string, unknown>) || {}
+          };
+        });
+
+        return {
+          id: it.id || Math.random().toString(36).slice(2, 9),
+          title: it.title || (it.incident_type ? `${it.incident_type} — ${it.location || ""}` : it.description || it.id || ""),
+          description: it.description || "",
+          location: it.location || "",
+          lat: it.lat || 0,
+          lng: it.lng || 0,
+          severity: it.severity || "unknown",
+          incident_type: it.incident_type || "",
+          status: it.status || "",
+          created_at: it.created_at || new Date().toISOString(),
+          tags: it.tags || [],
+          confidence: 0.5,
+          casualties_mentioned: false,
+          damage_mentioned: false,
+          needs_help: false,
+          source_tweets
+        } as ApiIncident;
+      });
+
+      setIncidentsApi(mapped);
     } catch (err) {
       console.error("Failed to load incidents:", err);
       setError(err instanceof Error ? err.message : "Failed to load incidents");
@@ -421,25 +481,35 @@ export default function Dashboard() {
   };
 
   // Auto-poll for new incidents every 30 seconds when viewing live data
-  usePollingIncidents(
-    selectedHistory === "live",
-    3600000,  // 1 hour in milliseconds
-    (incidents) => setIncidentsApi(incidents)
-  );
+  // usePollingIncidents(
+  //   selectedHistory === "live",
+  //   3600000,  // 1 hour in milliseconds
+  //   (incidents) => setIncidentsApi(incidents)
+  // );
+
+  // Auto-poll for new incidents based on view mode
+  useEffect(() => {
+    if (selectedHistory === "live") {
+      loadIncidents(); // Initial load
+      const interval = setInterval(() => {
+        loadIncidents();
+      }, 3600000); // 1 hour
+      
+      return () => clearInterval(interval);
+    } else {
+      loadHistoryForDate(selectedHistory); // Initial load
+      const interval = setInterval(() => {
+        loadHistoryForDate(selectedHistory);
+      }, 3600000); // 1 hour
+      
+      return () => clearInterval(interval);
+    }
+  }, [selectedHistory]);
 
   useEffect(() => {
     loadIncidents();
     loadHistoryDates();
   }, []);
-
-  // When selectedHistory changes, load either live or historical incidents
-  useEffect(() => {
-    if (selectedHistory === "live") {
-      loadIncidents();
-    } else {
-      loadHistoryForDate(selectedHistory);
-    }
-  }, [selectedHistory]);
 
   // Load user location from localStorage and listen for updates
   useEffect(() => {
@@ -593,6 +663,11 @@ export default function Dashboard() {
                 {selectedHistory !== "live" && (
                   <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-full font-medium">
                     UTC
+                  </span>
+                )}
+                {selectedHistory === "live" && (
+                  <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 rounded-full font-medium">
+                    UTC NOW
                   </span>
                 )}
 
@@ -829,7 +904,7 @@ export default function Dashboard() {
                             ` • @${incident.source_tweets[0].author}`}
                         </div>
                         <div className="text-xs text-gray-400 mt-1">
-                          {new Date(incident.created_at).toLocaleString()}
+                          {formatUTCDate(incident.created_at)}
                         </div>
                       </div>
                       <div className="text-xs text-gray-500 ml-2 whitespace-nowrap">
@@ -961,7 +1036,7 @@ export default function Dashboard() {
                       {it.location}
                     </div>
                     <div className="text-xs text-gray-400 mt-1">
-                      {new Date(it.created_at).toLocaleString()}
+                      {formatUTCDate(it.created_at)}
                     </div>
                   </button>
                 ))}
