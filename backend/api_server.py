@@ -238,6 +238,49 @@ async def get_history_dates():
         return {"dates": []}
 
 
+# @app.get("/api/history/incidents/{date}")
+# async def get_history_incidents(date: str):
+#     """Get incidents for a specific historical date (format: YYYY-MM-DD)"""
+#     if mongo_handler is None or not mongo_handler.connected:
+#         raise HTTPException(status_code=503, detail="MongoDB not connected")
+    
+#     try:
+#         # Validate date format
+#         from datetime import datetime as dt, timedelta
+#         try:
+#             target_date = dt.strptime(date, "%Y-%m-%d")
+#         except ValueError:
+#             raise HTTPException(
+#                 status_code=400,
+#                 detail="Invalid date format. Use YYYY-MM-DD"
+#             )
+        
+#         # Create proper ISO 8601 date range (UTC)
+#         date_start = target_date.isoformat() + "Z"  # Start of day: 2025-11-16T00:00:00Z
+#         date_end = (target_date + timedelta(days=1)).isoformat() + "Z"  # Start of next day: 2025-11-17T00:00:00Z
+        
+#         incidents = list(mongo_handler.collection.find({
+#             "created_at": {
+#                 "$gte": date_start,
+#                 "$lt": date_end  # Use $lt instead of $lte for cleaner range
+#             }
+#         }, {"_id": 0}))
+        
+#         return {
+#             "metadata": {
+#                 "date": date,
+#                 "count": len(incidents)
+#             },
+#             "incidents": incidents
+#         }
+#     except HTTPException:
+#         raise
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=500,
+#             detail=f"Error fetching historical incidents: {str(e)}"
+#         )
+
 @app.get("/api/history/incidents/{date}")
 async def get_history_incidents(date: str):
     """Get incidents for a specific historical date (format: YYYY-MM-DD)"""
@@ -246,30 +289,36 @@ async def get_history_incidents(date: str):
     
     try:
         # Validate date format
-        from datetime import datetime as dt, timedelta
+        from datetime import datetime as dt
         try:
-            target_date = dt.strptime(date, "%Y-%m-%d")
+            dt.strptime(date, "%Y-%m-%d")
         except ValueError:
             raise HTTPException(
                 status_code=400,
                 detail="Invalid date format. Use YYYY-MM-DD"
             )
         
-        # Create proper ISO 8601 date range (UTC)
-        date_start = target_date.isoformat() + "Z"  # Start of day: 2025-11-16T00:00:00Z
-        date_end = (target_date + timedelta(days=1)).isoformat() + "Z"  # Start of next day: 2025-11-17T00:00:00Z
-        
-        incidents = list(mongo_handler.collection.find({
-            "created_at": {
-                "$gte": date_start,
-                "$lt": date_end  # Use $lt instead of $lte for cleaner range
-            }
-        }, {"_id": 0}))
+        # Extract date part from created_at and compare (works with any timezone)
+        incidents = list(mongo_handler.collection.aggregate([
+            {
+                "$match": {
+                    "$expr": {
+                        "$eq": [
+                            {"$dateToString": {"format": "%Y-%m-%d", "date": {"$toDate": "$created_at"}}},
+                            date
+                        ]
+                    }
+                }
+            },
+            {"$project": {"_id": 0}}
+        ]))
         
         return {
             "metadata": {
                 "date": date,
-                "count": len(incidents)
+                "count": len(incidents),
+                "timezone": "UTC",
+                "timezone_note": "Dates are extracted from UTC timestamps in the database"
             },
             "incidents": incidents
         }
@@ -280,7 +329,6 @@ async def get_history_incidents(date: str):
             status_code=500,
             detail=f"Error fetching historical incidents: {str(e)}"
         )
-
 
 if __name__ == "__main__":
     import uvicorn

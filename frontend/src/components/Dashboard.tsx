@@ -581,12 +581,20 @@ export default function Dashboard() {
           <div className="flex justify-between items-center">
             <p className="text-gray-600 dark:text-gray-300 text-xl mt-1">Welcome {displayName},</p>
             <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
                 <p className="text-gray-600 dark:text-gray-300 text-xl">
                   {selectedHistory === "live"
                     ? currentDate
                     : selectedHistory.split('-').slice(1).concat(selectedHistory.split('-')[0]).join('/')}
                 </p>
+
+                {/* Compact UTC badge */}
+                {selectedHistory !== "live" && (
+                  <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 rounded-full font-medium">
+                    UTC
+                  </span>
+                )}
 
                 <div className="flex items-center gap-1 bg-white/60 dark:bg-slate-700/60 rounded-lg">
                   <button
@@ -633,6 +641,14 @@ export default function Dashboard() {
                   </button>
                 </div>
               </div>
+
+              {/* Detailed explanation - shows below the date picker */}
+              {selectedHistory !== "live" && (
+                <div className="text-xs text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 rounded px-2 py-1 border border-blue-200 dark:border-blue-800">
+                  📅 Showing incidents created on <span className="font-medium">{selectedHistory}</span> (UTC). Tweets are extracted based on UTC timestamps in the database.
+                </div>
+              )}
+            </div>
               <button
                 onClick={handleProfile}
                 className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-slate-700/60 backdrop-blur-sm text-gray-800 dark:text-gray-200 font-semibold rounded-lg shadow-md hover:bg-white/80 dark:hover:bg-slate-700/80 transition-all duration-200"
