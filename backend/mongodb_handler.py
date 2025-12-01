@@ -31,6 +31,10 @@ def clean_mongo_doc(doc):
         for key in ["damage_mentioned", "needs_help", "casualties_mentioned"]:
             if key in cleaned:
                 cleaned[key] = bool(cleaned[key]) if isinstance(cleaned[key], (bool, int)) else False
+                
+        # 🔹 Filter out None values from tags list
+        if "tags" in cleaned and isinstance(cleaned["tags"], list):
+            cleaned["tags"] = [tag for tag in cleaned["tags"] if tag is not None]
 
         return cleaned
     
