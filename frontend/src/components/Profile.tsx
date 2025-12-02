@@ -220,22 +220,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-blue-400">
-            <p className="text-4xl font-bold text-gray-800 text-center mb-2">2</p>
-            <p className="text-gray-600 text-center">Alerts Managed</p>
-          </div>
-          <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-blue-400">
-            <p className="text-4xl font-bold text-gray-800 text-center mb-2">99.9%</p>
-            <p className="text-gray-600 text-center">System Uptime Contributions</p>
-          </div>
-          <div className="bg-white rounded-2xl shadow-lg p-6 border-4 border-blue-400">
-            <p className="text-4xl font-bold text-gray-800 text-center mb-2">5</p>
-            <p className="text-gray-600 text-center">Regions Monitored</p>
-          </div>
-        </div>
-
         {/* Personal Details / Preferences */}
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           {/* Tabs */}
